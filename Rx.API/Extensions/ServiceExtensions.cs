@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Rx.Domain.Interfaces;
 using Rx.Domain.Services.Primary;
-using Rx.Infrastructure.Persistence.Context;
+using Service;
 
 
 namespace Rx.API.Extensions
@@ -20,10 +20,14 @@ namespace Rx.API.Extensions
             services.Configure<IISOptions>(options =>
             {
             });
-        public static void ConfigureServiceManager(this IServiceCollection services) =>
+
+        public static void ConfigureServiceManager(this IServiceCollection services)
+        {
             services.AddScoped<IPrimaryServiceManager, PrimaryServiceManager>();
+            services.AddScoped<ITenantServiceManager, TenantServiceManager>();
 
 
+        }
 
 
     }

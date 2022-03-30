@@ -10,13 +10,13 @@ namespace Rx.Domain.Services.Tenant
     public class ProductService : IProductService
     {
         private readonly ITenantDbContext _tenantDbContext;
-      //  private readonly ILogger<ITenantServiceManager> _logger;
+        private readonly ILogger _logger;
         private readonly IMapper _mapper;
 
-        public ProductService(ITenantDbContext tenantDbContext, IMapper mapper)
+        public ProductService(ITenantDbContext tenantDbContext,ILogger logger, IMapper mapper)
         {
             _tenantDbContext = tenantDbContext;
-           // _logger = logger;
+            _logger = logger;
             _mapper = mapper;
         }
     }

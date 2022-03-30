@@ -13,18 +13,19 @@ namespace Rx.Domain.Services.Primary
     public class OrganizationService : IOrganizationService
     {
         private readonly IPrimaryDbContext _primaryContext;
-       // private readonly ILogger _logger;
+        private readonly ILogger _logger;
         private readonly IMapper _mapper;
 
-        public OrganizationService(IPrimaryDbContext primaryContext, IMapper mapper)
+        public OrganizationService(IPrimaryDbContext primaryContext,ILogger logger, IMapper mapper)
         {
             _primaryContext = primaryContext;
-           // _logger = logger;
+            _logger = logger;
             _mapper = mapper;
         }
 
         public async Task<IEnumerable<OrganizationDto>> GetOrganizationsAsync(bool trackChanges)
         {
+            _logger.LogInformation("Hi da");
             var organizations = await _primaryContext.Organizations.ToListAsync();
             return _mapper.Map<IEnumerable<OrganizationDto>>(organizations);
         }

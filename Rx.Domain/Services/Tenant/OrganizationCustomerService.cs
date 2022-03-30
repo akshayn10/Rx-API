@@ -10,13 +10,13 @@ namespace Rx.Domain.Services.Tenant
     public class OrganizationCustomerService : IOrganizationCustomerService
     {
         private readonly ITenantDbContext _tenantDbContext;
-       // private readonly ILogger<ITenantServiceManager> _logger;
+        private readonly ILogger _logger;
         private readonly IMapper _mapper;
 
-        public OrganizationCustomerService(ITenantDbContext tenantDbContext, IMapper mapper)
+        public OrganizationCustomerService(ITenantDbContext tenantDbContext,ILogger logger, IMapper mapper)
         {
             _tenantDbContext = tenantDbContext;
-           // _logger = logger;
+            _logger = logger;
             _mapper = mapper;
 
         }

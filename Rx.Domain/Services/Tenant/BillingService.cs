@@ -12,11 +12,12 @@ namespace Rx.Domain.Services.Tenant
     {
         private readonly ITenantDbContext _tenantDbContext;
         private readonly IMapper _mapper;
+        private readonly ILogger _logger;
 
-        public BillingService(ITenantDbContext tenantDbContext, IMapper mapper)
+        public BillingService(ITenantDbContext tenantDbContext,ILogger logger, IMapper mapper)
         {
             _tenantDbContext = tenantDbContext;
-            //_logger = logger;
+            _logger = logger;
             _mapper = mapper;
         }
     }
