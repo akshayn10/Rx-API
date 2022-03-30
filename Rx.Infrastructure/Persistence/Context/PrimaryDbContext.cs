@@ -2,7 +2,6 @@
 using Microsoft.EntityFrameworkCore;
 using Rx.Domain.Entities.Primary;
 using Rx.Domain.Interfaces.DbContext;
-using Rx.Infrastructure.Persistence.Configuration.Primary;
 
 namespace Rx.Infrastructure.Persistence.Context
 {
