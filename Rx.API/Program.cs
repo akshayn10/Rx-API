@@ -1,5 +1,7 @@
+using MediatR;
 using Rx.API.Extensions;
-
+using Rx.Application;
+using Rx.Domain.Services.Primary;
 using Rx.Infrastructure.Persistence;
 using Serilog;
 
@@ -17,6 +19,8 @@ builder.Services.AddPersistence(builder.Configuration);
 builder.Services.ConfigureCors();
 builder.Services.ConfigureIISIntegration();
 builder.Services.ConfigureServiceManager();
+builder.Services.AddHttpClient<OrganizationService>();
+builder.Services.AddMediatR(typeof(ApplicationMediatrEntryPoint).Assembly);
 builder.Services.AddAutoMapper(typeof(Program));
 builder.Services.AddControllers();
 
@@ -24,7 +28,6 @@ builder.Services.AddControllers();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
-
 app.UseHttpsRedirection();
 
 app.UseAuthorization();

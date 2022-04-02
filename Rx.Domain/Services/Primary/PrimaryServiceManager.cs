@@ -12,9 +12,9 @@ namespace Rx.Domain.Services.Primary
     {
         private readonly Lazy<IOrganizationService> _organizationService;
 
-        public PrimaryServiceManager(IPrimaryDbContext primaryDbContext,ILogger<PrimaryServiceManager> logger ,IMapper mapper)
+        public PrimaryServiceManager(IPrimaryDbContext primaryDbContext,ILogger<PrimaryServiceManager> logger ,IMapper mapper,HttpClient httpClient)
         {
-            _organizationService = new Lazy<IOrganizationService>(() => new OrganizationService(primaryDbContext,logger,mapper));
+            _organizationService = new Lazy<IOrganizationService>(() => new OrganizationService(primaryDbContext, logger, mapper,httpClient));
         }
 
         public IOrganizationService OrganizationService => _organizationService.Value;

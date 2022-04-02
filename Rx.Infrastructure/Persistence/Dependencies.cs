@@ -15,7 +15,7 @@ namespace Rx.Infrastructure.Persistence
                     configuration.GetConnectionString("PrimaryDbConnection"),
                     b => b.MigrationsAssembly(typeof(PrimaryDbContext).Assembly.FullName)));
 
-            services.AddScoped<IPrimaryDbContext>(provider => provider.GetService<PrimaryDbContext>());
+            services.AddScoped<IPrimaryDbContext>(provider => provider.GetService<PrimaryDbContext>() ?? throw new InvalidOperationException());
             
 
             services.AddDbContext<TenantDbContext>(options =>
@@ -23,7 +23,7 @@ namespace Rx.Infrastructure.Persistence
                     configuration.GetConnectionString("TenantDbConnection"),
                     b => b.MigrationsAssembly(typeof(TenantDbContext).Assembly.FullName)));
 
-            services.AddScoped<ITenantDbContext>(provider => provider.GetService<TenantDbContext>());
+            services.AddScoped<ITenantDbContext>(provider => provider.GetService<TenantDbContext>() ?? throw new InvalidOperationException());
         }
 
     }

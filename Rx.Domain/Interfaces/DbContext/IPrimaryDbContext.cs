@@ -11,7 +11,7 @@ namespace Rx.Domain.Interfaces.DbContext
     public interface IPrimaryDbContext
    
     {
-            DbSet<Organization> Organizations { get; set; }
+            DbSet<Organization>? Organizations { get; set; }
             Task<int> SaveChangesAsync();
         }
 }
