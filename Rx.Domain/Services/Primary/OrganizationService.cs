@@ -4,6 +4,8 @@ using System.Net.Http.Json;
 using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using Polly;
+using Polly.Retry;
 using Rx.Domain.DTOs.Primary.Organization;
 using Rx.Domain.Entities.Primary;
 using Rx.Domain.Interfaces.DbContext;
@@ -17,31 +19,39 @@ namespace Rx.Domain.Services.Primary
         private readonly IPrimaryDbContext _primaryContext;
         private readonly ILogger _logger;
         private readonly IMapper _mapper;
-        private readonly HttpClient _httpClient;
+        private readonly IHttpClientFactory _httpClientFactory;
+        private HttpClient? _httpClient;
+        private static RetryPolicy _retryPolicy;
 
         private Organization newOrg = new Organization()
         {
             Id=new Guid("B39734B6-DAEE-40D4-A9E3-54B71D6D6672") ,
             LogoURL="dsjifbnjofrn",
-            Name="werojkgnerk",
+            Name="Akshayan",
             TenantId= new Guid("B39734B6-DAEE-40D4-A9E3-54B71D6D6672")
 
         };
 
-        public OrganizationService(IPrimaryDbContext primaryContext,ILogger logger, IMapper mapper, HttpClient httpClient)
+        public OrganizationService(IPrimaryDbContext primaryContext,ILogger logger, IMapper mapper, IHttpClientFactory httpClientFactory)
         {
             _primaryContext = primaryContext;
             _logger = logger;
             _mapper = mapper;
-            _httpClient = httpClient;
+            _httpClientFactory = httpClientFactory;
+
+            _retryPolicy = Policy
+                .Handle<Exception>()
+                .Retry(2);
         }
 
         public async Task<IEnumerable<OrganizationDto>> GetOrganizationsAsync(bool trackChanges)
         {
             Debug.Assert(_primaryContext.Organizations != null, "_primaryContext.Organizations != null");
             var organizations = await _primaryContext.Organizations.ToListAsync();
-           var response = _httpClient.PostAsJsonAsync("https://webhook.site/f4d81af7-188e-4f0d-a893-339f4898c529",newOrg);
-           Console.WriteLine(response.Status);
+            _httpClient = _httpClientFactory.CreateClient();
+            var response = await _retryPolicy.Execute(()=> _httpClient.PostAsJsonAsync("https://79cc4e9e841348726773e264af3fbcf5.m.pipedream.net", newOrg)) ;
+
+            _logger.LogInformation(response.ToString());
             return _mapper.Map<IEnumerable<OrganizationDto>>(organizations);
 
 
