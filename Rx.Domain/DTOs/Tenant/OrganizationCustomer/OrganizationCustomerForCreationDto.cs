@@ -1,4 +1,4 @@
 ﻿namespace Rx.Domain.DTOs.Tenant.OrganizationCustomer
 {
-    public record OrganizationCustomerForCreationDto();
+    public record OrganizationCustomerForCreationDto(string Email, string Name, string PaymentGatewayId);
 }

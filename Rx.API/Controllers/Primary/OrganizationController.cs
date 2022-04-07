@@ -13,14 +13,12 @@ namespace Rx.API.Controllers.Primary
     public class OrganizationController : ControllerBase
     {
         private readonly ILogger<OrganizationController> _logger;
-        private readonly IPrimaryServiceManager _primaryServiceManager;
         private readonly IMediator _mediator;
 
 
-        public OrganizationController(ILogger<OrganizationController> logger,IPrimaryServiceManager primaryServiceManager,IMediator mediator)
+        public OrganizationController(ILogger<OrganizationController> logger,IMediator mediator)
         {
             _logger = logger;
-            _primaryServiceManager = primaryServiceManager;
             _mediator = mediator;
         }
         [HttpGet]

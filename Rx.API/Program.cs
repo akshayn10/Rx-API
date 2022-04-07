@@ -19,7 +19,9 @@ builder.Services.AddPersistence(builder.Configuration);
 builder.Services.ConfigureCors();
 builder.Services.ConfigureIISIntegration();
 builder.Services.ConfigureServiceManager();
-builder.Services.AddHttpClient<OrganizationService>();
+builder.Services.AddHttpClient(
+    
+    );
 builder.Services.AddMediatR(typeof(ApplicationMediatrEntryPoint).Assembly);
 builder.Services.AddAutoMapper(typeof(Program));
 builder.Services.AddControllers();
