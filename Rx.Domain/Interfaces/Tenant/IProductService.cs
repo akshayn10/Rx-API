@@ -2,5 +2,6 @@
 {
     public interface IProductService
     {
+        Task<Guid> GetWebhookSecret(Guid productId);
     }
 }

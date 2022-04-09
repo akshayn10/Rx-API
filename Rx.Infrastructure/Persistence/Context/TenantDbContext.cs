@@ -11,6 +11,9 @@ namespace Rx.Infrastructure.Persistence.Context
             : base(options)
         {
         }
+
+
+
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
@@ -22,7 +25,7 @@ namespace Rx.Infrastructure.Persistence.Context
         public DbSet<ProductPlan>? ProductPlans { get; set; }
         public DbSet<Subscription>? Subscriptions { get; set; }
         public DbSet<AddOn>? AddOns { get; set; }
-        public DbSet<SubcriptionWebhook>? Webhooks { get; set; }
+        public DbSet<SubscriptionWebhook>? Webhooks { get; set; }
         public async Task<int> SaveChangesAsync()
         {
             return await base.SaveChangesAsync();
