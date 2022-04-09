@@ -55,8 +55,6 @@ namespace Rx.Domain.Services.Primary
 
             _logger.LogInformation(response.ToString());
             return _mapper.Map<IEnumerable<OrganizationDto>>(organizations);
-
-
         }
 
         public async Task<OrganizationDto> CreateOrganizationAsync(OrganizationForCreationDto organizationForCreationDto)
@@ -68,5 +66,5 @@ namespace Rx.Domain.Services.Primary
             var organizationDto = _mapper.Map<OrganizationDto>(organizationEntity);
             return organizationDto;
         }
-    } 
+    }
 }

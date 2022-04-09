@@ -14,6 +14,7 @@ namespace Rx.Application.UseCases.Primary.Organization
         public CreateOrganizationUseCaseHandler(IPrimaryServiceManager primaryServiceManager)
         {
             _primaryServiceManager = primaryServiceManager;
+            
         }
         public async Task<OrganizationDto> Handle(CreateOrganizationUseCase request, CancellationToken cancellationToken)
         {

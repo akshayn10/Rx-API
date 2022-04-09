@@ -21,6 +21,8 @@ namespace Service
             _subscriptionService = new Lazy<ISubscriptionService>(() => new SubscriptionService(tenantDbContext, logger, mapper));
             _billingService = new Lazy<IBillingService>(() => new BillingService(tenantDbContext, logger,mapper));
         }
+
+
         public IOrganizationCustomerService OrganizationCustomerService => _organizationCustomerService.Value;
         public IProductService ProductService => _productService.Value;
         public ISubscriptionService SubscriptionService => _subscriptionService.Value;
