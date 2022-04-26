@@ -19,7 +19,7 @@ public class WebhookVerificationAttribute : Attribute,IAsyncAuthorizationFilter
             return;
         }
         var productSecret =await mediator.Send(new GetWebhookSecretUseCase(Guid.Parse(context.HttpContext.Request.Headers["ProductId"])));
-        if(productSecret != Guid.Parse(context.HttpContext.Request.Headers["Secret"]) )
+        if(productSecret != context.HttpContext.Request.Headers["Secret"]) 
         {
             context.Result = new UnauthorizedResult();
         }

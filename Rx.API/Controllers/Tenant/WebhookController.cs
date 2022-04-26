@@ -28,7 +28,7 @@ namespace Rx.API.Controllers.Tenant
             var data = await new StreamReader(HttpContext.Request.Body).ReadToEndAsync();
             var tenantId = Request.Headers["TenantId"];
             var productId = Guid.Parse(Request.Headers["ProductId"]);
-            var secret = Guid.Parse(Request.Headers["Secret"]);
+            var secret =Request.Headers["Secret"];
             _logger.LogInformation(secret + " " + tenantId + " " + data);
             _recurringJobManager.AddOrUpdate("jobId",()=>Console.WriteLine("ejgenroi"),Cron.Minutely); ;
             return Ok();
@@ -39,7 +39,7 @@ namespace Rx.API.Controllers.Tenant
             var data = await new StreamReader(HttpContext.Request.Body).ReadToEndAsync();
             var tenantId = Request.Headers["TenantId"];
             var productId = Guid.Parse(Request.Headers["ProductId"]);
-            var secret = Guid.Parse(Request.Headers["Secret"]);
+            var secret = Request.Headers["Secret"];
             _logger.LogInformation(secret + " " + tenantId + " " + data);
             return Ok();
         }
@@ -49,7 +49,7 @@ namespace Rx.API.Controllers.Tenant
             var data = await new StreamReader(HttpContext.Request.Body).ReadToEndAsync();
             var tenantId = Request.Headers["TenantId"];
             var productId = Guid.Parse(Request.Headers["ProductId"]);
-            var secret = Guid.Parse(Request.Headers["Secret"]);
+            var secret = Request.Headers["Secret"];
             _logger.LogInformation(secret + " " + tenantId + " " + data);
             return Ok();
         }
@@ -59,7 +59,7 @@ namespace Rx.API.Controllers.Tenant
             var data = await new StreamReader(HttpContext.Request.Body).ReadToEndAsync();
             var tenantId = Request.Headers["TenantId"];
             var productId = Guid.Parse(Request.Headers["ProductId"]);
-            var secret = Guid.Parse(Request.Headers["Secret"]);
+            var secret = Request.Headers["Secret"];
             _logger.LogInformation(secret + " " + tenantId + " " + data);
             return Ok();
         }

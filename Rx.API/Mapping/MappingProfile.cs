@@ -1,10 +1,11 @@
 ﻿using AutoMapper;
 using Rx.Domain.DTOs.Primary.Organization;
 using Rx.Domain.DTOs.Tenant.OrganizationCustomer;
+using Rx.Domain.DTOs.Tenant.Product;
 using Rx.Domain.Entities.Primary;
 using Rx.Domain.Entities.Tenant;
 
-namespace Rx.Infrastructure.Mapping
+namespace Rx.API.Mapping
 {
     public class MappingProfile :Profile
     {
@@ -15,6 +16,9 @@ namespace Rx.Infrastructure.Mapping
 
             CreateMap<OrganizationCustomer, OrganizationForCreationDto>();
             CreateMap<OrganizationCustomer, OrganizationCustomerDto>();
+
+            CreateMap<Product,ProductDto>();
+            CreateMap<ProductForCreationDto,Product>();
 
         }
     }

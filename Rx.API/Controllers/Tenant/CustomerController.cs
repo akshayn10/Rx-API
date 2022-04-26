@@ -25,7 +25,7 @@ namespace Rx.API.Controllers.Tenant
         
 
         [HttpGet]
-        [Route("customerStats")]
+        [Route("stats")]
         public async Task<IActionResult> GetCustomersDetails()
         {
             var stats = await _mediator.Send(new GetCustomerStatsUseCase() );

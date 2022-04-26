@@ -18,7 +18,7 @@ namespace Rx.Domain.Entities.Tenant
         [Required(ErrorMessage = "WebhookURL is a required field.")]
         public string? WebhookURL { get; set; }
         [Required(ErrorMessage = "Webhook Secret is a required field.")]
-        public Guid? WebhookSecret { get; set; }
+        public string? WebhookSecret { get; set; }
 
         public string? LogoURL { get; set; }
         

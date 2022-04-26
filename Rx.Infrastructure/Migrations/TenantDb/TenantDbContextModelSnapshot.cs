@@ -247,6 +247,36 @@ namespace Rx.Infrastructure.Migrations.TenantDb
                     b.ToTable("Subscriptions");
                 });
 
+            modelBuilder.Entity("Rx.Domain.Entities.Tenant.SubscriptionWebhook", b =>
+                {
+                    b.Property<Guid>("WebhookId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("WebhookId");
+
+                    b.Property<string>("CustomerEmail")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("CustomerName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid>("ProductPlanId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("SenderWebhookId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("WebhookId");
+
+                    b.HasIndex("ProductPlanId");
+
+                    b.ToTable("Webhooks");
+                });
+
             modelBuilder.Entity("Rx.Domain.Entities.Tenant.AddOn", b =>
                 {
                     b.HasOne("Rx.Domain.Entities.Tenant.Product", "Product")
@@ -295,6 +325,17 @@ namespace Rx.Infrastructure.Migrations.TenantDb
                         .IsRequired();
 
                     b.Navigation("OrganizationCustomer");
+
+                    b.Navigation("ProductPlan");
+                });
+
+            modelBuilder.Entity("Rx.Domain.Entities.Tenant.SubscriptionWebhook", b =>
+                {
+                    b.HasOne("Rx.Domain.Entities.Tenant.ProductPlan", "ProductPlan")
+                        .WithMany()
+                        .HasForeignKey("ProductPlanId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("ProductPlan");
                 });
