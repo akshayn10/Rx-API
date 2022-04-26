@@ -1,5 +1,6 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using Rx.Application.UseCases.Tenant.Customer;
 
 namespace Rx.API.Controllers.Tenant
 {
@@ -15,7 +16,21 @@ namespace Rx.API.Controllers.Tenant
             _mediator = mediator;
             _logger = logger;
         }
+        [HttpGet]
+        public async Task<IActionResult> GetCustomers()
+        {
+            var customers = await _mediator.Send(new GetCustomersUseCase() );
+            return Ok(customers);
+        }
+        
 
-
+        [HttpGet]
+        [Route("customerStats")]
+        public async Task<IActionResult> GetCustomersDetails()
+        {
+            var stats = await _mediator.Send(new GetCustomerStatsUseCase() );
+            return Ok(stats);
+        }
     }
 }
+    

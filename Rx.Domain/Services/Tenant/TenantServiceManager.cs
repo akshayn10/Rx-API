@@ -1,12 +1,10 @@
-﻿
-using AutoMapper;
+﻿using AutoMapper;
 using Microsoft.Extensions.Logging;
 using Rx.Domain.Interfaces;
 using Rx.Domain.Interfaces.DbContext;
 using Rx.Domain.Interfaces.Tenant;
-using Rx.Domain.Services.Tenant;
 
-namespace Service
+namespace Rx.Domain.Services.Tenant
 {
     public sealed class TenantServiceManager : ITenantServiceManager
     {

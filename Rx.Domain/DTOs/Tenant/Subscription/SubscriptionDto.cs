@@ -1,4 +1,4 @@
-﻿namespace Shared.Dtos.Tenant.Subscription
+﻿namespace Rx.Domain.DTOs.Tenant.Subscription
 {
     public record SubscriptionDto();
 }

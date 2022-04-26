@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using Rx.Domain.DTOs.Tenant.OrganizationCustomer;
 using Rx.Domain.Entities.Tenant;
 using Rx.Domain.Interfaces;
 using Rx.Domain.Interfaces.DbContext;
@@ -29,10 +30,11 @@ namespace Rx.Domain.Services.Tenant
             // {
             //     throw new Exception("Product not found");
             // }
-            Guid WebhookSecret = new Guid("86527D5F-AAE8-427A-8F76-4C4A8A90F8D9");
+            Guid webhookSecret = new Guid("86527D5F-AAE8-427A-8F76-4C4A8A90F8D1");
 
-            return WebhookSecret;
+            return webhookSecret;
         }
+
 
     }
 }

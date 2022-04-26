@@ -10,10 +10,7 @@
     <Folder Include="Interfaces\" />
     <Folder Include="UseCases\Tenant\" />
     <Folder Include="UseCases\Tenant\Billing" />
-    <Folder Include="UseCases\Tenant\Customer" />
-    <Folder Include="UseCases\Tenant\Product" />
-    <Folder Include="UseCases\Tenant\ProductPlan" />
-    <Folder Include="UseCases\Tenant\Subscription" />
+    <Folder Include="UseCases\Tenant\Payment" />
   </ItemGroup>
 
   <ItemGroup>

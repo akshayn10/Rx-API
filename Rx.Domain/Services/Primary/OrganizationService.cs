@@ -51,12 +51,11 @@ namespace Rx.Domain.Services.Primary
             _httpClient = _httpClientFactory.CreateClient();
             _httpClient.DefaultRequestHeaders.Add("ApiKey", "erg");
             _httpClient.DefaultRequestHeaders.Add("erg","wgewr");
-            var response = await _retryPolicy.Execute(()=> _httpClient.PostAsJsonAsync("https://79cc4e9e841348726773e264af3fbcf5.m.pipedream.net", newOrg)) ;
+            var response = await _retryPolicy.Execute(()=> _httpClient.PostAsJsonAsync("https://79cc4e9e841348726773e264af3fbcf5.m.pipedream.net", newOrg));
 
             _logger.LogInformation(response.ToString());
             return _mapper.Map<IEnumerable<OrganizationDto>>(organizations);
         }
-
         public async Task<OrganizationDto> CreateOrganizationAsync(OrganizationForCreationDto organizationForCreationDto)
         {
            var organizationEntity = _mapper.Map<Organization>(organizationForCreationDto);
@@ -64,6 +63,7 @@ namespace Rx.Domain.Services.Primary
            await _primaryContext.Organizations.AddAsync(organizationEntity);
             await _primaryContext.SaveChangesAsync();
             var organizationDto = _mapper.Map<OrganizationDto>(organizationEntity);
+
             return organizationDto;
         }
     }

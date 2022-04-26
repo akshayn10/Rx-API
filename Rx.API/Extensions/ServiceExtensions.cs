@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Rx.Domain.Interfaces;
 using Rx.Domain.Services.Primary;
-using Service;
+using Rx.Domain.Services.Tenant;
 
 
 namespace Rx.API.Extensions

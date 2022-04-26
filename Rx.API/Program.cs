@@ -1,3 +1,4 @@
+using Hangfire;
 using MediatR;
 using Rx.API.Extensions;
 using Rx.Application;
@@ -19,9 +20,11 @@ builder.Services.AddPersistence(builder.Configuration);
 builder.Services.ConfigureCors();
 builder.Services.ConfigureIISIntegration();
 builder.Services.ConfigureServiceManager();
-builder.Services.AddHttpClient(
-    
-    );
+builder.Services.AddHttpClient();
+builder.Services.AddHangfire(x =>
+{
+    x.UseSqlServerStorage(builder.Configuration.GetConnectionString("TenantDbConnection"));
+});
 builder.Services.AddMediatR(typeof(ApplicationMediatrEntryPoint).Assembly);
 builder.Services.AddAutoMapper(typeof(Program));
 builder.Services.AddControllers();
@@ -33,6 +36,8 @@ var app = builder.Build();
 app.UseHttpsRedirection();
 
 app.UseAuthorization();
+
+app.UseHangfireDashboard();
 
 app.MapControllers();
 

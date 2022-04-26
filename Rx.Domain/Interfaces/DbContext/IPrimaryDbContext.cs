@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Rx.Domain.Entities.Primary;
 
 namespace Rx.Domain.Interfaces.DbContext
@@ -15,4 +10,3 @@ namespace Rx.Domain.Interfaces.DbContext
             Task<int> SaveChangesAsync();
         }
 }
-

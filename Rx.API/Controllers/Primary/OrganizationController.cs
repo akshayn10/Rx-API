@@ -4,6 +4,7 @@ using Microsoft.Extensions.Logging;
 using Rx.Application.UseCases.Primary.Organization;
 using Rx.Domain.DTOs.Primary.Organization;
 using Rx.Domain.Interfaces;
+using Rx.Domain.Services.Primary;
 
 
 namespace Rx.API.Controllers.Primary

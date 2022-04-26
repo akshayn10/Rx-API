@@ -16,20 +16,20 @@ namespace Rx.Domain.Entities.Tenant
         
         [Required(ErrorMessage = "SenderWebhookId is required")]
         public Guid SenderWebhookId { get; set; }
-
-
-        [ForeignKey(nameof(Product))]
-        public Guid ProductId { get; set; }
-        public Product? Product { get; set; }        
         
-        [Required(ErrorMessage = "PlanId is required")]
-        public Guid PlanId { get; set; }
+        public string? CustomerEmail { get; set; }
+         
+        public string? CustomerName { get; set; }
+
+        [ForeignKey(nameof(ProductPlan))]
+        public Guid ProductPlanId { get; set; }
+
+        public ProductPlan? ProductPlan { get; set; }  
 
         [Required(ErrorMessage = "Name is a required field.")]
         public string? Name { get; set; }
 
-        [Required(ErrorMessage = "UnitOfMeasure is a required field.")]
-        public string? UnitOfMeasure { get; set; }
+
 
     }
 }

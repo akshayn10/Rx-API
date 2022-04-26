@@ -25,6 +25,5 @@ namespace Rx.Infrastructure.Persistence
 
             services.AddScoped<ITenantDbContext>(provider => provider.GetService<TenantDbContext>() ?? throw new InvalidOperationException());
         }
-
     }
 }
