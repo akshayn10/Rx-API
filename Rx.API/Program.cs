@@ -20,19 +20,33 @@ builder.Services.AddPersistence(builder.Configuration);
 builder.Services.ConfigureCors();
 builder.Services.ConfigureIISIntegration();
 builder.Services.ConfigureServiceManager();
+//HttpClient
 builder.Services.AddHttpClient();
+//Hangfire configuration
 builder.Services.AddHangfire(x =>
 {
     x.UseSqlServerStorage(builder.Configuration.GetConnectionString("TenantDbConnection"));
 });
+//Mediatr Configuration
 builder.Services.AddMediatR(typeof(ApplicationMediatrEntryPoint).Assembly);
+//AutoMapper
 builder.Services.AddAutoMapper(typeof(Program));
 builder.Services.AddControllers();
+//Swagger
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
 
 
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
+
+if (app.Environment.IsDevelopment())
+{
+    app.UseSwagger();
+    app.UseSwaggerUI();
+}
+
 app.UseHttpsRedirection();
 
 app.UseAuthorization();
