@@ -16,6 +16,7 @@ public class GetCustomersUseCaseHandler : IRequestHandler<GetCustomersUseCase, I
     }
     public  Task<IEnumerable<OrganizationCustomerDto>> Handle(GetCustomersUseCase request, CancellationToken cancellationToken)
     {
+        //comment
         return _tenantServiceManager.OrganizationCustomerService.GetCustomers();
     }
 }
