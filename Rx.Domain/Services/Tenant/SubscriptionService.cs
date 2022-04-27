@@ -44,5 +44,17 @@ namespace Rx.Domain.Services.Tenant
             await _tenantDbContext.SaveChangesAsync();
             return _mapper.Map<SubscriptionDto>(subscription);
         }
+
+        public async Task<SubscriptionDto> GetSubscriptionByIdForCustomer(Guid customerId, Guid subscriptionId)
+        {
+            var subscription = await _tenantDbContext.Subscriptions.FirstOrDefaultAsync(x => x.SubscriptionId == subscriptionId && x.OrganizationCustomerId == customerId);
+            return _mapper.Map<SubscriptionDto>(subscription);
+        }
+
+        public async Task<IEnumerable<SubscriptionDto>> GetSubscriptionsForCustomer(Guid customerId)
+        {
+            var subscriptions = await _tenantDbContext.Subscriptions.Where(x => x.OrganizationCustomerId == customerId).ToListAsync();
+            return _mapper.Map<IEnumerable<SubscriptionDto>>(subscriptions);
+        }
     }
 }

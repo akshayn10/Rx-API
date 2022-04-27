@@ -1,5 +1,6 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using Rx.Application.UseCases.Tenant.Customer;
 using Rx.Application.UseCases.Tenant.Subscription;
 using Rx.Domain.DTOs.Tenant.Subscription;
 
@@ -24,7 +25,7 @@ namespace Rx.API.Controllers.Tenant
             return Ok(result);
         }
         
-        [HttpGet("{id}")]
+        [HttpGet("{id:guid}")]
         public async Task<IActionResult> GetSubscriptionById(Guid id)
         {
             var result = await _mediator.Send(new GetSubscriptionByIdUseCase(id));
@@ -38,6 +39,18 @@ namespace Rx.API.Controllers.Tenant
             var createdSubscription = await _mediator.Send(new CreateSubscriptionUseCase(subscriptionForCreationDto));
             return CreatedAtAction(nameof(GetSubscriptionById), new {id = createdSubscription.SubscriptionId},
                 createdSubscription);
+        }
+        [HttpGet("customer/{customerId:guid}")]
+        public async Task<IActionResult> GetSubscriptionsForCustomer(Guid customerId)
+        {
+            var subscriptions = await _mediator.Send(new GetSubscriptionsForCustomerUseCase(customerId));
+            return Ok(subscriptions);
+        }
+        [HttpGet("customer/{customerId:guid}/{subscriptionId:guid}")]
+        public async Task<IActionResult> GetSubscriptionByIdForCustomer(Guid customerId,Guid subscriptionId)
+        {
+            var subscription = await _mediator.Send(new GetSubscriptionByIdForCustomerUseCase(customerId,subscriptionId));
+            return Ok(subscription);
         }
     }
 }

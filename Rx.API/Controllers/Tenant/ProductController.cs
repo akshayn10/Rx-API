@@ -11,21 +11,21 @@ using Rx.Domain.DTOs.Tenant.Product;
 namespace Rx.API.Controllers.Tenant
 {
     [Route("api/product")]
-    public class ProductController :ControllerBase
+    public class ProductController : ControllerBase
     {
         private readonly IMediator _mediator;
         private readonly ILogger<ProductController> _logger;
 
-        public ProductController(IMediator mediator,ILogger<ProductController> logger)
+        public ProductController(IMediator mediator, ILogger<ProductController> logger)
         {
             _mediator = mediator;
             _logger = logger;
         }
 
         [HttpGet]
-        public async  Task<IActionResult> GetProducts()
+        public async Task<IActionResult> GetProducts()
         {
-            var products =await  _mediator.Send(new GetProductsUseCase());
+            var products = await _mediator.Send(new GetProductsUseCase());
             return Ok(products);
         }
 
@@ -33,7 +33,7 @@ namespace Rx.API.Controllers.Tenant
         [Route("{id:guid}")]
         public async Task<IActionResult> GetProductById(Guid id)
         {
-            var product =await _mediator.Send(new GetProductByIdUseCase(id));
+            var product = await _mediator.Send(new GetProductByIdUseCase(id));
             return Ok(product);
 
         }
@@ -46,10 +46,16 @@ namespace Rx.API.Controllers.Tenant
                 return BadRequest("Body is empty");
             }
 
-            var createdProduct =await _mediator.Send(new AddProductUseCase(productForCreationDto));
+            var createdProduct = await _mediator.Send(new AddProductUseCase(productForCreationDto));
             return CreatedAtAction(nameof(GetProductById), new {id = createdProduct.productId}, createdProduct);
-            // return CreatedAtRoute("CreateOrganization", new { id = createdProduct.}, createdOrganization);
 
+        }
+
+        [HttpGet("customers/{productId}")]
+        public async Task<IActionResult> GetCustomersForProduct(Guid productId)
+        {
+            var customers = await _mediator.Send(new GetCustomersForProductUseCase(productId));
+            return Ok(customers);
         }
     }
 }

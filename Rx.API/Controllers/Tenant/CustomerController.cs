@@ -52,6 +52,7 @@ namespace Rx.API.Controllers.Tenant
             var stats = await _mediator.Send(new GetCustomerStatsUseCase() );
             return Ok(stats);
         }
+
     }
 }
     
