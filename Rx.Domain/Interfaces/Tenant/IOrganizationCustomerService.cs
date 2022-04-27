@@ -6,5 +6,10 @@ namespace Rx.Domain.Interfaces.Tenant
     {
         Task<CustomerStatsDto> GetCustomerStats();
         Task<IEnumerable<OrganizationCustomerDto>> GetCustomers();
+
+        Task<OrganizationCustomerDto> GetCustomerById(Guid id);
+
+        Task<OrganizationCustomerDto> AddCustomer(OrganizationCustomerForCreationDto organizationCustomerForCreationDto);
+
     }
 }

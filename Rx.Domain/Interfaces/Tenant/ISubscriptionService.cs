@@ -1,6 +1,11 @@
-﻿namespace Rx.Domain.Interfaces.Tenant
+﻿using Rx.Domain.DTOs.Tenant.Subscription;
+
+namespace Rx.Domain.Interfaces.Tenant
 {
     public interface ISubscriptionService
     {
+        Task<IEnumerable<SubscriptionDto>> GetSubscriptions();
+        Task<SubscriptionDto> GetSubscriptionById(Guid id);
+        Task<SubscriptionDto> AddSubscription(SubscriptionForCreationDto subscriptionForCreationDto);
     }
 }

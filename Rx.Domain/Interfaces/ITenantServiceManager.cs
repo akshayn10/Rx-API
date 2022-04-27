@@ -9,5 +9,7 @@ namespace Rx.Domain.Interfaces
         ISubscriptionService SubscriptionService { get; }
         IBillingService BillingService { get; }
         
+        IProductPlanService ProductPlanService { get; }
+        
     }
 }

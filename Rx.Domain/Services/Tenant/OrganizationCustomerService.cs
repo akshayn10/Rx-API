@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Rx.Domain.DTOs.Tenant.OrganizationCustomer;
+using Rx.Domain.Entities.Tenant;
 using Rx.Domain.Interfaces;
 using Rx.Domain.Interfaces.DbContext;
 using Rx.Domain.Interfaces.Tenant;
@@ -27,6 +28,22 @@ namespace Rx.Domain.Services.Tenant
         {
             var customers =await _tenantDbContext.OrganizationCustomers.ToListAsync();
             return _mapper.Map<IEnumerable<OrganizationCustomerDto>>(customers);
+        }
+
+        public async Task<OrganizationCustomerDto> GetCustomerById(Guid id)
+        {
+            var customer = await _tenantDbContext.OrganizationCustomers.FirstOrDefaultAsync(x => x.CustomerId == id);
+
+            return _mapper.Map<OrganizationCustomerDto>(customer);
+        }
+
+        public async Task<OrganizationCustomerDto> AddCustomer(OrganizationCustomerForCreationDto organizationCustomerForCreationDto)
+        {
+            var customer = _mapper.Map<OrganizationCustomer>(organizationCustomerForCreationDto);
+            await _tenantDbContext.OrganizationCustomers.AddAsync(customer);
+            await _tenantDbContext.SaveChangesAsync();
+
+            return _mapper.Map<OrganizationCustomerDto>(customer);
         }
 
         public async Task<CustomerStatsDto> GetCustomerStats()

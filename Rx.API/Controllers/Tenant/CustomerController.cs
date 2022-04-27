@@ -1,6 +1,7 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Rx.Application.UseCases.Tenant.Customer;
+using Rx.Domain.DTOs.Tenant.OrganizationCustomer;
 
 namespace Rx.API.Controllers.Tenant
 {
@@ -22,7 +23,27 @@ namespace Rx.API.Controllers.Tenant
             var customers = await _mediator.Send(new GetCustomersUseCase() );
             return Ok(customers);
         }
+
+        [HttpGet]
+        [Route("{id:guid}")]
+        public async Task<IActionResult> GetCustomerById(Guid id)
+        {
+            var customer = await _mediator.Send(new GetCustomerByIdUseCase(id));
+            return Ok(customer);
+        }
         
+
+        [HttpPost]
+        public async Task<IActionResult> CreateCustomer(OrganizationCustomerForCreationDto organizationCustomerForCreationDto)
+        {
+            if (organizationCustomerForCreationDto is null)
+            {
+                return BadRequest("Empty body");
+            }
+
+            var createdCustomer =await _mediator.Send(new AddCustomerUseCase(organizationCustomerForCreationDto));
+            return CreatedAtAction(nameof(GetCustomerById), new {id = createdCustomer.CustomerId}, createdCustomer);
+        }
 
         [HttpGet]
         [Route("stats")]

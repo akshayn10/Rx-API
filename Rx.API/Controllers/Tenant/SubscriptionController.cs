@@ -1,10 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using MediatR;
+﻿using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using Rx.Application.UseCases.Tenant.Subscription;
+using Rx.Domain.DTOs.Tenant.Subscription;
 
 namespace Rx.API.Controllers.Tenant
 {
@@ -19,6 +16,28 @@ namespace Rx.API.Controllers.Tenant
         {
             _mediator = mediator;
             _logger = logger;
+        }
+        [HttpGet]
+        public async Task<IActionResult> GetSubscriptions()
+        {
+            var result = await _mediator.Send(new GetSubscriptionsUseCase());
+            return Ok(result);
+        }
+        
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetSubscriptionById(Guid id)
+        {
+            var result = await _mediator.Send(new GetSubscriptionByIdUseCase(id));
+            return Ok(result);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> CreateSubscription(
+            [FromBody] SubscriptionForCreationDto subscriptionForCreationDto)
+        {
+            var createdSubscription = await _mediator.Send(new CreateSubscriptionUseCase(subscriptionForCreationDto));
+            return CreatedAtAction(nameof(GetSubscriptionById), new {id = createdSubscription.SubscriptionId},
+                createdSubscription);
         }
     }
 }
