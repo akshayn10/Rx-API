@@ -51,11 +51,12 @@ namespace Rx.API.Controllers.Tenant
 
         }
 
-        [HttpGet("customers/{productId}")]
-        public async Task<IActionResult> GetCustomersForProduct(Guid productId)
+
+        [HttpGet("customer/{customerId:guid}")]
+        public async Task<IActionResult> GetProductsForCustomer(Guid customerId)
         {
-            var customers = await _mediator.Send(new GetCustomersForProductUseCase(productId));
-            return Ok(customers);
+            var products = await _mediator.Send(new GetProductsForCustomerUseCase(customerId));
+            return Ok(products);
         }
     }
 }

@@ -13,6 +13,8 @@ namespace Rx.Domain.Interfaces.Tenant
         Task<ProductDto> AddProduct(ProductForCreationDto productForCreationDto);
         
         Task<IEnumerable<OrganizationCustomerDto>> GetCustomersForProduct(Guid productId);
+        
+        Task<IEnumerable<ProductDto>> GetProductsForCustomer(Guid customerId);
 
 
     }

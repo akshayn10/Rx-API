@@ -66,5 +66,16 @@ namespace Rx.Domain.Services.Tenant
                 select c).ToListAsync();
             return _mapper.Map<IEnumerable<OrganizationCustomerDto>>(customers);
         }
+
+        public async Task<IEnumerable<ProductDto>> GetProductsForCustomer(Guid customerId)
+        {
+         var products = await   (from s in _tenantDbContext.Subscriptions
+                join c in _tenantDbContext.OrganizationCustomers on s.OrganizationCustomerId equals c.CustomerId
+                join pp in _tenantDbContext.ProductPlans on s.ProductPlanId equals pp.PlanId
+                join p in _tenantDbContext.Products on pp.ProductId equals p.ProductId
+                where c.CustomerId == customerId
+                select p).ToListAsync();
+            return _mapper.Map<IEnumerable<ProductDto>>(products);
+        }
     }
 }

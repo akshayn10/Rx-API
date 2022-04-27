@@ -1,6 +1,7 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Rx.Application.UseCases.Tenant.Customer;
+using Rx.Application.UseCases.Tenant.Product;
 using Rx.Domain.DTOs.Tenant.OrganizationCustomer;
 
 namespace Rx.API.Controllers.Tenant
@@ -52,6 +53,14 @@ namespace Rx.API.Controllers.Tenant
             var stats = await _mediator.Send(new GetCustomerStatsUseCase() );
             return Ok(stats);
         }
+        [HttpGet("product/{productId}")]
+        public async Task<IActionResult> GetCustomersForProduct(Guid productId)
+        {
+            var customers = await _mediator.Send(new GetCustomersForProductUseCase(productId));
+            return Ok(customers);
+        }
+
+        
 
     }
 }
