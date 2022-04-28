@@ -14,12 +14,14 @@ namespace Rx.Domain.Entities.Tenant
         public string? Description { get; set; }
         
         [Required(ErrorMessage = "Price is a required field.")]
+        [Column(TypeName = "decimal(18,4)")]
         public decimal Price { get; set; }
 
         [Required(ErrorMessage = "Duration is a required field.")]
         public int? Duration { get; set; }
 
-        public ICollection<Subscription> Subscriptions { get; set; }
+        public ICollection<Subscription>? Subscriptions { get; set; }
+        public ICollection<AddOnPricePerPlan>? AddOnPricePerPlans { get; set; }
 
         [ForeignKey(nameof(Product))]
         public Guid ProductId { get; set; }

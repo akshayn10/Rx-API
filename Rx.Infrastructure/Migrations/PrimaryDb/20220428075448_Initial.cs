@@ -82,7 +82,7 @@ namespace Rx.Infrastructure.Migrations
                     PlanId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Description = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Price = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    Price = table.Column<decimal>(type: "decimal(18,4)", nullable: false),
                     Duration = table.Column<int>(type: "int", nullable: false),
                     ProductId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
                 },
@@ -129,13 +129,39 @@ namespace Rx.Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "AddOnUsage",
+                columns: table => new
+                {
+                    AddOnUsageId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Date = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    Unit = table.Column<int>(type: "int", nullable: false),
+                    AddOnId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    SubscriptionId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_AddOnUsage", x => x.AddOnUsageId);
+                    table.ForeignKey(
+                        name: "FK_AddOnUsage_AddOn_AddOnId",
+                        column: x => x.AddOnId,
+                        principalTable: "AddOn",
+                        principalColumn: "AddOnId",
+                        onDelete: ReferentialAction.NoAction);
+                    table.ForeignKey(
+                        name: "FK_AddOnUsage_Subscription_SubscriptionId",
+                        column: x => x.SubscriptionId,
+                        principalTable: "Subscription",
+                        principalColumn: "SubscriptionId",
+                        onDelete: ReferentialAction.NoAction);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Bill",
                 columns: table => new
                 {
-                    BillId = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
+                    BillId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     GeneratedDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    TotalAmount = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    TotalAmount = table.Column<decimal>(type: "decimal(18,4)", nullable: false),
                     SubscriptionId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
                 },
                 constraints: table =>
@@ -146,6 +172,33 @@ namespace Rx.Infrastructure.Migrations
                         column: x => x.SubscriptionId,
                         principalTable: "Subscription",
                         principalColumn: "SubscriptionId",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "PaymentTransaction",
+                columns: table => new
+                {
+                    TransactionId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    TransactionDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    TransactionAmount = table.Column<decimal>(type: "decimal(18,4)", nullable: false),
+                    TransactionDescription = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    TransactionPaymentStatus = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    TransactionPaymentReferenceId = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    TransactionPaymentGatewayResponse = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    TransactionPaymentGatewayTransactionId = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    TransactionPaymentGatewayTransactionAmount = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    TransactionCurrency = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    BillId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_PaymentTransaction", x => x.TransactionId);
+                    table.ForeignKey(
+                        name: "FK_PaymentTransaction_Bill_BillId",
+                        column: x => x.BillId,
+                        principalTable: "Bill",
+                        principalColumn: "BillId",
                         onDelete: ReferentialAction.Cascade);
                 });
 
@@ -165,9 +218,24 @@ namespace Rx.Infrastructure.Migrations
                 column: "ProductId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_AddOnUsage_AddOnId",
+                table: "AddOnUsage",
+                column: "AddOnId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_AddOnUsage_SubscriptionId",
+                table: "AddOnUsage",
+                column: "SubscriptionId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Bill_SubscriptionId",
                 table: "Bill",
                 column: "SubscriptionId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_PaymentTransaction_BillId",
+                table: "PaymentTransaction",
+                column: "BillId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_ProductPlan_ProductId",
@@ -188,13 +256,19 @@ namespace Rx.Infrastructure.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
+                name: "AddOnUsage");
+
+            migrationBuilder.DropTable(
+                name: "Organizations");
+
+            migrationBuilder.DropTable(
+                name: "PaymentTransaction");
+
+            migrationBuilder.DropTable(
                 name: "AddOn");
 
             migrationBuilder.DropTable(
                 name: "Bill");
-
-            migrationBuilder.DropTable(
-                name: "Organizations");
 
             migrationBuilder.DropTable(
                 name: "Subscription");

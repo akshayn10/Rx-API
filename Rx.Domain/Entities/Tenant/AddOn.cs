@@ -14,10 +14,17 @@ namespace Rx.Domain.Entities.Tenant
         
         [Required(ErrorMessage = "UnitOfMeasure is a required field.")]
         public string? UnitOfMeasure { get; set; }
+        
+        public ICollection<AddOnUsage>? AddOnUsages { get; set; }
+
+        public ICollection<AddOnPricePerPlan>? AddOnPricePerPlans { get; set; }
 
         [ForeignKey(nameof(Product))]
         public Guid ProductId { get; set; }
         public Product? Product { get; set; }
+        
+
+        
 
     }
 }

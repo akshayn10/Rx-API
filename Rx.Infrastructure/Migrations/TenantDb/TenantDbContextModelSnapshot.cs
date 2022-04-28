@@ -84,14 +84,89 @@ namespace Rx.Infrastructure.Migrations.TenantDb
                     b.ToTable("AddOns");
                 });
 
+            modelBuilder.Entity("Rx.Domain.Entities.Tenant.AddOnPricePerPlan", b =>
+                {
+                    b.Property<Guid>("AddOnPricePerPlanId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("AddOnId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<decimal>("Price")
+                        .HasColumnType("decimal(18,4)");
+
+                    b.Property<Guid?>("ProductPlanId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("AddOnPricePerPlanId");
+
+                    b.HasIndex("AddOnId");
+
+                    b.HasIndex("ProductPlanId");
+
+                    b.ToTable("AddOnPricePerPlans");
+                });
+
+            modelBuilder.Entity("Rx.Domain.Entities.Tenant.AddOnUsage", b =>
+                {
+                    b.Property<Guid>("AddOnUsageId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("AddOnId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("Date")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("SubscriptionId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("Unit")
+                        .HasColumnType("int");
+
+                    b.HasKey("AddOnUsageId");
+
+                    b.HasIndex("AddOnId");
+
+                    b.HasIndex("SubscriptionId");
+
+                    b.ToTable("AddOnUsages");
+                });
+
+            modelBuilder.Entity("Rx.Domain.Entities.Tenant.AddOnWebhook", b =>
+                {
+                    b.Property<Guid>("AddOnWebhookId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("AddOnId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("CustomerEmail")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid>("ProductPlanId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("SenderAddOnWebhookId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("Unit")
+                        .HasColumnType("int");
+
+                    b.HasKey("AddOnWebhookId");
+
+                    b.ToTable("AddOnWebhooks");
+                });
+
             modelBuilder.Entity("Rx.Domain.Entities.Tenant.Bill", b =>
                 {
-                    b.Property<int>("BillId")
+                    b.Property<Guid>("BillId")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
+                        .HasColumnType("uniqueidentifier")
                         .HasColumnName("BillId");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("BillId"), 1L, 1);
 
                     b.Property<DateTime>("GeneratedDate")
                         .HasColumnType("datetime2");
@@ -100,13 +175,13 @@ namespace Rx.Infrastructure.Migrations.TenantDb
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<decimal>("TotalAmount")
-                        .HasColumnType("decimal(18,2)");
+                        .HasColumnType("decimal(18,4)");
 
                     b.HasKey("BillId");
 
                     b.HasIndex("SubscriptionId");
 
-                    b.ToTable("Bill");
+                    b.ToTable("Bills");
                 });
 
             modelBuilder.Entity("Rx.Domain.Entities.Tenant.OrganizationCustomer", b =>
@@ -140,6 +215,49 @@ namespace Rx.Infrastructure.Migrations.TenantDb
                             Name = "John Antony",
                             PaymentGatewayId = "1234567"
                         });
+                });
+
+            modelBuilder.Entity("Rx.Domain.Entities.Tenant.PaymentTransaction", b =>
+                {
+                    b.Property<Guid>("TransactionId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("BillId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<decimal>("TransactionAmount")
+                        .HasColumnType("decimal(18,4)");
+
+                    b.Property<string>("TransactionCurrency")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("TransactionDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("TransactionDescription")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("TransactionPaymentGatewayResponse")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("TransactionPaymentGatewayTransactionAmount")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("TransactionPaymentGatewayTransactionId")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("TransactionPaymentReferenceId")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("TransactionPaymentStatus")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("TransactionId");
+
+                    b.HasIndex("BillId");
+
+                    b.ToTable("PaymentTransactions");
                 });
 
             modelBuilder.Entity("Rx.Domain.Entities.Tenant.Product", b =>
@@ -195,7 +313,7 @@ namespace Rx.Infrastructure.Migrations.TenantDb
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<decimal>("Price")
-                        .HasColumnType("decimal(18,2)");
+                        .HasColumnType("decimal(18,4)");
 
                     b.Property<Guid>("ProductId")
                         .HasColumnType("uniqueidentifier");
@@ -260,10 +378,6 @@ namespace Rx.Infrastructure.Migrations.TenantDb
                     b.Property<string>("CustomerName")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<Guid>("ProductPlanId")
                         .HasColumnType("uniqueidentifier");
 
@@ -272,9 +386,7 @@ namespace Rx.Infrastructure.Migrations.TenantDb
 
                     b.HasKey("WebhookId");
 
-                    b.HasIndex("ProductPlanId");
-
-                    b.ToTable("Webhooks");
+                    b.ToTable("SubscriptionWebhooks");
                 });
 
             modelBuilder.Entity("Rx.Domain.Entities.Tenant.AddOn", b =>
@@ -288,6 +400,36 @@ namespace Rx.Infrastructure.Migrations.TenantDb
                     b.Navigation("Product");
                 });
 
+            modelBuilder.Entity("Rx.Domain.Entities.Tenant.AddOnPricePerPlan", b =>
+                {
+                    b.HasOne("Rx.Domain.Entities.Tenant.AddOn", "AddOn")
+                        .WithMany("AddOnPricePerPlans")
+                        .HasForeignKey("AddOnId");
+
+                    b.HasOne("Rx.Domain.Entities.Tenant.ProductPlan", "ProductPlan")
+                        .WithMany("AddOnPricePerPlans")
+                        .HasForeignKey("ProductPlanId");
+
+                    b.Navigation("AddOn");
+
+                    b.Navigation("ProductPlan");
+                });
+
+            modelBuilder.Entity("Rx.Domain.Entities.Tenant.AddOnUsage", b =>
+                {
+                    b.HasOne("Rx.Domain.Entities.Tenant.AddOn", "AddOn")
+                        .WithMany("AddOnUsages")
+                        .HasForeignKey("AddOnId");
+
+                    b.HasOne("Rx.Domain.Entities.Tenant.Subscription", "Subscription")
+                        .WithMany("AddOnUsages")
+                        .HasForeignKey("SubscriptionId");
+
+                    b.Navigation("AddOn");
+
+                    b.Navigation("Subscription");
+                });
+
             modelBuilder.Entity("Rx.Domain.Entities.Tenant.Bill", b =>
                 {
                     b.HasOne("Rx.Domain.Entities.Tenant.Subscription", "Subscription")
@@ -297,6 +439,17 @@ namespace Rx.Infrastructure.Migrations.TenantDb
                         .IsRequired();
 
                     b.Navigation("Subscription");
+                });
+
+            modelBuilder.Entity("Rx.Domain.Entities.Tenant.PaymentTransaction", b =>
+                {
+                    b.HasOne("Rx.Domain.Entities.Tenant.Bill", "Bill")
+                        .WithMany("PaymentTransactions")
+                        .HasForeignKey("BillId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Bill");
                 });
 
             modelBuilder.Entity("Rx.Domain.Entities.Tenant.ProductPlan", b =>
@@ -329,15 +482,16 @@ namespace Rx.Infrastructure.Migrations.TenantDb
                     b.Navigation("ProductPlan");
                 });
 
-            modelBuilder.Entity("Rx.Domain.Entities.Tenant.SubscriptionWebhook", b =>
+            modelBuilder.Entity("Rx.Domain.Entities.Tenant.AddOn", b =>
                 {
-                    b.HasOne("Rx.Domain.Entities.Tenant.ProductPlan", "ProductPlan")
-                        .WithMany()
-                        .HasForeignKey("ProductPlanId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                    b.Navigation("AddOnPricePerPlans");
 
-                    b.Navigation("ProductPlan");
+                    b.Navigation("AddOnUsages");
+                });
+
+            modelBuilder.Entity("Rx.Domain.Entities.Tenant.Bill", b =>
+                {
+                    b.Navigation("PaymentTransactions");
                 });
 
             modelBuilder.Entity("Rx.Domain.Entities.Tenant.OrganizationCustomer", b =>
@@ -354,11 +508,15 @@ namespace Rx.Infrastructure.Migrations.TenantDb
 
             modelBuilder.Entity("Rx.Domain.Entities.Tenant.ProductPlan", b =>
                 {
+                    b.Navigation("AddOnPricePerPlans");
+
                     b.Navigation("Subscriptions");
                 });
 
             modelBuilder.Entity("Rx.Domain.Entities.Tenant.Subscription", b =>
                 {
+                    b.Navigation("AddOnUsages");
+
                     b.Navigation("Bills");
                 });
 #pragma warning restore 612, 618

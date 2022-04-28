@@ -24,8 +24,16 @@ namespace Rx.Infrastructure.Persistence.Context
         public DbSet<Product>? Products { get; set; }
         public DbSet<ProductPlan>? ProductPlans { get; set; }
         public DbSet<Subscription>? Subscriptions { get; set; }
+        public DbSet<Bill>? Bills { get; set; }
+        public DbSet<PaymentTransaction>? PaymentTransactions { get; set; }
         public DbSet<AddOn>? AddOns { get; set; }
-        public DbSet<SubscriptionWebhook>? Webhooks { get; set; }
+        public DbSet<AddOnPricePerPlan>? AddOnPricePerPlans { get; set; }
+        public DbSet<AddOnUsage>? AddOnUsages { get; set; }
+        
+        //Webhooks Storage
+        public DbSet<SubscriptionWebhook>? SubscriptionWebhooks { get; set; }
+        public DbSet<AddOnWebhook>? AddOnWebhooks { get; set; }
+        
         public async Task<int> SaveChangesAsync()
         {
             return await base.SaveChangesAsync();

@@ -21,13 +21,7 @@ namespace Rx.Domain.Entities.Tenant
          
         public string? CustomerName { get; set; }
 
-        [ForeignKey(nameof(ProductPlan))]
         public Guid ProductPlanId { get; set; }
-
-        public ProductPlan? ProductPlan { get; set; }  
-
-        [Required(ErrorMessage = "Name is a required field.")]
-        public string? Name { get; set; }
 
 
 

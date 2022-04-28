@@ -10,12 +10,10 @@ public class AddOnWebhook
     public Guid AddOnWebhookId { get; set; }
     
     public Guid SenderAddOnWebhookId { get; set; }
-     
-    [ForeignKey(nameof(AddOn))]
+    public string? CustomerEmail { get; set; }
+
     public Guid AddOnId { get; set; }
-    public AddOn? AddOn { get; set; }
-    
-       
-    
+    public Guid ProductPlanId { get; set; }
+    public int Unit { get; set; }
 
 }

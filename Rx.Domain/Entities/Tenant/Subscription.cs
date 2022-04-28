@@ -21,8 +21,10 @@
         [Required(ErrorMessage = "Created Date is required")]
         public DateTime CreatedDate { get; set; }
 
-        public ICollection<Bill> Bills { get; set; }
+        public ICollection<Bill>? Bills { get; set; }
         
+        public ICollection<AddOnUsage>? AddOnUsages { get; set; }
+
         [ForeignKey(nameof(OrganizationCustomer))]
         public Guid OrganizationCustomerId { get; set; }
         public OrganizationCustomer? OrganizationCustomer { get; set; }

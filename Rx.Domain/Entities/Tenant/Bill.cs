@@ -6,13 +6,16 @@ namespace Rx.Domain.Entities.Tenant
     {
         [Key]
         [Column(name:"BillId")]
-        public int BillId { get; set; }
+        public Guid BillId { get; set; }
 
         [Required(ErrorMessage = "GeneratedDate is required")]
         public DateTime GeneratedDate { get; set; }
 
         [Required(ErrorMessage = "Total Amount is required")]
+        [Column(TypeName = "decimal(18,4)")]
         public decimal TotalAmount { get; set; }
+        public ICollection<PaymentTransaction>? PaymentTransactions { get; set; }
+
 
         [ForeignKey(nameof(Subscription))]
         public Guid SubscriptionId { get; set; }
