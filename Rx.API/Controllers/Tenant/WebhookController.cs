@@ -2,6 +2,8 @@
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Rx.API.Controllers.Tenant.Authorization;
+using Rx.Domain.Entities.Tenant;
+using Swashbuckle.AspNetCore.Annotations;
 
 namespace Rx.API.Controllers.Tenant
 {
@@ -23,7 +25,8 @@ namespace Rx.API.Controllers.Tenant
         }
         
         [HttpPost("subscribe",Name = "SubscriptionWebhook")]
-        public async Task<IActionResult> SubscribeWebhook()
+        [SwaggerOperation(Summary = "Create Subscription webhooks")]
+        public async Task<IActionResult> SubscribeWebhook([FromBody] SubscriptionWebhook subscriptionWebhook)
         {
             var data = await new StreamReader(HttpContext.Request.Body).ReadToEndAsync();
             var tenantId = Request.Headers["TenantId"];
@@ -34,7 +37,8 @@ namespace Rx.API.Controllers.Tenant
             return Ok();
         }
         [HttpPost("unsubscribe",Name = "UnsubscribeWebhook")]
-        public async Task<IActionResult> UnsubscribeWebhook()
+        [SwaggerOperation(Summary = "Unsubscribe webhook")]
+        public async Task<IActionResult> UnsubscribeWebhook([FromBody] SubscriptionWebhook subscriptionWebhook)
         {
             var data = await new StreamReader(HttpContext.Request.Body).ReadToEndAsync();
             var tenantId = Request.Headers["TenantId"];
@@ -44,7 +48,8 @@ namespace Rx.API.Controllers.Tenant
             return Ok();
         }
         [HttpPost("upgradeSubscription",Name = "UpgradeSubscriptionWebhook")]
-        public async Task<IActionResult> UpgradeSubscriptionWebhook()
+        [SwaggerOperation(Summary = "Upgrade Subscription webhook")]
+        public async Task<IActionResult> UpgradeSubscriptionWebhook([FromBody] SubscriptionWebhook subscriptionWebhook)
         {
             var data = await new StreamReader(HttpContext.Request.Body).ReadToEndAsync();
             var tenantId = Request.Headers["TenantId"];
@@ -54,7 +59,19 @@ namespace Rx.API.Controllers.Tenant
             return Ok();
         }
         [HttpPost("downgradeSubscription",Name = "DowngradeSubscriptionWebhook")]
-        public async Task<IActionResult> DowngradeSubscriptionWebhook()
+        [SwaggerOperation(Summary = "Downgrade Subscription webhook")]
+        public async Task<IActionResult> DowngradeSubscriptionWebhook([FromBody] SubscriptionWebhook subscriptionWebhook)
+        {
+            var data = await new StreamReader(HttpContext.Request.Body).ReadToEndAsync();
+            var tenantId = Request.Headers["TenantId"];
+            var productId = Guid.Parse(Request.Headers["ProductId"]);
+            var secret = Request.Headers["Secret"];
+            _logger.LogInformation(secret + " " + tenantId + " " + data);
+            return Ok();
+        }
+        [HttpPost("addOn")]
+        [SwaggerOperation(Summary = "Add On webhook")]
+        public async Task<IActionResult> AddOnWebhook([FromBody] AddOnWebhook addOnWebhook)
         {
             var data = await new StreamReader(HttpContext.Request.Body).ReadToEndAsync();
             var tenantId = Request.Headers["TenantId"];

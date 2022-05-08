@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Rx.Infrastructure.Persistence.Context;
 
@@ -11,9 +12,10 @@ using Rx.Infrastructure.Persistence.Context;
 namespace Rx.Infrastructure.Migrations.TenantDb
 {
     [DbContext(typeof(TenantDbContext))]
-    partial class TenantDbContextModelSnapshot : ModelSnapshot
+    [Migration("20220429051525_Initial")]
+    partial class Initial
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -90,13 +92,13 @@ namespace Rx.Infrastructure.Migrations.TenantDb
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid>("AddOnId")
+                    b.Property<Guid?>("AddOnId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<decimal>("Price")
                         .HasColumnType("decimal(18,4)");
 
-                    b.Property<Guid>("ProductPlanId")
+                    b.Property<Guid?>("ProductPlanId")
                         .HasColumnType("uniqueidentifier");
 
                     b.HasKey("AddOnPricePerPlanId");
@@ -114,13 +116,13 @@ namespace Rx.Infrastructure.Migrations.TenantDb
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid>("AddOnId")
+                    b.Property<Guid?>("AddOnId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime>("Date")
                         .HasColumnType("datetime2");
 
-                    b.Property<Guid>("SubscriptionId")
+                    b.Property<Guid?>("SubscriptionId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<int>("Unit")
@@ -398,15 +400,11 @@ namespace Rx.Infrastructure.Migrations.TenantDb
                 {
                     b.HasOne("Rx.Domain.Entities.Tenant.AddOn", "AddOn")
                         .WithMany("AddOnPricePerPlans")
-                        .HasForeignKey("AddOnId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("AddOnId");
 
                     b.HasOne("Rx.Domain.Entities.Tenant.ProductPlan", "ProductPlan")
                         .WithMany("AddOnPricePerPlans")
-                        .HasForeignKey("ProductPlanId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("ProductPlanId");
 
                     b.Navigation("AddOn");
 
@@ -417,15 +415,11 @@ namespace Rx.Infrastructure.Migrations.TenantDb
                 {
                     b.HasOne("Rx.Domain.Entities.Tenant.AddOn", "AddOn")
                         .WithMany("AddOnUsages")
-                        .HasForeignKey("AddOnId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("AddOnId");
 
                     b.HasOne("Rx.Domain.Entities.Tenant.Subscription", "Subscription")
                         .WithMany("AddOnUsages")
-                        .HasForeignKey("SubscriptionId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("SubscriptionId");
 
                     b.Navigation("AddOn");
 

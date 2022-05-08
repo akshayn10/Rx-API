@@ -26,13 +26,13 @@ namespace Rx.Domain.Services.Tenant
 
         public async Task<IEnumerable<SubscriptionDto>> GetSubscriptions()
         {
-            var subscriptions = await _tenantDbContext.Subscriptions.ToListAsync();
+            var subscriptions = await _tenantDbContext.Subscriptions!.ToListAsync();
             return _mapper.Map<IEnumerable<SubscriptionDto>>(subscriptions);
         }
 
         public async Task<SubscriptionDto> GetSubscriptionById(Guid id)
         {
-            var subscription = await _tenantDbContext.Subscriptions.FirstOrDefaultAsync(x=>x.SubscriptionId == id);
+            var subscription = await _tenantDbContext.Subscriptions!.FirstOrDefaultAsync(x=>x.SubscriptionId == id);
             return _mapper.Map<SubscriptionDto>(subscription);
         }
         
@@ -40,20 +40,20 @@ namespace Rx.Domain.Services.Tenant
         public async Task<SubscriptionDto> AddSubscription(SubscriptionForCreationDto subscriptionForCreationDto)
         {
             var subscription = _mapper.Map<Subscription>(subscriptionForCreationDto);
-            await _tenantDbContext.Subscriptions.AddAsync(subscription);
+            await _tenantDbContext.Subscriptions!.AddAsync(subscription);
             await _tenantDbContext.SaveChangesAsync();
             return _mapper.Map<SubscriptionDto>(subscription);
         }
 
         public async Task<SubscriptionDto> GetSubscriptionByIdForCustomer(Guid customerId, Guid subscriptionId)
         {
-            var subscription = await _tenantDbContext.Subscriptions.FirstOrDefaultAsync(x => x.SubscriptionId == subscriptionId && x.OrganizationCustomerId == customerId);
+            var subscription = await _tenantDbContext.Subscriptions!.FirstOrDefaultAsync(x => x.SubscriptionId == subscriptionId && x.OrganizationCustomerId == customerId);
             return _mapper.Map<SubscriptionDto>(subscription);
         }
 
         public async Task<IEnumerable<SubscriptionDto>> GetSubscriptionsForCustomer(Guid customerId)
         {
-            var subscriptions = await _tenantDbContext.Subscriptions.Where(x => x.OrganizationCustomerId == customerId).ToListAsync();
+            var subscriptions = await _tenantDbContext.Subscriptions!.Where(x => x.OrganizationCustomerId == customerId).ToListAsync();
             return _mapper.Map<IEnumerable<SubscriptionDto>>(subscriptions);
         }
     }

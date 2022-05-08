@@ -1,11 +1,14 @@
 ﻿using AutoMapper;
 using Rx.Domain.DTOs.Primary.Organization;
+using Rx.Domain.DTOs.Tenant.AddOn;
 using Rx.Domain.DTOs.Tenant.OrganizationCustomer;
 using Rx.Domain.DTOs.Tenant.Product;
 using Rx.Domain.DTOs.Tenant.ProductPlan;
 using Rx.Domain.DTOs.Tenant.Subscription;
+using Rx.Domain.DTOs.Tenant.Transaction;
 using Rx.Domain.Entities.Primary;
 using Rx.Domain.Entities.Tenant;
+using PaymentTransaction = Rx.Domain.Entities.Tenant.PaymentTransaction;
 
 namespace Rx.API.Mapping
 {
@@ -28,6 +31,12 @@ namespace Rx.API.Mapping
             //ProductPlan
             CreateMap<ProductPlan, ProductPlanDto>();
             CreateMap<ProductPlanForCreationDto, ProductPlan>();
+            //Transaction
+            CreateMap<PaymentTransaction, TransactionDto>();
+            CreateMap<TransactionForCreationDto, PaymentTransaction>();
+            //AddOn
+            CreateMap<AddOn, AddOnDto>();
+            CreateMap<AddOnForCreationDto, AddOn>();
 
         }
     }

@@ -1,8 +1,6 @@
 ﻿namespace Rx.Domain.DTOs.Tenant.Transaction;
 
-public record TransactionDto(Guid TransactionId,DateTime TransactionDate,
+public record TransactionForCreationDto(DateTime TransactionDate,
     decimal TransactionAmount,string TransactionDescription,
     string TransactionPaymentReferenceId,string TransactionPaymentGatewayResponse, string TransactionStatus,
-    string TransactionCurrency, Guid BillId
-    );
-
+    string TransactionCurrency, Guid BillId);

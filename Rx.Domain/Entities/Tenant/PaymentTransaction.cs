@@ -11,11 +11,9 @@ namespace Rx.Domain.Entities.Tenant
         [Column(TypeName = "decimal(18,4)")]
         public decimal TransactionAmount { get; set; }
         public string? TransactionDescription { get; set; }
-        public string? TransactionPaymentStatus { get; set; }
+        public string? TransactionStatus { get; set; }
         public string? TransactionPaymentReferenceId { get; set; }
         public string? TransactionPaymentGatewayResponse { get; set; }
-        public string? TransactionPaymentGatewayTransactionId { get; set; }
-        public string? TransactionPaymentGatewayTransactionAmount { get; set; }
         public string? TransactionCurrency { get; set; }
 
         [ForeignKey(nameof(Bill))]

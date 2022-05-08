@@ -11,10 +11,12 @@ namespace Rx.API.Extensions
         public static void ConfigureCors(this IServiceCollection services) =>
             services.AddCors(options =>
             {
-                options.AddPolicy("CorsPolicy", builder =>
+                options.AddPolicy("MyCorsPolicy", builder =>
                     builder.AllowAnyOrigin()
                         .AllowAnyMethod()
-                        .AllowAnyHeader());
+                        .AllowAnyHeader()
+                        .WithOrigins("http://localhost:4200")
+                    );
             });
         public static void ConfigureIISIntegration(this IServiceCollection services) =>
             services.Configure<IISOptions>(options =>

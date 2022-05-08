@@ -26,13 +26,13 @@ namespace Rx.Domain.Services.Tenant
 
         public async Task<IEnumerable<OrganizationCustomerDto>> GetCustomers()
         {
-            var customers =await _tenantDbContext.OrganizationCustomers.ToListAsync();
+            var customers =await _tenantDbContext.OrganizationCustomers!.ToListAsync();
             return _mapper.Map<IEnumerable<OrganizationCustomerDto>>(customers);
         }
 
         public async Task<OrganizationCustomerDto> GetCustomerById(Guid id)
         {
-            var customer = await _tenantDbContext.OrganizationCustomers.FirstOrDefaultAsync(x => x.CustomerId == id);
+            var customer = await _tenantDbContext.OrganizationCustomers!.FirstOrDefaultAsync(x => x.CustomerId == id);
 
             return _mapper.Map<OrganizationCustomerDto>(customer);
         }
@@ -40,7 +40,7 @@ namespace Rx.Domain.Services.Tenant
         public async Task<OrganizationCustomerDto> AddCustomer(OrganizationCustomerForCreationDto organizationCustomerForCreationDto)
         {
             var customer = _mapper.Map<OrganizationCustomer>(organizationCustomerForCreationDto);
-            await _tenantDbContext.OrganizationCustomers.AddAsync(customer);
+            await _tenantDbContext.OrganizationCustomers!.AddAsync(customer);
             await _tenantDbContext.SaveChangesAsync();
 
             return _mapper.Map<OrganizationCustomerDto>(customer);
@@ -49,11 +49,11 @@ namespace Rx.Domain.Services.Tenant
         public async Task<CustomerStatsDto> GetCustomerStats()
         {
             
-            var totalCustomer =  _tenantDbContext.OrganizationCustomers.Count();
+            var totalCustomer =  _tenantDbContext.OrganizationCustomers!.Count();
             var totalActiveCustomer = (from c in _tenantDbContext.OrganizationCustomers
                 join s in _tenantDbContext.Subscriptions on c.CustomerId equals s.OrganizationCustomerId
                 where s.IsActive == true
-                select c).Count();
+                select c).Distinct().Count();
             CustomerStatsDto customerStatsDto = new CustomerStatsDto(totalCustomer, totalActiveCustomer);
             return customerStatsDto;
             

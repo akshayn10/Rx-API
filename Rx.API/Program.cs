@@ -1,5 +1,6 @@
 using Hangfire;
 using MediatR;
+using Microsoft.OpenApi.Models;
 using Rx.API.Extensions;
 using Rx.Application;
 using Rx.Domain.Services.Primary;
@@ -34,7 +35,13 @@ builder.Services.AddAutoMapper(typeof(Program));
 builder.Services.AddControllers();
 //Swagger
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(
+    x =>
+    {
+        x.SwaggerDoc("v1", new OpenApiInfo { Title = "Rx API", Version = "v1" });
+            x.EnableAnnotations();
+    }
+    );
 
 
 var app = builder.Build();
@@ -48,6 +55,8 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+app.UseCors("MyCorsPolicy");
 
 app.UseAuthorization();
 

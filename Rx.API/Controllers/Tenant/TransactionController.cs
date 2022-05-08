@@ -1,6 +1,7 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Rx.Application.UseCases.Tenant.Transaction;
+using Swashbuckle.AspNetCore.Annotations;
 
 namespace Rx.API.Controllers.Tenant;
 
@@ -19,9 +20,18 @@ public class TransactionController:ControllerBase
     }
 
     [HttpGet]
+    [SwaggerOperation(Summary = "Get all transactions")]
     public async Task<IActionResult> GetTransactions()
     {
         var transactions =await _mediator.Send(new GetTransactionsUseCase());
         return Ok(transactions);
+    }
+
+    [HttpGet("{transactionId:guid}")]
+    [SwaggerOperation(Summary = "Get transaction by id")]
+    public async Task<IActionResult> GetTransaction(Guid transactionId)
+    {
+        var transaction = await _mediator.Send(new GetTransactionByIdUseCase(transactionId));
+        return Ok(transaction);
     }
 }

@@ -8,8 +8,9 @@ namespace Rx.Domain.Interfaces
         IProductService ProductService { get; }
         ISubscriptionService SubscriptionService { get; }
         IBillingService BillingService { get; }
-        
         IProductPlanService ProductPlanService { get; }
-        
+        ITransactionService TransactionService { get; }
+        IAddOnService AddOnService { get; }
+
     }
 }

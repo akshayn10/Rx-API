@@ -23,30 +23,30 @@ namespace Rx.Domain.Services.Tenant
 
         public async Task<IEnumerable<ProductPlanDto>> GetProductPlans(Guid productId)
         {
-            var plans = await _tenantDbContext.ProductPlans.ToListAsync();
+            var plans = await _tenantDbContext.ProductPlans!.Where(pp=>pp.ProductId==productId).ToListAsync();
             return _mapper.Map<IEnumerable<ProductPlanDto>>(plans);
         }
 
         public async Task<ProductPlanDto> GetProductPlanById(Guid productId, Guid planId)
         {
-            var plan = await _tenantDbContext.ProductPlans.FirstOrDefaultAsync(x => x.ProductId == productId && x.PlanId==planId);
+            var plan = await _tenantDbContext.ProductPlans!.FirstOrDefaultAsync(x => x.ProductId == productId && x.PlanId==planId);
             return _mapper.Map<ProductPlanDto>(plan);
         }
 
         public async Task<ProductPlanDto> AddProductPlan(ProductPlanForCreationDto planForCreationDto)
         {
-            var product = await _tenantDbContext.Products.FirstOrDefaultAsync(x => x.ProductId == planForCreationDto.ProductId);
+            var product = await _tenantDbContext.Products!.FirstOrDefaultAsync(x => x.ProductId == planForCreationDto.ProductId);
             var plan = _mapper.Map<ProductPlan>(planForCreationDto);
-            await _tenantDbContext.ProductPlans.AddAsync(plan);
+            await _tenantDbContext.ProductPlans!.AddAsync(plan);
             await _tenantDbContext.SaveChangesAsync();
             return _mapper.Map<ProductPlanDto>(plan);
         }
 
         public async Task DeleteProductPlan(Guid productId,Guid planId)
         {
-            var plan = await _tenantDbContext.ProductPlans.FirstOrDefaultAsync(x => x.PlanId == planId && x.ProductId == productId);
+            var plan = await _tenantDbContext.ProductPlans!.FirstOrDefaultAsync(x => x.PlanId == planId && x.ProductId == productId);
 
-            if (plan != null) _tenantDbContext.ProductPlans.Remove(plan);
+            if (plan != null) _tenantDbContext.ProductPlans!.Remove(plan);
         }
     }
 }

@@ -10,5 +10,12 @@ public interface ITenantDbContext
     DbSet<ProductPlan>? ProductPlans { get; set; }
     DbSet<Subscription>? Subscriptions { get; set; }
     DbSet<AddOn>? AddOns { get; set; }
+    DbSet<AddOnUsage> AddOnUsages { get; set; }
+    DbSet<AddOnPricePerPlan> AddOnPricePerPlans { get; set; }
+    DbSet<PaymentTransaction> PaymentTransactions { get; set; }
+    DbSet<Bill> Bills { get; set; }
+    DbSet<SubscriptionWebhook> SubscriptionWebhooks { get; set; }
+    DbSet<AddOnWebhook> AddOnWebhooks { get; set; }
+    
     Task<int> SaveChangesAsync();
 }

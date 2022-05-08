@@ -26,7 +26,7 @@ namespace Rx.Domain.Services.Tenant
 
         public async Task<IEnumerable<ProductDto>> GetProducts()
         {
-            var products = await _tenantDbContext.Products.ToListAsync();
+            var products = await _tenantDbContext.Products!.ToListAsync();
             return _mapper.Map<IEnumerable<ProductDto>>(products);
         }
 
@@ -44,14 +44,14 @@ namespace Rx.Domain.Services.Tenant
 
         public async Task<ProductDto> GetProductById(Guid productId)
         {
-            var product = await _tenantDbContext.Products.FirstOrDefaultAsync(x => x.ProductId ==productId);
+            var product = await _tenantDbContext.Products!.FirstOrDefaultAsync(x => x.ProductId ==productId);
             return _mapper.Map<ProductDto>(product);
         }
 
         public async Task<ProductDto> AddProduct(ProductForCreationDto productForCreationDto)
         {
             var product = _mapper.Map<Product>(productForCreationDto);
-            await _tenantDbContext.Products.AddAsync(product);
+            await _tenantDbContext.Products!.AddAsync(product);
             await _tenantDbContext.SaveChangesAsync();
              return _mapper.Map<ProductDto>(product);
         }
@@ -75,7 +75,7 @@ namespace Rx.Domain.Services.Tenant
                 join p in _tenantDbContext.Products on pp.ProductId equals p.ProductId
                 where c.CustomerId == customerId
                 select p).ToListAsync();
-            return _mapper.Map<IEnumerable<ProductDto>>(products);
+         return _mapper.Map<IEnumerable<ProductDto>>(products);
         }
     }
 }

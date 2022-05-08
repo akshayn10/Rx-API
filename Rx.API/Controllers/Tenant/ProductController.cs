@@ -7,6 +7,7 @@ using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Rx.Application.UseCases.Tenant.Product;
 using Rx.Domain.DTOs.Tenant.Product;
+using Swashbuckle.AspNetCore.Annotations;
 
 namespace Rx.API.Controllers.Tenant
 {
@@ -23,6 +24,7 @@ namespace Rx.API.Controllers.Tenant
         }
 
         [HttpGet]
+        [SwaggerOperation(Summary = "Get all products")]
         public async Task<IActionResult> GetProducts()
         {
             var products = await _mediator.Send(new GetProductsUseCase());
@@ -30,6 +32,7 @@ namespace Rx.API.Controllers.Tenant
         }
 
         [HttpGet]
+        [SwaggerOperation(Summary = "Get product by id")]
         [Route("{id:guid}")]
         public async Task<IActionResult> GetProductById(Guid id)
         {
@@ -39,6 +42,7 @@ namespace Rx.API.Controllers.Tenant
         }
 
         [HttpPost(Name = "CreateProduct")]
+        [SwaggerOperation(Summary = "Create a new product")]
         public async Task<IActionResult> CreateProduct([FromBody] ProductForCreationDto productForCreationDto)
         {
             if (productForCreationDto is null)
@@ -53,6 +57,7 @@ namespace Rx.API.Controllers.Tenant
 
 
         [HttpGet("customer/{customerId:guid}")]
+        [SwaggerOperation(Summary = "Get all products for a customer")]
         public async Task<IActionResult> GetProductsForCustomer(Guid customerId)
         {
             var products = await _mediator.Send(new GetProductsForCustomerUseCase(customerId));

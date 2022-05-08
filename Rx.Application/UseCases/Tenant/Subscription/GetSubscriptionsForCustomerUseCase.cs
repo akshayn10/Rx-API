@@ -1,21 +1,52 @@
-﻿using MediatR;
+﻿using AutoMapper;
+using MediatR;
+using Microsoft.EntityFrameworkCore;
+using Rx.Domain.DTOs.Tenant.OrganizationCustomer;
 using Rx.Domain.DTOs.Tenant.Subscription;
 using Rx.Domain.Interfaces;
+using Rx.Domain.Interfaces.DbContext;
 
 namespace Rx.Application.UseCases.Tenant.Subscription;
 
-public record GetSubscriptionsForCustomerUseCase(Guid CustomerId):IRequest<IEnumerable<SubscriptionDto>>;
+public record GetSubscriptionsForCustomerUseCase(Guid CustomerId):IRequest<IEnumerable<CustomerSubscriptionsVm>>;
 
-public class GetSubscriptionsForCustomerUseCaseHandler : IRequestHandler<GetSubscriptionsForCustomerUseCase, IEnumerable<SubscriptionDto>>
+public class GetSubscriptionsForCustomerUseCaseHandler : IRequestHandler<GetSubscriptionsForCustomerUseCase, IEnumerable<CustomerSubscriptionsVm>>
 {
-    private readonly ITenantServiceManager _tenantServiceManager;
-
-    public GetSubscriptionsForCustomerUseCaseHandler(ITenantServiceManager tenantServiceManager)
+    private readonly ITenantDbContext _tenantDbContext;
+    private readonly IMapper _mapper;
+    public GetSubscriptionsForCustomerUseCaseHandler(ITenantDbContext tenantDbContext,IMapper mapper)
     {
-        _tenantServiceManager = tenantServiceManager;
+        _tenantDbContext = tenantDbContext;
+        _mapper = mapper;
     }
-    public Task<IEnumerable<SubscriptionDto>> Handle(GetSubscriptionsForCustomerUseCase request, CancellationToken cancellationToken)
+    public async Task<IEnumerable<CustomerSubscriptionsVm>> Handle(GetSubscriptionsForCustomerUseCase request, CancellationToken cancellationToken)
     {
-        return _tenantServiceManager.SubscriptionService.GetSubscriptionsForCustomer(request.CustomerId);
+
+                
+
+                var subscriptions = await (from s in _tenantDbContext.Subscriptions
+                        join oc in _tenantDbContext.OrganizationCustomers on s.OrganizationCustomerId equals oc.CustomerId
+                        join pp in _tenantDbContext.ProductPlans on s.ProductPlanId equals pp.PlanId
+                        join p in _tenantDbContext.Products on pp.ProductId equals p.ProductId
+                        where oc.CustomerId == request.CustomerId
+                        select new
+                        {
+                            s.SubscriptionId, s.CreatedDate, s.EndDate, p.Name, planName = pp.Name, s.IsActive
+                        }
+            
+                    ).ToListAsync(cancellationToken);
+                var subscriptionVms = subscriptions.Select(
+                    s =>
+                        new CustomerSubscriptionsVm(
+                            subscriptionId: s.SubscriptionId.ToString(),
+                            product: s.Name,
+                            plan: s.planName,
+                            createdDate: s.CreatedDate.ToString(),
+                            endDate: s.EndDate.ToString(),
+                            status: s.IsActive ? "Active" : "Inactive"
+
+                        )
+                );
+                return subscriptionVms;
     }
 }

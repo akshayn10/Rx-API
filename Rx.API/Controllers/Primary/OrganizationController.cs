@@ -5,6 +5,7 @@ using Rx.Application.UseCases.Primary.Organization;
 using Rx.Domain.DTOs.Primary.Organization;
 using Rx.Domain.Interfaces;
 using Rx.Domain.Services.Primary;
+using Swashbuckle.AspNetCore.Annotations;
 
 
 namespace Rx.API.Controllers.Primary
@@ -23,6 +24,7 @@ namespace Rx.API.Controllers.Primary
             _mediator = mediator;
         }
         [HttpGet]
+        [SwaggerOperation(Summary = "Get all Organizations")]
         public async Task<IActionResult> GetOrganizations()
         {
             _logger.LogInformation("Executing");
@@ -33,6 +35,7 @@ namespace Rx.API.Controllers.Primary
         }
 
         [HttpPost(Name = "CreateOrganization")]
+        [SwaggerOperation(Summary = "Create a new Organization")]
         public async Task<IActionResult> CreateOrganization([FromBody] OrganizationForCreationDto organizationForCreationDto)
         {
             if (organizationForCreationDto is null)
