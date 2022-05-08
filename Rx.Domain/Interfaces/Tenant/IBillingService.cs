@@ -4,6 +4,6 @@ namespace Rx.Domain.Interfaces.Tenant
 {
     public interface IBillingService
     {
-        Task<BillDto> CreateBill (Guid subscriptonId,BillForCreationDto billForCreationDto);
+        Task<BillDto> CreateBill (Guid subscriptionId,BillForCreationDto billForCreationDto);
     }
 }

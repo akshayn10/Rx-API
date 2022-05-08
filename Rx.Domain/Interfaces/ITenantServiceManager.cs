@@ -11,6 +11,7 @@ namespace Rx.Domain.Interfaces
         IProductPlanService ProductPlanService { get; }
         ITransactionService TransactionService { get; }
         IAddOnService AddOnService { get; }
+        IAddOnUsageService AddOnUsageService { get; }
 
     }
 }

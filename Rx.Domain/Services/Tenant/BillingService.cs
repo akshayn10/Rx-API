@@ -3,6 +3,7 @@
 using AutoMapper;
 using Microsoft.Extensions.Logging;
 using Rx.Domain.DTOs.Tenant.Bill;
+using Rx.Domain.Entities.Tenant;
 using Rx.Domain.Interfaces;
 using Rx.Domain.Interfaces.DbContext;
 using Rx.Domain.Interfaces.Tenant;
@@ -22,9 +23,17 @@ namespace Rx.Domain.Services.Tenant
             _mapper = mapper;
         }
 
-        public Task<BillDto> CreateBill(Guid subscriptonId, BillForCreationDto billForCreationDto)
+        public async Task<BillDto> CreateBill(Guid subscriptonId, BillForCreationDto billForCreationDto)
         {
-            throw new NotImplementedException();
+            var subscription = await _tenantDbContext.Subscriptions!.FindAsync(subscriptonId);
+            
+            if(subscription == null)
+                throw new Exception("Subscription not found");
+            
+            var bill = _mapper.Map<Bill>(billForCreationDto);
+            await _tenantDbContext.Bills.AddAsync(bill);
+            await _tenantDbContext.SaveChangesAsync();
+            return _mapper.Map<BillDto>(bill);
         }
     }
 }

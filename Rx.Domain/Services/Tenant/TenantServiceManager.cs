@@ -15,6 +15,7 @@ namespace Rx.Domain.Services.Tenant
         private readonly Lazy<IProductPlanService> _productPlanService;
         private readonly Lazy<ITransactionService> _transactionService;
         private readonly Lazy<IAddOnService> _addOnService;
+        private readonly Lazy<IAddOnUsageService> _addOnUsageService;
 
         public TenantServiceManager(ITenantDbContext tenantDbContext,ILogger<TenantServiceManager> logger, IMapper mapper)
         {
@@ -25,6 +26,7 @@ namespace Rx.Domain.Services.Tenant
             _productPlanService = new Lazy<IProductPlanService>(() => new ProductPlanService(tenantDbContext, mapper, logger) );
             _transactionService = new Lazy<ITransactionService>(() => new TransactionService(tenantDbContext, mapper, logger));
             _addOnService = new Lazy<IAddOnService>(() => new AddOnService(tenantDbContext, mapper, logger));
+            _addOnUsageService = new Lazy<IAddOnUsageService>(() => new AddOnUsageService(tenantDbContext, logger,mapper));
         }
 
 
@@ -35,6 +37,7 @@ namespace Rx.Domain.Services.Tenant
         public IProductPlanService ProductPlanService => _productPlanService.Value;
         public ITransactionService TransactionService => _transactionService.Value;
         public IAddOnService AddOnService => _addOnService.Value;
+        public IAddOnUsageService AddOnUsageService => _addOnUsageService.Value;
 
     }
 }

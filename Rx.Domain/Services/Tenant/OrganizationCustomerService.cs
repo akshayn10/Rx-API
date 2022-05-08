@@ -49,11 +49,11 @@ namespace Rx.Domain.Services.Tenant
         public async Task<CustomerStatsDto> GetCustomerStats()
         {
             
-            var totalCustomer =  _tenantDbContext.OrganizationCustomers!.Count();
-            var totalActiveCustomer = (from c in _tenantDbContext.OrganizationCustomers
+            var totalCustomer =await _tenantDbContext.OrganizationCustomers!.CountAsync();
+            var totalActiveCustomer = await (from c in _tenantDbContext.OrganizationCustomers
                 join s in _tenantDbContext.Subscriptions on c.CustomerId equals s.OrganizationCustomerId
                 where s.IsActive == true
-                select c).Distinct().Count();
+                select c).Distinct().CountAsync();
             CustomerStatsDto customerStatsDto = new CustomerStatsDto(totalCustomer, totalActiveCustomer);
             return customerStatsDto;
             
