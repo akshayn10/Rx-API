@@ -1,6 +1,9 @@
-﻿using MediatR;
+﻿using AutoMapper;
+using MediatR;
+using Microsoft.EntityFrameworkCore;
 using Rx.Domain.DTOs.Tenant.Transaction;
 using Rx.Domain.Interfaces;
+using Rx.Domain.Interfaces.DbContext;
 
 namespace Rx.Application.UseCases.Tenant.Transaction;
 
@@ -8,14 +11,20 @@ public record GetTransactionByIdUseCase(Guid TransactionId):IRequest<Transaction
 
 public class GetTransactionByIdUseCaseHandler : IRequestHandler<GetTransactionByIdUseCase, TransactionDto>
 {
-    private readonly ITenantServiceManager _tenantServiceManager;
+    private readonly ITenantDbContext _tenantDbContext;
+    private readonly IMapper _mapper;
 
-    public GetTransactionByIdUseCaseHandler(ITenantServiceManager tenantServiceManager)
+    public GetTransactionByIdUseCaseHandler(ITenantDbContext tenantDbContext,IMapper mapper)
     {
-        _tenantServiceManager = tenantServiceManager;
+        _tenantDbContext = tenantDbContext;
+        _mapper = mapper;
     }
-    public Task<TransactionDto> Handle(GetTransactionByIdUseCase request, CancellationToken cancellationToken)
+    public async Task<TransactionDto> Handle(GetTransactionByIdUseCase request, CancellationToken cancellationToken)
     {
-        return _tenantServiceManager.TransactionService.GetTransactionById(request.TransactionId);
+        var transaction =
+            await _tenantDbContext.PaymentTransactions.FirstOrDefaultAsync(t => t.TransactionId == request.TransactionId, cancellationToken: cancellationToken);
+
+        return _mapper.Map<TransactionDto>(transaction);
+
     }
 }

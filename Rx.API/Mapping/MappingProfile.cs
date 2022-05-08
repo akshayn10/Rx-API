@@ -1,6 +1,8 @@
 ﻿using AutoMapper;
 using Rx.Domain.DTOs.Primary.Organization;
 using Rx.Domain.DTOs.Tenant.AddOn;
+using Rx.Domain.DTOs.Tenant.AddOnPricePerPlan;
+using Rx.Domain.DTOs.Tenant.AddOnUsage;
 using Rx.Domain.DTOs.Tenant.OrganizationCustomer;
 using Rx.Domain.DTOs.Tenant.Product;
 using Rx.Domain.DTOs.Tenant.ProductPlan;
@@ -37,6 +39,12 @@ namespace Rx.API.Mapping
             //AddOn
             CreateMap<AddOn, AddOnDto>();
             CreateMap<AddOnForCreationDto, AddOn>();
+            //AddOnUsage
+            CreateMap<AddOnUsage, AddOnUsageDto>();
+            CreateMap<AddOnUsageForCreationDto, AddOnUsage>();
+            //AddOnPricePerPlan
+            CreateMap<AddOnPricePerPlan, AddOnPricePerPlanDto>();
+            CreateMap<AddOnPricePerPlanForCreationDto, AddOnPricePerPlan>();
 
         }
     }

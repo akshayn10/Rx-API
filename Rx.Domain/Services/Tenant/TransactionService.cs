@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Rx.Domain.DTOs.Tenant.Transaction;
+using Rx.Domain.Entities.Tenant;
 using Rx.Domain.Interfaces.DbContext;
 using Rx.Domain.Interfaces.Tenant;
 
@@ -20,21 +21,20 @@ public class TransactionService:ITransactionService
         _logger = logger;
     }
 
-    public async Task<IEnumerable<TransactionDto>> GetTransactions()
-    {
-        var transactions = await _tenantDbContext.PaymentTransactions.ToListAsync();
-        return _mapper.Map<IEnumerable<TransactionDto>>(transactions);
-    }
+  
+    
 
-    public async Task<TransactionDto> GetTransactionById(Guid transactionId)
+    public async Task<TransactionDto> AddTransaction(Guid billId,TransactionForCreationDto transactionForCreationDto)
     {
-        var transaction = await _tenantDbContext.PaymentTransactions.FirstOrDefaultAsync(x => x.TransactionId == transactionId);
-        return _mapper.Map<TransactionDto>(transaction);
+        var bill = await _tenantDbContext.Bills.FirstOrDefaultAsync(x => x.BillId == billId);
+        if (bill == null)
+        {
+            throw new Exception("Bill not found");
+        }
         
-    }
-
-    public Task<TransactionDto> AddTransaction(TransactionForCreationDto transactionForCreationDto)
-    {
-        throw new NotImplementedException();
+        var transaction = _mapper.Map<PaymentTransaction>(transactionForCreationDto);
+        await _tenantDbContext.PaymentTransactions.AddAsync(transaction);
+        await _tenantDbContext.SaveChangesAsync();
+        return _mapper.Map<TransactionDto>(transaction);
     }
 }

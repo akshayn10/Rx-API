@@ -1,8 +1,10 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
+﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 namespace Rx.Domain.Entities.Tenant
 {
     public class AddOnPricePerPlan
     {
+        [Key]
         public Guid AddOnPricePerPlanId { get; set; }
 
         [Column(TypeName = "decimal(18,4)")]
