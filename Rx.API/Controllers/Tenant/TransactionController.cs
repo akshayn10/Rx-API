@@ -1,6 +1,7 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Rx.Application.UseCases.Tenant.Transaction;
+using Rx.Domain.DTOs.Tenant.Transaction;
 using Swashbuckle.AspNetCore.Annotations;
 
 namespace Rx.API.Controllers.Tenant;
@@ -36,10 +37,10 @@ public class TransactionController:ControllerBase
     }
     [HttpPost("{billId}")]
     [SwaggerOperation(Summary = "Create transaction")]
-    public async Task<IActionResult> CreateTransaction(string billId)
+    public async Task<IActionResult> CreateTransaction(string billId,[FromBody] TransactionForCreationDto transactionForCreationDto)
     {
-        var billGuid = new Guid(billId)
-        var transaction = await _mediator.Send(new CreateTransactionUseCase(billGuid));
+        var billGuid = new Guid(billId);
+        var transaction = await _mediator.Send(new CreateTransactionUseCase(billGuid,transactionForCreationDto));
         return Ok(transaction);
     }
     

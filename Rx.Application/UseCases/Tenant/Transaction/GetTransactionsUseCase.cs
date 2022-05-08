@@ -14,8 +14,9 @@ public class GetTransactionsUseCaseHandler : IRequestHandler<GetTransactionsUseC
     {
         _tenantServiceManager = tenantServiceManager;
     }
+
     public Task<IEnumerable<TransactionDto>> Handle(GetTransactionsUseCase request, CancellationToken cancellationToken)
     {
-        return _tenantServiceManager.TransactionService.GetTransactions();
+        throw new NotImplementedException();
     }
 }

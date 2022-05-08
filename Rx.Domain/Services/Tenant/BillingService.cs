@@ -2,6 +2,7 @@
 
 using AutoMapper;
 using Microsoft.Extensions.Logging;
+using Rx.Domain.DTOs.Tenant.Bill;
 using Rx.Domain.Interfaces;
 using Rx.Domain.Interfaces.DbContext;
 using Rx.Domain.Interfaces.Tenant;
@@ -19,6 +20,11 @@ namespace Rx.Domain.Services.Tenant
             _tenantDbContext = tenantDbContext;
             _logger = logger;
             _mapper = mapper;
+        }
+
+        public Task<BillDto> CreateBill(Guid subscriptonId, BillForCreationDto billForCreationDto)
+        {
+            throw new NotImplementedException();
         }
     }
 }

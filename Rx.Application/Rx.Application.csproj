@@ -9,7 +9,6 @@
   <ItemGroup>
     <Folder Include="Interfaces\" />
     <Folder Include="UseCases\Tenant\" />
-    <Folder Include="UseCases\Tenant\Billing" />
     <Folder Include="UseCases\Tenant\Payment" />
   </ItemGroup>
 

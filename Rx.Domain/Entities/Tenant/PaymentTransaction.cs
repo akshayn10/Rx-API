@@ -1,9 +1,8 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace Rx.Domain.Entities.Tenant
-{
-    public class PaymentTransaction
+namespace Rx.Domain.Entities.Tenant;
+public class PaymentTransaction
     {
         [Key]
         public Guid TransactionId { get; set; }
@@ -20,4 +19,4 @@ namespace Rx.Domain.Entities.Tenant
         public Guid BillId { get; set; }
         public Bill? Bill { get; set; }
     }
-}
+

@@ -1,9 +1,9 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-namespace Rx.Domain.Entities.Tenant
+namespace Rx.Domain.Entities.Tenant;
+
+public class Bill
 {
-    public class Bill
-    {
         [Key]
         [Column(name:"BillId")]
         public Guid BillId { get; set; }
@@ -22,4 +22,4 @@ namespace Rx.Domain.Entities.Tenant
         public Subscription? Subscription { get; set; }
 
     }
-}
+
