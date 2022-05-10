@@ -31,6 +31,7 @@ builder.Services.AddHangfire(x =>
 {
     x.UseSqlServerStorage(builder.Configuration.GetConnectionString("TenantDbConnection"));
 });
+builder.Services.AddHangfireServer();
 //Mediatr Configuration
 builder.Services.AddMediatR(typeof(ApplicationMediatrEntryPoint).Assembly);
 //AutoMapper
@@ -64,6 +65,7 @@ app.UseCors("MyCorsPolicy");
 app.UseAuthorization();
 
 app.UseHangfireDashboard();
+
 
 app.MapControllers();
 

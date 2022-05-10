@@ -1,5 +1,7 @@
 ﻿using System.ComponentModel;
 using AutoMapper;
+using Hangfire;
+using Hangfire.Server;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Rx.Domain.DTOs.Tenant.OrganizationCustomer;
@@ -16,14 +18,16 @@ namespace Rx.Domain.Services.Tenant
     public class SubscriptionService : ISubscriptionService
     {
         private readonly ITenantDbContext _tenantDbContext;
-        private readonly ILogger _logger;
+        private readonly ILogger<TenantServiceManager> _logger;
         private readonly IMapper _mapper;
+        private readonly IBackgroundJobClient _backgroundJobClient;
 
-        public SubscriptionService(ITenantDbContext tenantDbContext, ILogger logger, IMapper mapper)
+        public SubscriptionService(ITenantDbContext tenantDbContext, ILogger<TenantServiceManager> logger, IMapper mapper,IBackgroundJobClient backgroundJobClient)
         {
             _tenantDbContext = tenantDbContext;
             _logger = logger;
             _mapper = mapper;
+            _backgroundJobClient = backgroundJobClient;
         }
 
         public async Task<IEnumerable<SubscriptionDto>> GetSubscriptions()
@@ -59,6 +63,16 @@ namespace Rx.Domain.Services.Tenant
             return _mapper.Map<IEnumerable<SubscriptionDto>>(subscriptions);
         }
 
+        public async Task<SubscriptionDto> DeactivateeSubscription(Guid subscriptionId)
+        {
+            var subscription = await _tenantDbContext.Subscriptions!.FindAsync(subscriptionId);
+            subscription!.IsActive = false;
+            await _tenantDbContext.SaveChangesAsync();
+            
+            return _mapper.Map<SubscriptionDto>(subscription);
+            
+        }
+
         public async Task<SubscriptionDto> CreateSubscriptionFromWebhook(SubscriptionWebhookForCreationDto subscriptionWebhookForCreationDto)
         {
             var customer =await _tenantDbContext.OrganizationCustomers!.FirstOrDefaultAsync(c=>c.Email == subscriptionWebhookForCreationDto.customerEmail);
@@ -82,12 +96,13 @@ namespace Rx.Domain.Services.Tenant
             {
                 throw new Exception("Product or Plan not found");
             }
+            var planDuration = Convert.ToDouble(plan.Duration);
             //Create Subscription
             var subscriptionForCreationDto = new SubscriptionForCreationDto(
                 StartDate:DateTime.Now,
-                EndDate:DateTime.Now.AddDays((double) product!.FreeTrialDays),
+                EndDate:DateTime.Now.AddDays(planDuration),
                 IsActive:true,
-                IsTrial: (product!.FreeTrialDays <= 0),
+                IsTrial: (product!.FreeTrialDays > 0),
                 CreatedDate:DateTime.Now,
                 OrganizationCustomerId:customer.CustomerId,
                 ProductPlanId:plan.PlanId
@@ -95,6 +110,8 @@ namespace Rx.Domain.Services.Tenant
             var subscription = _mapper.Map<Subscription>(subscriptionForCreationDto);
             await _tenantDbContext.Subscriptions!.AddAsync(subscription);
             await _tenantDbContext.SaveChangesAsync();
+            // _backgroundJobClient.Schedule(()=>DeactivateSubscription(subscription.SubscriptionId), subscription.EndDate);
+            _backgroundJobClient.Schedule(()=>DeactivateeSubscription(subscription.SubscriptionId), subscription.CreatedDate.AddMinutes(1));
             return _mapper.Map<SubscriptionDto>(subscription);
 
         }

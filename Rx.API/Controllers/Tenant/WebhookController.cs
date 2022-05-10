@@ -16,14 +16,10 @@ namespace Rx.API.Controllers.Tenant
     {
         private readonly ILogger<WebhookController> _logger;
         private readonly IMediator _mediator;
-        private readonly IBackgroundJobClient _backgroundJobClient;
-        private readonly IRecurringJobManager _recurringJobManager;
-        public WebhookController(ILogger<WebhookController> logger, IMediator mediator, IBackgroundJobClient backgroundJobClient,IRecurringJobManager recurringJobManager)
+        public WebhookController(ILogger<WebhookController> logger, IMediator mediator)
         {
             _logger = logger;
             _mediator = mediator;
-            _backgroundJobClient = backgroundJobClient;
-            _recurringJobManager = recurringJobManager;
         }
         
         // Retrieve Subscription Webhooks

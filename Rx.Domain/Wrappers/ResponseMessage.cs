@@ -1,6 +1,6 @@
 ﻿namespace Rx.Domain.Wrappers;
 
-public class ResponseMessage<T>: ResponseMessage{
+public class    ResponseMessage<T>: ResponseMessage{
     public T? Payload { get; set; }= default;
     
     public static ResponseMessage<T> Success(T payload){
