@@ -30,17 +30,7 @@ namespace Rx.Domain.Services.Tenant
             return _mapper.Map<IEnumerable<ProductDto>>(products);
         }
 
-        public async Task<string> GetWebhookSecret(Guid productId)
-        {
-            // Product product = await _tenantDbContext.Products.FirstOrDefaultAsync(x => x.WebhookSecret == productId);
-            // if (product == null)
-            // {
-            //     throw new Exception("Product not found");
-            // }
-            var webhookSecret = "86527D5F-AAE8-427A-8F76-4C4A8A90F8D1";
 
-            return webhookSecret;
-        }
 
         public async Task<ProductDto> GetProductById(Guid productId)
         {
@@ -50,7 +40,9 @@ namespace Rx.Domain.Services.Tenant
 
         public async Task<ProductDto> AddProduct(ProductForCreationDto productForCreationDto)
         {
+            const string webhookSubscriptionSecretPrefix = "whs_";
             var product = _mapper.Map<Product>(productForCreationDto);
+            product.WebhookSecret = webhookSubscriptionSecretPrefix + Guid.NewGuid().ToString("N");
             await _tenantDbContext.Products!.AddAsync(product);
             await _tenantDbContext.SaveChangesAsync();
              return _mapper.Map<ProductDto>(product);

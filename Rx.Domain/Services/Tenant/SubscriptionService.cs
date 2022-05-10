@@ -1,6 +1,8 @@
-﻿using AutoMapper;
+﻿using System.ComponentModel;
+using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using Rx.Domain.DTOs.Tenant.OrganizationCustomer;
 using Rx.Domain.DTOs.Tenant.Subscription;
 using Rx.Domain.Entities.Tenant;
 using Rx.Domain.Interfaces;
@@ -55,6 +57,46 @@ namespace Rx.Domain.Services.Tenant
         {
             var subscriptions = await _tenantDbContext.Subscriptions!.Where(x => x.OrganizationCustomerId == customerId).ToListAsync();
             return _mapper.Map<IEnumerable<SubscriptionDto>>(subscriptions);
+        }
+
+        public async Task<SubscriptionDto> CreateSubscriptionFromWebhook(SubscriptionWebhookForCreationDto subscriptionWebhookForCreationDto)
+        {
+            var customer =await _tenantDbContext.OrganizationCustomers!.FirstOrDefaultAsync(c=>c.Email == subscriptionWebhookForCreationDto.customerEmail);
+            
+            if (customer is null)
+            {
+                var customerForCreationDto = new OrganizationCustomerForCreationDto(
+                    Email: subscriptionWebhookForCreationDto.customerEmail,
+                    Name: subscriptionWebhookForCreationDto.customerName
+                );
+                //Create New Customer
+                customer = _mapper.Map<OrganizationCustomer>(customerForCreationDto);
+                await _tenantDbContext.OrganizationCustomers!.AddAsync(customer);
+                await _tenantDbContext.SaveChangesAsync();
+                
+            }
+            //GetPlanDetails
+            var plan = await _tenantDbContext.ProductPlans!.FindAsync(subscriptionWebhookForCreationDto.productPlanId);
+            var product = await _tenantDbContext.Products!.FindAsync(plan!.ProductId);
+            if (product == null || plan == null)
+            {
+                throw new Exception("Product or Plan not found");
+            }
+            //Create Subscription
+            var subscriptionForCreationDto = new SubscriptionForCreationDto(
+                StartDate:DateTime.Now,
+                EndDate:DateTime.Now.AddDays((double) product!.FreeTrialDays),
+                IsActive:true,
+                IsTrial: (product!.FreeTrialDays <= 0),
+                CreatedDate:DateTime.Now,
+                OrganizationCustomerId:customer.CustomerId,
+                ProductPlanId:plan.PlanId
+            );
+            var subscription = _mapper.Map<Subscription>(subscriptionForCreationDto);
+            await _tenantDbContext.Subscriptions!.AddAsync(subscription);
+            await _tenantDbContext.SaveChangesAsync();
+            return _mapper.Map<SubscriptionDto>(subscription);
+
         }
     }
 }

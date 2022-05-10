@@ -19,16 +19,14 @@ public class AddOnController : ControllerBase
         _mediator = mediator;
         _logger = logger;
     }
-
-
-
+    
     [HttpGet]
+    [SwaggerOperation(Summary = "Get all addOns")]
     public async Task<IActionResult> GetAddOnDtos(string productId)
     {
         var productGuid = new Guid(productId);
         var addOns = await _mediator.Send(new GetAddOnDtosUseCase(productGuid));
         return Ok(addOns);
-
     }
 
     [HttpGet("{addOnId}")]

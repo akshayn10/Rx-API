@@ -29,7 +29,7 @@ public class TransactionService:ITransactionService
         var bill = await _tenantDbContext.Bills.FirstOrDefaultAsync(x => x.BillId == billId);
         if (bill == null)
         {
-            throw new Exception("Bill not found");
+            throw new InvalidOperationException("Bill not found");
         }
         
         var transaction = _mapper.Map<PaymentTransaction>(transactionForCreationDto);
