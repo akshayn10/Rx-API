@@ -5,7 +5,7 @@ namespace Rx.Domain.Interfaces.Tenant
 {
     public interface IProductService
     {
-        Task<IEnumerable<ProductDto>> GetProducts();
+        Task<IEnumerable<ProductVm>> GetProductVms();
         Task<ProductDto> GetProductById(Guid productId);
 
         Task<ProductDto> AddProduct(ProductForCreationDto productForCreationDto);
@@ -13,6 +13,7 @@ namespace Rx.Domain.Interfaces.Tenant
         Task<IEnumerable<OrganizationCustomerDto>> GetCustomersForProduct(Guid productId);
         
         Task<IEnumerable<ProductDto>> GetProductsForCustomer(Guid customerId);
+        
 
 
     }

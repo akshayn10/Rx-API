@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using MediatR;
+﻿using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Rx.Application.UseCases.Tenant.Product;
 using Rx.Domain.DTOs.Tenant.Product;
@@ -27,7 +22,7 @@ namespace Rx.API.Controllers.Tenant
         [SwaggerOperation(Summary = "Get all products")]
         public async Task<IActionResult> GetProducts()
         {
-            var products = await _mediator.Send(new GetProductsUseCase());
+            var products = await _mediator.Send(new GetProductVmsUseCase());
             return Ok(products);
         }
 
@@ -37,6 +32,7 @@ namespace Rx.API.Controllers.Tenant
         public async Task<IActionResult> GetProductById(Guid id)
         {
             var product = await _mediator.Send(new GetProductByIdUseCase(id));
+            
             return Ok(product);
 
         }

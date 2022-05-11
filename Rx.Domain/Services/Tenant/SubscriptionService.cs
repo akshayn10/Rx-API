@@ -76,7 +76,6 @@ namespace Rx.Domain.Services.Tenant
         public async Task<SubscriptionDto> CreateSubscriptionFromWebhook(SubscriptionWebhookForCreationDto subscriptionWebhookForCreationDto)
         {
             var customer =await _tenantDbContext.OrganizationCustomers!.FirstOrDefaultAsync(c=>c.Email == subscriptionWebhookForCreationDto.customerEmail);
-            
             if (customer is null)
             {
                 var customerForCreationDto = new OrganizationCustomerForCreationDto(
@@ -87,8 +86,8 @@ namespace Rx.Domain.Services.Tenant
                 customer = _mapper.Map<OrganizationCustomer>(customerForCreationDto);
                 await _tenantDbContext.OrganizationCustomers!.AddAsync(customer);
                 await _tenantDbContext.SaveChangesAsync();
-                
             }
+            
             //GetPlanDetails
             var plan = await _tenantDbContext.ProductPlans!.FindAsync(subscriptionWebhookForCreationDto.productPlanId);
             var product = await _tenantDbContext.Products!.FindAsync(plan!.ProductId);

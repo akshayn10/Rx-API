@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.Extensions.Logging;
 using Rx.Domain.DTOs.Tenant.OrganizationCustomer;
 using Rx.Domain.DTOs.Tenant.Product;
@@ -24,10 +25,25 @@ namespace Rx.Domain.Services.Tenant
             _mapper = mapper;
         }
 
-        public async Task<IEnumerable<ProductDto>> GetProducts()
+        public async Task<IEnumerable<ProductVm>> GetProductVms()
         {
-            var products = await _tenantDbContext.Products!.ToListAsync();
-            return _mapper.Map<IEnumerable<ProductDto>>(products);
+            var products = await _tenantDbContext.Products!.
+                Select(p => new
+                {
+                    p.ProductId,p.Name,p.WebhookURL,p.LogoURL
+                }).ToListAsync();
+            var planCount =await _tenantDbContext.ProductPlans!.GroupBy(p=>p.PlanId).Select(group=>new {group.Key,Count=group.Count()}).ToListAsync();
+            var addOnCount =await _tenantDbContext.AddOns!.GroupBy(p=>p.AddOnId).Select(group=>new {group.Key,Count=group.Count()}).ToListAsync();
+
+            var productVms = from p in products
+                join pc in planCount on p.ProductId equals pc.Key
+                join ac in addOnCount on p.ProductId equals ac.Key
+                select (
+                    new ProductVm(
+                        ProductId: p.ProductId.ToString(), Name: p.Name, WebhookURL: p.WebhookURL, LogoURL: p.LogoURL,
+                        PlanCount: pc.Count, AddOnCount: ac.Count
+                    ));
+            return productVms;
         }
 
 
