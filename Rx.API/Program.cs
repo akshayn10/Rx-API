@@ -42,6 +42,13 @@ builder.Services.AddSwaggerGen(
             x.EnableAnnotations();
     }
     );
+builder.Services.AddCors((setup) =>
+{
+    setup.AddPolicy("default", (options) =>
+    {
+        options.AllowAnyMethod().AllowAnyHeader().AllowAnyOrigin();
+    });
+});
 
 
 var app = builder.Build();
@@ -56,7 +63,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-app.UseCors("MyCorsPolicy");
+app.UseCors("default");
 
 app.UseAuthorization();
 

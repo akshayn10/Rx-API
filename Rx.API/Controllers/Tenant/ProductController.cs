@@ -27,7 +27,7 @@ namespace Rx.API.Controllers.Tenant
         [SwaggerOperation(Summary = "Get all products")]
         public async Task<IActionResult> GetProducts()
         {
-            var products = await _mediator.Send(new GetProductsUseCase());
+            var products = await _mediator.Send(new GetProductVmsUseCase());
             return Ok(products);
         }
 
