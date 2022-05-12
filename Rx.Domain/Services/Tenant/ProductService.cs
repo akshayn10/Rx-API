@@ -1,6 +1,5 @@
 ﻿using AutoMapper;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.Extensions.Logging;
 using Rx.Domain.DTOs.Tenant.OrganizationCustomer;
 using Rx.Domain.DTOs.Tenant.Product;

@@ -17,7 +17,7 @@ namespace Rx.Infrastructure.Persistence.Context
             base.OnModelCreating(builder);
             builder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
         }
-
+        
         public DbSet<Organization>? Organizations { get; set; }
         public async Task<int> SaveChangesAsync()
         {
