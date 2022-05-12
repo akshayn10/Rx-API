@@ -16,7 +16,6 @@ public class BillController:ControllerBase
     {
         _mediator = mediator;
     }
-
     [HttpGet("{subscriptionId}")]
     [SwaggerOperation(Summary = "Get All Bills")]
     public async Task<IActionResult> GetAllBills(string subscriptionId)

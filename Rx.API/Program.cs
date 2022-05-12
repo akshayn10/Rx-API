@@ -9,8 +9,11 @@ using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
 var logger = new LoggerConfiguration()
+    .MinimumLevel.Debug()
+    .MinimumLevel.Override("Microsoft", Serilog.Events.LogEventLevel.Information)
     .ReadFrom.Configuration(builder.Configuration)
     .Enrich.FromLogContext()
+    .WriteTo.Console()
     .CreateLogger();
 builder.Logging.ClearProviders();
 builder.Logging.AddSerilog(logger);
@@ -28,6 +31,7 @@ builder.Services.AddHangfire(x =>
 {
     x.UseSqlServerStorage(builder.Configuration.GetConnectionString("TenantDbConnection"));
 });
+builder.Services.AddHangfireServer();
 //Mediatr Configuration
 builder.Services.AddMediatR(typeof(ApplicationMediatrEntryPoint).Assembly);
 //AutoMapper
@@ -68,6 +72,7 @@ app.UseCors("default");
 app.UseAuthorization();
 
 app.UseHangfireDashboard();
+
 
 app.MapControllers();
 

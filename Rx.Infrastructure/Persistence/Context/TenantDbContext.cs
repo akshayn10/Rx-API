@@ -18,6 +18,9 @@ namespace Rx.Infrastructure.Persistence.Context
         {
             base.OnModelCreating(builder);
             builder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
+            builder.Entity<OrganizationCustomer>()
+                .HasIndex(c => c.Email)
+                .IsUnique();
         }
 
         public DbSet<OrganizationCustomer>? OrganizationCustomers { get; set; }

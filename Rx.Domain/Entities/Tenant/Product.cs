@@ -17,14 +17,9 @@ namespace Rx.Domain.Entities.Tenant
 
         [Required(ErrorMessage = "WebhookURL is a required field.")]
         public string? WebhookURL { get; set; }
-        
-        [Required(ErrorMessage = "RedirectURL is a required field.")] 
-        public string? RedirectURL { get; set; }
-        
         [Required(ErrorMessage = "Webhook Secret is a required field.")]
-        
         public string? WebhookSecret { get; set; }
-        
+
         public string? LogoURL { get; set; }
         
         public int FreeTrialDays { get; set; }

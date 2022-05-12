@@ -24,23 +24,28 @@ namespace Rx.Domain.Services.Tenant
             _mapper = mapper;
         }
 
-        public async Task<IEnumerable<ProductDto>> GetProducts()
+        public async Task<IEnumerable<ProductVm>> GetProductVms()
         {
-            var products = await _tenantDbContext.Products!.ToListAsync();
-            return _mapper.Map<IEnumerable<ProductDto>>(products);
+            var products = await _tenantDbContext.Products!.
+                Select(p => new
+                {
+                    p.ProductId,p.Name,p.WebhookURL,p.LogoURL
+                }).ToListAsync();
+            var planCount =await _tenantDbContext.ProductPlans!.GroupBy(p=>p.PlanId).Select(group=>new {group.Key,Count=group.Count()}).ToListAsync();
+            var addOnCount =await _tenantDbContext.AddOns!.GroupBy(p=>p.AddOnId).Select(group=>new {group.Key,Count=group.Count()}).ToListAsync();
+
+            var productVms = from p in products
+                join pc in planCount on p.ProductId equals pc.Key
+                join ac in addOnCount on p.ProductId equals ac.Key
+                select (
+                    new ProductVm(
+                        ProductId: p.ProductId.ToString(), Name: p.Name, WebhookURL: p.WebhookURL, LogoURL: p.LogoURL,
+                        PlanCount: pc.Count, AddOnCount: ac.Count
+                    ));
+            return productVms;
         }
 
-        public async Task<string> GetWebhookSecret(Guid productId)
-        {
-            // Product product = await _tenantDbContext.Products.FirstOrDefaultAsync(x => x.WebhookSecret == productId);
-            // if (product == null)
-            // {
-            //     throw new Exception("Product not found");
-            // }
-            var webhookSecret = "86527D5F-AAE8-427A-8F76-4C4A8A90F8D1";
 
-            return webhookSecret;
-        }
 
         public async Task<ProductDto> GetProductById(Guid productId)
         {
@@ -50,7 +55,9 @@ namespace Rx.Domain.Services.Tenant
 
         public async Task<ProductDto> AddProduct(ProductForCreationDto productForCreationDto)
         {
+            const string webhookSubscriptionSecretPrefix = "whs_";
             var product = _mapper.Map<Product>(productForCreationDto);
+            product.WebhookSecret = webhookSubscriptionSecretPrefix + Guid.NewGuid().ToString("N");
             await _tenantDbContext.Products!.AddAsync(product);
             await _tenantDbContext.SaveChangesAsync();
              return _mapper.Map<ProductDto>(product);

@@ -1,22 +1,26 @@
 ﻿using MediatR;
+using Microsoft.EntityFrameworkCore;
 using Rx.Domain.Interfaces;
+using Rx.Domain.Interfaces.DbContext;
 
 
 namespace Rx.Application.UseCases.Tenant.Webhook;
 
-public record GetWebhookSecretUseCase(Guid productId) : IRequest<string>;
+public record GetWebhookSecretUseCase(Guid ProductId) : IRequest<string>;
 
 public class GetWebhookSecretUseCaseHandler:IRequestHandler<GetWebhookSecretUseCase,string>
 {
-    private readonly ITenantServiceManager _tenantServiceManager;
+    private readonly ITenantDbContext _tenantDbContext;
 
-    public GetWebhookSecretUseCaseHandler(ITenantServiceManager tenantServiceManager)
+    public GetWebhookSecretUseCaseHandler(ITenantDbContext tenantDbContext)
     {
-        _tenantServiceManager = tenantServiceManager;
+        _tenantDbContext = tenantDbContext;
     }
 
-    public Task<string> Handle(GetWebhookSecretUseCase request, CancellationToken cancellationToken)
+    public async Task<string> Handle(GetWebhookSecretUseCase request, CancellationToken cancellationToken)
     {
-        return _tenantServiceManager.ProductService.GetWebhookSecret(request.productId);
+        var webhookSecret = await _tenantDbContext.Products!.Where(p=>p.ProductId==request.ProductId)
+            .Select(p=>p.WebhookSecret).FirstOrDefaultAsync(cancellationToken: cancellationToken);
+        return webhookSecret ?? throw new InvalidOperationException("");
     }
 }

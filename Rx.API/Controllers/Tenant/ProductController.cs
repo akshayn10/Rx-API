@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using MediatR;
+﻿using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Rx.Application.UseCases.Tenant.Product;
 using Rx.Domain.DTOs.Tenant.Product;
@@ -37,6 +32,7 @@ namespace Rx.API.Controllers.Tenant
         public async Task<IActionResult> GetProductById(Guid id)
         {
             var product = await _mediator.Send(new GetProductByIdUseCase(id));
+            
             return Ok(product);
 
         }

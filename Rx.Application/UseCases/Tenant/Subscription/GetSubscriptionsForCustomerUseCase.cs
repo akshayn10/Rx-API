@@ -44,7 +44,6 @@ public class GetSubscriptionsForCustomerUseCaseHandler : IRequestHandler<GetSubs
                             createdDate: s.CreatedDate.ToString(),
                             endDate: s.EndDate.ToString(),
                             status: s.IsActive ? "Active" : "Inactive"
-
                         )
                 );
                 return subscriptionVms;

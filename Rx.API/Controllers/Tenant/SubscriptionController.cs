@@ -27,6 +27,13 @@ namespace Rx.API.Controllers.Tenant
             var result = await _mediator.Send(new GetSubscriptionsUseCase());
             return Ok(result);
         }
+        [HttpGet("/deactivate/{subscriptionId}")]
+        [SwaggerOperation(Summary = "Cancel subscription")]
+        public async Task<IActionResult> DeactivateSubscription(string subscriptionId)
+        {
+           var result = await _mediator.Send(new DeactivateSubscriptionUseCase(Guid.Parse(subscriptionId)));
+           return Ok(result);
+        }
         
         [HttpGet("dtos")]
         [SwaggerOperation(Summary = "Get all subscriptions Dto")]

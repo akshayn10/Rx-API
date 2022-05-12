@@ -23,9 +23,9 @@ namespace Rx.Domain.Services.Tenant
             _mapper = mapper;
         }
 
-        public async Task<BillDto> CreateBill(Guid subscriptonId, BillForCreationDto billForCreationDto)
+        public async Task<BillDto> CreateBill(Guid subscriptionId, BillForCreationDto billForCreationDto)
         {
-            var subscription = await _tenantDbContext.Subscriptions!.FindAsync(subscriptonId);
+            var subscription = await _tenantDbContext.Subscriptions!.FindAsync(subscriptionId);
             
             if(subscription == null)
                 throw new Exception("Subscription not found");
