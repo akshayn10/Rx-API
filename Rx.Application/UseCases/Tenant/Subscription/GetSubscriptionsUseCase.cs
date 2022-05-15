@@ -28,7 +28,8 @@ public class GetSubscriptionUseCaseHandler : IRequestHandler<GetSubscriptionsUse
                 {
                     s.SubscriptionId, CustomerName = oc.Name,ProductName=p.Name, PlanName = pp.Name, s.CreatedDate, s.EndDate, s.IsActive
                 }).ToListAsync(cancellationToken);
-        var subscriptionsVms = subscriptions.Select(s =>
+        var subVmsOrdered = subscriptions.OrderByDescending(s => s.CreatedDate);
+        var subscriptionsVms = subVmsOrdered.Select(s =>
             new SubscriptionVm(
                 subscriptionId: s.SubscriptionId.ToString(),
                 customerName: s.CustomerName,

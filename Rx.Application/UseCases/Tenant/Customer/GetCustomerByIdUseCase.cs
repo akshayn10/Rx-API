@@ -1,6 +1,8 @@
-﻿using MediatR;
+﻿using AutoMapper;
+using MediatR;
 using Rx.Domain.DTOs.Tenant.OrganizationCustomer;
 using Rx.Domain.Interfaces;
+using Rx.Domain.Interfaces.DbContext;
 
 namespace Rx.Application.UseCases.Tenant.Customer;
 
@@ -8,14 +10,17 @@ public record GetCustomerByIdUseCase(Guid Id):IRequest<OrganizationCustomerDto>;
 
 public class GetCustomerByIdUseCaseHandler : IRequestHandler<GetCustomerByIdUseCase,OrganizationCustomerDto>
 {
-    private readonly ITenantServiceManager _tenantServiceManager;
+    private readonly ITenantDbContext _tenantDbContext;
+    private readonly IMapper _mapper;
 
-    public GetCustomerByIdUseCaseHandler(ITenantServiceManager tenantServiceManager)
+    public GetCustomerByIdUseCaseHandler(ITenantDbContext tenantDbContext,IMapper mapper)
     {
-        _tenantServiceManager = tenantServiceManager;
+        _tenantDbContext = tenantDbContext;
+        _mapper = mapper;
     }
-    public Task<OrganizationCustomerDto> Handle(GetCustomerByIdUseCase request, CancellationToken cancellationToken)
+    public async Task<OrganizationCustomerDto> Handle(GetCustomerByIdUseCase request, CancellationToken cancellationToken)
     {
-        return _tenantServiceManager.OrganizationCustomerService.GetCustomerById(request.Id);
+        var customer = await _tenantDbContext.OrganizationCustomers!.FindAsync(request.Id);
+        return _mapper.Map<OrganizationCustomerDto>(customer);
     }
 }

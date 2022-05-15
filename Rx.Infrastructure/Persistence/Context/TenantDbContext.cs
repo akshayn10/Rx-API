@@ -11,9 +11,6 @@ namespace Rx.Infrastructure.Persistence.Context
             : base(options)
         {
         }
-
-
-
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);

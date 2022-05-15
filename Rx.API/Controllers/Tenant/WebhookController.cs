@@ -29,9 +29,7 @@ namespace Rx.API.Controllers.Tenant
         {
             var tenantId = Request.Headers["TenantId"];
             var secret =Request.Headers["Secret"];
-            _logger.LogInformation(secret + " " + tenantId + " " + subscriptionWebhookForCreationDto);
             var subscription =await _mediator.Send(new CreateSubscriptionFromWebhookUseCase(subscriptionWebhookForCreationDto));
-            _logger.LogInformation(subscription.ToString()+"Created");
             return Ok(subscription);
         }
         [HttpPost("unsubscribe",Name = "UnsubscribeWebhook")]

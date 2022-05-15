@@ -36,10 +36,8 @@ namespace Rx.API.Controllers.Tenant
             var customers = await _mediator.Send(new GetCustomersDtoUseCase() );
             return Ok(customers);
         }
-        [HttpGet]
+        [HttpGet("{id:guid}")]
         [SwaggerOperation(Summary = "Get customer by id")]
-
-        [Route("{id:guid}")]
         public async Task<IActionResult> GetCustomerById(Guid id)
         {
             var customer = await _mediator.Send(new GetCustomerByIdUseCase(id));
