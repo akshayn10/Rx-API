@@ -38,7 +38,7 @@ public class GetProductVmsUseCaseHandler : IRequestHandler<GetProductVmsUseCase,
             from ac in acGroup.DefaultIfEmpty()
             select (
                 new ProductVm(
-                    ProductId: p.ProductId.ToString(), Name: p.Name, RedirectUrl: p.RedirectURL, LogoURL: p.LogoURL,
+                    ProductId: p.ProductId.ToString(), Name: p.Name, RedirectURL: p.RedirectURL, LogoURL: p.LogoURL,
                     PlanCount: pc?.Count??0, AddOnCount: ac?.Count??0
                 ));
         return productVms;
