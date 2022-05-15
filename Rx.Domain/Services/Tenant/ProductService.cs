@@ -29,7 +29,7 @@ namespace Rx.Domain.Services.Tenant
             var products = await _tenantDbContext.Products!.
                 Select(p => new
                 {
-                    p.ProductId,p.Name,p.WebhookURL,p.LogoURL
+                    p.ProductId,p.Name,p.RedirectURL,p.LogoURL
                 }).ToListAsync();
             var planCount =await _tenantDbContext.ProductPlans!.GroupBy(p=>p.PlanId).Select(group=>new {group.Key,Count=group.Count()}).ToListAsync();
             var addOnCount =await _tenantDbContext.AddOns!.GroupBy(p=>p.AddOnId).Select(group=>new {group.Key,Count=group.Count()}).ToListAsync();
@@ -39,7 +39,7 @@ namespace Rx.Domain.Services.Tenant
                 join ac in addOnCount on p.ProductId equals ac.Key
                 select (
                     new ProductVm(
-                        ProductId: p.ProductId.ToString(), Name: p.Name, WebhookURL: p.WebhookURL, LogoURL: p.LogoURL,
+                        ProductId: p.ProductId.ToString(), Name: p.Name, RedirectUrl: p.RedirectURL, LogoURL: p.LogoURL,
                         PlanCount: pc.Count, AddOnCount: ac.Count
                     ));
             return productVms;
