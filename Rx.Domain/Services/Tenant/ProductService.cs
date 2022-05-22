@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Azure.Storage.Blobs;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Rx.Domain.DTOs.Tenant.OrganizationCustomer;
@@ -14,10 +15,10 @@ namespace Rx.Domain.Services.Tenant
     public class ProductService : IProductService
     {
         private readonly ITenantDbContext _tenantDbContext;
-        private readonly ILogger _logger;
+        private readonly ILogger<ITenantServiceManager> _logger;
         private readonly IMapper _mapper;
 
-        public ProductService(ITenantDbContext tenantDbContext,ILogger logger, IMapper mapper)
+        public ProductService(ITenantDbContext tenantDbContext,ILogger<ITenantServiceManager> logger, IMapper mapper)
         {
             _tenantDbContext = tenantDbContext;
             _logger = logger;
@@ -55,11 +56,26 @@ namespace Rx.Domain.Services.Tenant
 
         public async Task<ProductDto> AddProduct(ProductForCreationDto productForCreationDto)
         {
+            _logger.LogInformation("Upload Started");
+            var blobStorageConnectionString ="DefaultEndpointsProtocol=https;AccountName=rxdevelopment;AccountKey=uRXyw2yHQamvLr0ymkSiMYCJZX3DdZuzLEhQBlg+u7h0vaOBybfkdei+l0R/SYi83//D9vkkPboj5zGwrIQVEQ==;EndpointSuffix=core.windows.net";
+            var blobContainerName = "productlogo";
+            var container  = new BlobContainerClient(blobStorageConnectionString, blobContainerName);
+            var stream = File.OpenRead("C:/Users/Acer/Desktop/Project/enadoc.jpg");
+            var path =stream.Name ;
+            var extension = Path.GetExtension(path);
+            var blob = container.GetBlobClient(productForCreationDto.Name+Guid.NewGuid().ToString("N")+extension);
+
+            await blob.UploadAsync(stream);
+            _logger.LogInformation("Upload Completed");
+
             const string webhookSubscriptionSecretPrefix = "whs_";
             var product = _mapper.Map<Product>(productForCreationDto);
+            product.LogoURL = blob.OpenReadAsync().ToString();
             product.WebhookSecret = webhookSubscriptionSecretPrefix + Guid.NewGuid().ToString("N");
             await _tenantDbContext.Products!.AddAsync(product);
             await _tenantDbContext.SaveChangesAsync();
+            
+            
              return _mapper.Map<ProductDto>(product);
         }
 
