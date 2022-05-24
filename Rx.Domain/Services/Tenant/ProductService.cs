@@ -1,11 +1,11 @@
 ﻿using AutoMapper;
-using Azure.Storage.Blobs;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Rx.Domain.DTOs.Tenant.OrganizationCustomer;
 using Rx.Domain.DTOs.Tenant.Product;
 using Rx.Domain.Entities.Tenant;
 using Rx.Domain.Interfaces;
+using Rx.Domain.Interfaces.Blob;
 using Rx.Domain.Interfaces.DbContext;
 using Rx.Domain.Interfaces.Tenant;
 
@@ -17,12 +17,14 @@ namespace Rx.Domain.Services.Tenant
         private readonly ITenantDbContext _tenantDbContext;
         private readonly ILogger<ITenantServiceManager> _logger;
         private readonly IMapper _mapper;
+        private readonly IBlobStorage _blobStorage;
 
-        public ProductService(ITenantDbContext tenantDbContext,ILogger<ITenantServiceManager> logger, IMapper mapper)
+        public ProductService(ITenantDbContext tenantDbContext,ILogger<ITenantServiceManager> logger, IMapper mapper,IBlobStorage blobStorage)
         {
             _tenantDbContext = tenantDbContext;
             _logger = logger;
             _mapper = mapper;
+            _blobStorage = blobStorage;
         }
 
         public async Task<IEnumerable<ProductVm>> GetProductVms()
@@ -53,31 +55,21 @@ namespace Rx.Domain.Services.Tenant
             var product = await _tenantDbContext.Products!.FirstOrDefaultAsync(x => x.ProductId ==productId);
             return _mapper.Map<ProductDto>(product);
         }
-
         public async Task<ProductDto> AddProduct(ProductForCreationDto productForCreationDto)
         {
             _logger.LogInformation(productForCreationDto.ToString());
             var fileName=string.Empty;
-
-            
             _logger.LogInformation("Upload Started");
-            var blobStorageConnectionString ="DefaultEndpointsProtocol=https;AccountName=rxdevelopment;AccountKey=uRXyw2yHQamvLr0ymkSiMYCJZX3DdZuzLEhQBlg+u7h0vaOBybfkdei+l0R/SYi83//D9vkkPboj5zGwrIQVEQ==;EndpointSuffix=core.windows.net";
-            var blobContainerName = "productlogo";
-            var container  = new BlobContainerClient(blobStorageConnectionString, blobContainerName);
             var logoImage = productForCreationDto.LogoImage;
-            if (logoImage.Length > 0) {
-                await using (var fileStream = new FileStream(logoImage.FileName, FileMode.Create)) {
-                    _logger.LogInformation("file found");
-                    await logoImage.CopyToAsync(fileStream);
-                    fileName = fileStream.Name;
-                    
-                }
+            if (logoImage.Length > 0)
+            {
+                await using var fileStream = new FileStream(logoImage.FileName, FileMode.Create);
+                _logger.LogInformation("file found");
+                await logoImage.CopyToAsync(fileStream);
+                fileName = fileStream.Name;
             }
             var stream = File.OpenRead(logoImage.FileName);
-            var path =stream.Name;
-            var extension = Path.GetExtension(path);
-            var blob = container.GetBlobClient(productForCreationDto.Name+Guid.NewGuid().ToString("N")+extension);
-            await blob.UploadAsync(stream);
+            var url =await _blobStorage.UploadFile(stream,productForCreationDto.Name);
             _logger.LogInformation("Upload Completed");
             stream.Close();
             File.Delete(fileName);
@@ -89,7 +81,7 @@ namespace Rx.Domain.Services.Tenant
                 Description = productForCreationDto.Description,
                 WebhookURL = productForCreationDto.WebhookURL,
                 WebhookSecret = webhookSubscriptionSecretPrefix + Guid.NewGuid().ToString("N"),
-                LogoURL = blob.Uri.ToString(),
+                LogoURL = url,
                 FreeTrialDays = productForCreationDto.FreeTrialDays,
                 RedirectURL = productForCreationDto.RedirectUrl
 

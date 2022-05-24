@@ -1,7 +1,9 @@
 ﻿using AutoMapper;
+using Azure.Storage.Blobs;
 using Hangfire;
 using Microsoft.Extensions.Logging;
 using Rx.Domain.Interfaces;
+using Rx.Domain.Interfaces.Blob;
 using Rx.Domain.Interfaces.DbContext;
 using Rx.Domain.Interfaces.Tenant;
 
@@ -18,10 +20,10 @@ namespace Rx.Domain.Services.Tenant
         private readonly Lazy<IAddOnService> _addOnService;
         private readonly Lazy<IAddOnUsageService> _addOnUsageService;
 
-        public TenantServiceManager(ITenantDbContext tenantDbContext,ILogger<TenantServiceManager> logger, IMapper mapper,IBackgroundJobClient backgroundJobClient)
+        public TenantServiceManager(ITenantDbContext tenantDbContext,ILogger<TenantServiceManager> logger, IMapper mapper,IBackgroundJobClient backgroundJobClient,IBlobStorage blobStorage)
         {
             _organizationCustomerService = new Lazy<IOrganizationCustomerService>(() => new OrganizationCustomerService(tenantDbContext, logger, mapper));
-            _productService = new Lazy<IProductService>(() => new ProductService(tenantDbContext, logger, mapper));
+            _productService = new Lazy<IProductService>(() => new ProductService(tenantDbContext, logger, mapper,blobStorage));
             _subscriptionService = new Lazy<ISubscriptionService>(() => new SubscriptionService(tenantDbContext, logger, mapper,backgroundJobClient));
             _billingService = new Lazy<IBillingService>(() => new BillingService(tenantDbContext, logger,mapper));
             _productPlanService = new Lazy<IProductPlanService>(() => new ProductPlanService(tenantDbContext, mapper, logger) );

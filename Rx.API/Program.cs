@@ -1,5 +1,7 @@
+using Azure.Storage.Blobs;
 using Hangfire;
 using MediatR;
+using Microsoft.Extensions.Azure;
 using Microsoft.OpenApi.Models;
 using Rx.API.Extensions;
 using Rx.Application;
@@ -21,6 +23,10 @@ builder.Logging.AddSerilog(logger);
 // Add services to the container.
 
 builder.Services.AddPersistence(builder.Configuration);
+
+
+
+builder.Services.AddBlobStorage(builder.Configuration);
 builder.Services.ConfigureCors();
 builder.Services.ConfigureIISIntegration();
 builder.Services.ConfigureServiceManager();
@@ -31,6 +37,7 @@ builder.Services.AddHangfire(x =>
 {
     x.UseSqlServerStorage(builder.Configuration.GetConnectionString("TenantDbConnection"));
 });
+
 builder.Services.AddHangfireServer();
 //Mediatr Configuration
 builder.Services.AddMediatR(typeof(ApplicationMediatrEntryPoint).Assembly);

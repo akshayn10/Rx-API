@@ -1,6 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Azure;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Rx.Domain.Interfaces.Blob;
 using Rx.Domain.Interfaces.DbContext;
 using Rx.Infrastructure.Persistence.Context;
 
@@ -24,6 +26,14 @@ namespace Rx.Infrastructure.Persistence
                     b => b.MigrationsAssembly(typeof(TenantDbContext).Assembly.FullName)));
 
             services.AddScoped<ITenantDbContext>(provider => provider.GetService<TenantDbContext>() ?? throw new InvalidOperationException());
+        }
+        public static void AddBlobStorage(this IServiceCollection services, IConfiguration configuration)
+        {
+            services.AddAzureClients(b=>
+            {
+                b.AddBlobServiceClient(configuration.GetConnectionString("productBlobStorageConnectionString"));
+            });
+            services.AddScoped<IBlobStorage, BlobStorage>();
         }
         
     }
