@@ -39,7 +39,7 @@ namespace Rx.API.Controllers.Tenant
 
         [HttpPost(Name = "CreateProduct")]
         [SwaggerOperation(Summary = "Create a new product")]
-        public async Task<IActionResult> CreateProduct([FromBody] ProductForCreationDto productForCreationDto)
+        public async Task<IActionResult> CreateProduct([FromForm] ProductForCreationDto productForCreationDto)
         {
             if (productForCreationDto is null)
             {

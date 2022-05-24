@@ -56,24 +56,47 @@ namespace Rx.Domain.Services.Tenant
 
         public async Task<ProductDto> AddProduct(ProductForCreationDto productForCreationDto)
         {
+            _logger.LogInformation(productForCreationDto.ToString());
+            var fileName=string.Empty;
+
+            
             _logger.LogInformation("Upload Started");
             var blobStorageConnectionString ="DefaultEndpointsProtocol=https;AccountName=rxdevelopment;AccountKey=uRXyw2yHQamvLr0ymkSiMYCJZX3DdZuzLEhQBlg+u7h0vaOBybfkdei+l0R/SYi83//D9vkkPboj5zGwrIQVEQ==;EndpointSuffix=core.windows.net";
             var blobContainerName = "productlogo";
             var container  = new BlobContainerClient(blobStorageConnectionString, blobContainerName);
-            var stream = File.OpenRead("C:/Users/Acer/Desktop/Project/enadoc.jpg");
-            var path =stream.Name ;
+            var logoImage = productForCreationDto.LogoImage;
+            if (logoImage.Length > 0) {
+                await using (var fileStream = new FileStream(logoImage.FileName, FileMode.Create)) {
+                    _logger.LogInformation("file found");
+                    await logoImage.CopyToAsync(fileStream);
+                    fileName = fileStream.Name;
+                    
+                }
+            }
+            var stream = File.OpenRead(logoImage.FileName);
+            var path =stream.Name;
             var extension = Path.GetExtension(path);
             var blob = container.GetBlobClient(productForCreationDto.Name+Guid.NewGuid().ToString("N")+extension);
-
             await blob.UploadAsync(stream);
             _logger.LogInformation("Upload Completed");
+            stream.Close();
+            File.Delete(fileName);
 
             const string webhookSubscriptionSecretPrefix = "whs_";
-            var product = _mapper.Map<Product>(productForCreationDto);
-            product.LogoURL = blob.OpenReadAsync().ToString();
-            product.WebhookSecret = webhookSubscriptionSecretPrefix + Guid.NewGuid().ToString("N");
+            var product = new Product
+            {
+                Name = productForCreationDto.Name,
+                Description = productForCreationDto.Description,
+                WebhookURL = productForCreationDto.WebhookURL,
+                WebhookSecret = webhookSubscriptionSecretPrefix + Guid.NewGuid().ToString("N"),
+                LogoURL = blob.Uri.ToString(),
+                FreeTrialDays = productForCreationDto.FreeTrialDays,
+                RedirectURL = productForCreationDto.RedirectUrl
+
+            };
             await _tenantDbContext.Products!.AddAsync(product);
             await _tenantDbContext.SaveChangesAsync();
+
             
             
              return _mapper.Map<ProductDto>(product);
