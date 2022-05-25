@@ -19,6 +19,8 @@ namespace Rx.Domain.Entities.Tenant
 
         [Required(ErrorMessage = "Duration is a required field.")]
         public int? Duration { get; set; }
+        
+        public bool Trial { get; set; }
 
         public ICollection<Subscription>? Subscriptions { get; set; }
         public ICollection<AddOnPricePerPlan>? AddOnPricePerPlans { get; set; }

@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Rx.Infrastructure.Persistence.Context;
 
@@ -11,13 +12,14 @@ using Rx.Infrastructure.Persistence.Context;
 namespace Rx.Infrastructure.Migrations.TenantDb
 {
     [DbContext(typeof(TenantDbContext))]
-    partial class TenantDbContextModelSnapshot : ModelSnapshot
+    [Migration("20220512054947_Product updated")]
+    partial class Productupdated
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "6.0.5")
+                .HasAnnotation("ProductVersion", "6.0.3")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder, 1L, 1);
@@ -265,7 +267,6 @@ namespace Rx.Infrastructure.Migrations.TenantDb
                         .HasColumnName("ProductId");
 
                     b.Property<string>("Description")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("FreeTrialDays")
@@ -279,7 +280,6 @@ namespace Rx.Infrastructure.Migrations.TenantDb
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("RedirectURL")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("WebhookSecret")
@@ -318,9 +318,6 @@ namespace Rx.Infrastructure.Migrations.TenantDb
 
                     b.Property<Guid>("ProductId")
                         .HasColumnType("uniqueidentifier");
-
-                    b.Property<bool>("Trial")
-                        .HasColumnType("bit");
 
                     b.HasKey("PlanId");
 

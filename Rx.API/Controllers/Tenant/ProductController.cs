@@ -47,7 +47,8 @@ namespace Rx.API.Controllers.Tenant
             }
 
             var createdProduct = await _mediator.Send(new AddProductUseCase(productForCreationDto));
-            return CreatedAtAction(nameof(GetProductById), new {id = createdProduct.productId}, createdProduct);
+            return CreatedAtAction(nameof(GetProductById), new {id = createdProduct.ProductId}, createdProduct);
+
 
         }
 
