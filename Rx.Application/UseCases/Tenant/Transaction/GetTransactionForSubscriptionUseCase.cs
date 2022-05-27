@@ -20,10 +20,7 @@ public class GetTransactionForSubscriptionUseCaseHandler: IRequestHandler<GetTra
     }
     public async Task<IEnumerable<TransactionDto>> Handle(GetTransactionForSubscriptionUseCase request, CancellationToken cancellationToken)
     {
-        var transactions =await (from t in _tenantDbContext.PaymentTransactions
-            join b in _tenantDbContext.Bills on t.BillId equals b.BillId
-            where b.SubscriptionId == request.SubscriptionId
-            select t).ToListAsync(cancellationToken);
+        var transactions =await _tenantDbContext.PaymentTransactions.Where(x=>x.SubscriptionId==request.SubscriptionId).ToListAsync(cancellationToken);
         return _mapper.Map<IEnumerable<TransactionDto>>(transactions);
     }
 }

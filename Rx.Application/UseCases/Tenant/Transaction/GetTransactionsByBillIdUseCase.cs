@@ -19,9 +19,9 @@ public class
         _tenantDbContext = tenantDbContext;
         _mapper = mapper;
     }
-    public async Task<IEnumerable<TransactionDto>> Handle(GetTransactionsByBillIdUseCase request, CancellationToken cancellationToken)
+
+    public Task<IEnumerable<TransactionDto>> Handle(GetTransactionsByBillIdUseCase request, CancellationToken cancellationToken)
     {
-        var transactions = await _tenantDbContext.PaymentTransactions.Where(t=>t.BillId==request.BillId).ToListAsync(cancellationToken);
-        return _mapper.Map<IEnumerable<TransactionDto>>(transactions);
+        throw new NotImplementedException();
     }
 }

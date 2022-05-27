@@ -18,11 +18,10 @@ public class GetBillDtosUseCaseHandler : IRequestHandler<GetBillDtosUseCase, IEn
         _tenantDbContext = tenantDbContext;
         _mapper = mapper;
     }
-    public async Task<IEnumerable<BillDto>> Handle(GetBillDtosUseCase request, CancellationToken cancellationToken)
+
+    public Task<IEnumerable<BillDto>> Handle(GetBillDtosUseCase request, CancellationToken cancellationToken)
     {
-        
-        var bills =await _tenantDbContext.Bills.Where(x => x.SubscriptionId == request.SubscriptionId).ToListAsync(cancellationToken);
-        return _mapper.Map<IEnumerable<BillDto>>(bills);
+        throw new NotImplementedException();
     }
 }
 

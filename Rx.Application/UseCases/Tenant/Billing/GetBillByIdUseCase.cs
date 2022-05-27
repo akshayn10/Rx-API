@@ -20,7 +20,7 @@ public class GetBillByIdUseCaseHandler : IRequestHandler<GetBillByIdUseCase, Bil
     }
     public async Task<BillDto> Handle(GetBillByIdUseCase request, CancellationToken cancellationToken)
     {
-        var bill =await _tenantDbContext.Bills.FirstOrDefaultAsync(b=>b.BillId==request.BillId && b.SubscriptionId==request.SubscriptionId, cancellationToken: cancellationToken);
+        var bill =await _tenantDbContext.Bills.FirstOrDefaultAsync(x=>x.BillId==request.BillId);
         return _mapper.Map<BillDto>(bill);
     }
 }
