@@ -6,7 +6,7 @@ using Rx.Domain.Interfaces.DbContext;
 
 namespace Rx.Application.UseCases.Tenant.AddOn;
 
-public record GetAddOnPricePerPlanUseCase(Guid ProductId,Guid AddOnId):IRequest<IEnumerable<AddOnPricePerPlanDto>>;
+public record GetAddOnPricePerPlanUseCase(Guid AddOnId):IRequest<IEnumerable<AddOnPricePerPlanDto>>;
 
 public class GetAddOnPricePerPlanUseCaseHandler : IRequestHandler<GetAddOnPricePerPlanUseCase, IEnumerable<AddOnPricePerPlanDto>>
 {
@@ -20,10 +20,9 @@ public class GetAddOnPricePerPlanUseCaseHandler : IRequestHandler<GetAddOnPriceP
     }
     public async Task<IEnumerable<AddOnPricePerPlanDto>> Handle(GetAddOnPricePerPlanUseCase request, CancellationToken cancellationToken)
     {
-        var product = await _tenantDbContext.Products!.FirstOrDefaultAsync(x => x.ProductId == request.ProductId, cancellationToken: cancellationToken);
-        var addOn = await _tenantDbContext.AddOns!.FirstOrDefaultAsync(x => x.AddOnId == request.AddOnId, cancellationToken: cancellationToken);
-        if (product == null || addOn == null)
-            throw new Exception("Product or AddOn not found");
+        var addOn = await _tenantDbContext.AddOns!.FindAsync(request.AddOnId);
+        if (addOn == null)
+            throw new Exception("AddOn not found");
         var addOnPricePerPlans = await _tenantDbContext.AddOnPricePerPlans!.Where(x => x.AddOnId == request.AddOnId).ToListAsync(cancellationToken);
         return _mapper.Map<IEnumerable<AddOnPricePerPlanDto>>(addOnPricePerPlans);
     }

@@ -1,22 +1,22 @@
 ﻿using MediatR;
 using Rx.Domain.DTOs.Tenant.Subscription;
-using Rx.Domain.Interfaces;
+using Rx.Domain.Interfaces.DbContext;
 
 namespace Rx.Application.UseCases.Tenant.Subscription;
 
-public record GetSubscriptionByIdForCustomerUseCase(Guid CustomerId,Guid SubscriptionId):IRequest<SubscriptionDto>;
+public record GetSubscriptionByIdForCustomerUseCase(Guid SubscriptionId):IRequest<SubscriptionVm>;
 
-public class GetSubscriptionByIdForCustomerUseCaseHandler:IRequestHandler<GetSubscriptionByIdForCustomerUseCase,SubscriptionDto>{
-    private readonly ITenantServiceManager _tenantServiceManager;
+public class GetSubscriptionByIdForCustomerUseCaseHandler:IRequestHandler<GetSubscriptionByIdForCustomerUseCase,SubscriptionVm>{
+    private readonly ITenantDbContext _tenantDbContext;
 
-    public GetSubscriptionByIdForCustomerUseCaseHandler(ITenantServiceManager tenantServiceManager)
+    public GetSubscriptionByIdForCustomerUseCaseHandler(ITenantDbContext tenantDbContext)
     {
-        _tenantServiceManager = tenantServiceManager;
+        _tenantDbContext = tenantDbContext;
     }
 
-    public Task<SubscriptionDto> Handle(GetSubscriptionByIdForCustomerUseCase request, CancellationToken cancellationToken)
-    {
-        return _tenantServiceManager.SubscriptionService.GetSubscriptionByIdForCustomer(request.CustomerId,request.SubscriptionId);
-    }
 
+    public Task<SubscriptionVm> Handle(GetSubscriptionByIdForCustomerUseCase request, CancellationToken cancellationToken)
+    {
+        throw new NotImplementedException();
+    }
 }

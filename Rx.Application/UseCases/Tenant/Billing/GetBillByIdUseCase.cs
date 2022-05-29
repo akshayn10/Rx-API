@@ -6,7 +6,7 @@ using Rx.Domain.Interfaces.DbContext;
 
 namespace Rx.Application.UseCases.Tenant.Billing;
 
-public record GetBillByIdUseCase(Guid SubscriptionId,Guid BillId):IRequest<BillDto>;
+public record GetBillByIdUseCase(Guid BillId):IRequest<BillDto>;
 
 public class GetBillByIdUseCaseHandler : IRequestHandler<GetBillByIdUseCase, BillDto>
 {

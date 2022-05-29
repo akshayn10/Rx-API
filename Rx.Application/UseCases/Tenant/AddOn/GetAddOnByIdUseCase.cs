@@ -20,7 +20,7 @@ public class GetAddOnByIdUseCaseHandler : IRequestHandler<GetAddOnByIdUseCase, A
     }
     public async Task<AddOnDto> Handle(GetAddOnByIdUseCase request, CancellationToken cancellationToken)
     {
-        var product = await _tenantDbContext.Products!.FirstOrDefaultAsync(x => x.ProductId == request.ProductId, cancellationToken: cancellationToken);
+        var product = await _tenantDbContext.Products!.FindAsync(request.ProductId);
         if (product == null)
             throw new Exception("Product not found");
         var addOn =await _tenantDbContext.AddOns!.Where(x=>x.ProductId==request.ProductId && x.AddOnId==request.AddOnId).FirstOrDefaultAsync(cancellationToken);

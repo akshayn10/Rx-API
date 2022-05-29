@@ -6,7 +6,7 @@ using Rx.Domain.Interfaces.DbContext;
 
 namespace Rx.Application.UseCases.Tenant.Billing;
 
-public record GetBillDtosUseCase(Guid SubscriptionId):IRequest<IEnumerable<BillDto>>;
+public record GetBillDtosUseCase():IRequest<IEnumerable<BillDto>>;
 
 public class GetBillDtosUseCaseHandler : IRequestHandler<GetBillDtosUseCase, IEnumerable<BillDto>>
 {
@@ -19,9 +19,10 @@ public class GetBillDtosUseCaseHandler : IRequestHandler<GetBillDtosUseCase, IEn
         _mapper = mapper;
     }
 
-    public Task<IEnumerable<BillDto>> Handle(GetBillDtosUseCase request, CancellationToken cancellationToken)
+    public async Task<IEnumerable<BillDto>> Handle(GetBillDtosUseCase request, CancellationToken cancellationToken)
     {
-        throw new NotImplementedException();
+        var bills = await _tenantDbContext.Bills.ToListAsync(cancellationToken);
+        return _mapper.Map<IEnumerable<BillDto>>(bills);
     }
 }
 

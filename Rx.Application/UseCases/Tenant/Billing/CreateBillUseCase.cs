@@ -4,7 +4,7 @@ using Rx.Domain.Interfaces;
 
 namespace Rx.Application.UseCases.Tenant.Billing;
 
-public record CreateBillUseCase(Guid SubscriptionId,BillForCreationDto BillForCreationDto):IRequest<BillDto>;
+public record CreateBillUseCase(Guid CustomerId,BillForCreationDto BillForCreationDto):IRequest<BillDto>;
 
 public class CreateBillUseCaseHandler : IRequestHandler<CreateBillUseCase, BillDto>
 {
@@ -16,7 +16,7 @@ public class CreateBillUseCaseHandler : IRequestHandler<CreateBillUseCase, BillD
     }
     public async Task<BillDto> Handle(CreateBillUseCase request, CancellationToken cancellationToken)
     {
-        var bill = await _tenantServiceManager.BillingService.CreateBill(request.SubscriptionId, request.BillForCreationDto);
+        var bill = await _tenantServiceManager.BillingService.CreateBill(request.CustomerId, request.BillForCreationDto);
         return bill;
     }
 }

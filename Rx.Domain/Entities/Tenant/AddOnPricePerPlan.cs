@@ -17,9 +17,5 @@ namespace Rx.Domain.Entities.Tenant
         [ForeignKey(nameof(ProductPlan))]
         public Guid? ProductPlanId { get; set; }
         public ProductPlan? ProductPlan { get; set; }
-
-
-
-
     }
 }
