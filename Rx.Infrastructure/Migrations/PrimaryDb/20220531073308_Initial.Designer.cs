@@ -12,7 +12,7 @@ using Rx.Infrastructure.Persistence.Context;
 namespace Rx.Infrastructure.Migrations.PrimaryDb
 {
     [DbContext(typeof(PrimaryDbContext))]
-    [Migration("20220531060114_Initial")]
+    [Migration("20220531073308_Initial")]
     partial class Initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

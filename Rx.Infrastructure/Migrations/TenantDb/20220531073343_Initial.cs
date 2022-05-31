@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace Rx.Infrastructure.Migrations.TenantDb
 {
-    public partial class Changes : Migration
+    public partial class Initial : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -45,7 +45,7 @@ namespace Rx.Infrastructure.Migrations.TenantDb
                 columns: table => new
                 {
                     CustomerId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Email = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Email = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     Name = table.Column<string>(type: "nvarchar(60)", maxLength: 60, nullable: false),
                     PaymentGatewayId = table.Column<string>(type: "nvarchar(max)", nullable: true)
                 },
@@ -60,7 +60,8 @@ namespace Rx.Infrastructure.Migrations.TenantDb
                 {
                     ProductId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Description = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    RedirectURL = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     WebhookURL = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     WebhookSecret = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     LogoURL = table.Column<string>(type: "nvarchar(max)", nullable: true),
@@ -84,6 +85,26 @@ namespace Rx.Infrastructure.Migrations.TenantDb
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_SubscriptionWebhooks", x => x.WebhookId);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Bills",
+                columns: table => new
+                {
+                    BillId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    GeneratedDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    TotalAmount = table.Column<decimal>(type: "decimal(18,4)", nullable: false),
+                    CustomerId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Bills", x => x.BillId);
+                    table.ForeignKey(
+                        name: "FK_Bills_OrganizationCustomers_CustomerId",
+                        column: x => x.CustomerId,
+                        principalTable: "OrganizationCustomers",
+                        principalColumn: "CustomerId",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -144,14 +165,12 @@ namespace Rx.Infrastructure.Migrations.TenantDb
                         name: "FK_AddOnPricePerPlans_AddOns_AddOnId",
                         column: x => x.AddOnId,
                         principalTable: "AddOns",
-                        principalColumn: "AddOnId",
-                        onDelete:ReferentialAction.NoAction);
+                        principalColumn: "AddOnId");
                     table.ForeignKey(
                         name: "FK_AddOnPricePerPlans_ProductPlans_ProductPlanId",
                         column: x => x.ProductPlanId,
                         principalTable: "ProductPlans",
-                        principalColumn: "PlanId",
-                        onDelete: ReferentialAction.NoAction);
+                        principalColumn: "PlanId");
                 });
 
             migrationBuilder.CreateTable(
@@ -192,8 +211,8 @@ namespace Rx.Infrastructure.Migrations.TenantDb
                     AddOnUsageId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     Date = table.Column<DateTime>(type: "datetime2", nullable: false),
                     Unit = table.Column<int>(type: "int", nullable: false),
-                    AddOnId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    SubscriptionId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
+                    AddOnId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    SubscriptionId = table.Column<Guid>(type: "uniqueidentifier", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -202,34 +221,12 @@ namespace Rx.Infrastructure.Migrations.TenantDb
                         name: "FK_AddOnUsages_AddOns_AddOnId",
                         column: x => x.AddOnId,
                         principalTable: "AddOns",
-                        principalColumn: "AddOnId",
-                        onDelete: ReferentialAction.NoAction);
+                        principalColumn: "AddOnId");
                     table.ForeignKey(
                         name: "FK_AddOnUsages_Subscriptions_SubscriptionId",
                         column: x => x.SubscriptionId,
                         principalTable: "Subscriptions",
-                        principalColumn: "SubscriptionId",
-                        onDelete: ReferentialAction.NoAction);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Bills",
-                columns: table => new
-                {
-                    BillId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    GeneratedDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    TotalAmount = table.Column<decimal>(type: "decimal(18,4)", nullable: false),
-                    SubscriptionId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Bills", x => x.BillId);
-                    table.ForeignKey(
-                        name: "FK_Bills_Subscriptions_SubscriptionId",
-                        column: x => x.SubscriptionId,
-                        principalTable: "Subscriptions",
-                        principalColumn: "SubscriptionId",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "SubscriptionId");
                 });
 
             migrationBuilder.CreateTable(
@@ -240,22 +237,20 @@ namespace Rx.Infrastructure.Migrations.TenantDb
                     TransactionDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     TransactionAmount = table.Column<decimal>(type: "decimal(18,4)", nullable: false),
                     TransactionDescription = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    TransactionPaymentStatus = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    TransactionStatus = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     TransactionPaymentReferenceId = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     TransactionPaymentGatewayResponse = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    TransactionPaymentGatewayTransactionId = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    TransactionPaymentGatewayTransactionAmount = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     TransactionCurrency = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    BillId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
+                    SubscriptionId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_PaymentTransactions", x => x.TransactionId);
                     table.ForeignKey(
-                        name: "FK_PaymentTransactions_Bills_BillId",
-                        column: x => x.BillId,
-                        principalTable: "Bills",
-                        principalColumn: "BillId",
+                        name: "FK_PaymentTransactions_Subscriptions_SubscriptionId",
+                        column: x => x.SubscriptionId,
+                        principalTable: "Subscriptions",
+                        principalColumn: "SubscriptionId",
                         onDelete: ReferentialAction.Cascade);
                 });
 
@@ -295,14 +290,20 @@ namespace Rx.Infrastructure.Migrations.TenantDb
                 column: "SubscriptionId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Bills_SubscriptionId",
+                name: "IX_Bills_CustomerId",
                 table: "Bills",
-                column: "SubscriptionId");
+                column: "CustomerId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_PaymentTransactions_BillId",
+                name: "IX_OrganizationCustomers_Email",
+                table: "OrganizationCustomers",
+                column: "Email",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_PaymentTransactions_SubscriptionId",
                 table: "PaymentTransactions",
-                column: "BillId");
+                column: "SubscriptionId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_ProductPlans_ProductId",
@@ -332,6 +333,9 @@ namespace Rx.Infrastructure.Migrations.TenantDb
                 name: "AddOnWebhooks");
 
             migrationBuilder.DropTable(
+                name: "Bills");
+
+            migrationBuilder.DropTable(
                 name: "Organization");
 
             migrationBuilder.DropTable(
@@ -342,9 +346,6 @@ namespace Rx.Infrastructure.Migrations.TenantDb
 
             migrationBuilder.DropTable(
                 name: "AddOns");
-
-            migrationBuilder.DropTable(
-                name: "Bills");
 
             migrationBuilder.DropTable(
                 name: "Subscriptions");

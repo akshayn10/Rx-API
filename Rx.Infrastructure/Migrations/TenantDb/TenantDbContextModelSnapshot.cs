@@ -46,7 +46,7 @@ namespace Rx.Infrastructure.Migrations.TenantDb
 
                     b.HasKey("Id");
 
-                    b.ToTable("Organization", (string)null);
+                    b.ToTable("Organization");
 
                     b.HasData(
                         new
@@ -81,7 +81,7 @@ namespace Rx.Infrastructure.Migrations.TenantDb
 
                     b.HasIndex("ProductId");
 
-                    b.ToTable("AddOns", (string)null);
+                    b.ToTable("AddOns");
                 });
 
             modelBuilder.Entity("Rx.Domain.Entities.Tenant.AddOnPricePerPlan", b =>
@@ -105,7 +105,7 @@ namespace Rx.Infrastructure.Migrations.TenantDb
 
                     b.HasIndex("ProductPlanId");
 
-                    b.ToTable("AddOnPricePerPlans", (string)null);
+                    b.ToTable("AddOnPricePerPlans");
                 });
 
             modelBuilder.Entity("Rx.Domain.Entities.Tenant.AddOnUsage", b =>
@@ -132,7 +132,7 @@ namespace Rx.Infrastructure.Migrations.TenantDb
 
                     b.HasIndex("SubscriptionId");
 
-                    b.ToTable("AddOnUsages", (string)null);
+                    b.ToTable("AddOnUsages");
                 });
 
             modelBuilder.Entity("Rx.Domain.Entities.Tenant.AddOnWebhook", b =>
@@ -158,7 +158,7 @@ namespace Rx.Infrastructure.Migrations.TenantDb
 
                     b.HasKey("AddOnWebhookId");
 
-                    b.ToTable("AddOnWebhooks", (string)null);
+                    b.ToTable("AddOnWebhooks");
                 });
 
             modelBuilder.Entity("Rx.Domain.Entities.Tenant.Bill", b =>
@@ -181,7 +181,7 @@ namespace Rx.Infrastructure.Migrations.TenantDb
 
                     b.HasIndex("CustomerId");
 
-                    b.ToTable("Bills", (string)null);
+                    b.ToTable("Bills");
                 });
 
             modelBuilder.Entity("Rx.Domain.Entities.Tenant.OrganizationCustomer", b =>
@@ -208,7 +208,7 @@ namespace Rx.Infrastructure.Migrations.TenantDb
                     b.HasIndex("Email")
                         .IsUnique();
 
-                    b.ToTable("OrganizationCustomers", (string)null);
+                    b.ToTable("OrganizationCustomers");
 
                     b.HasData(
                         new
@@ -254,7 +254,7 @@ namespace Rx.Infrastructure.Migrations.TenantDb
 
                     b.HasIndex("SubscriptionId");
 
-                    b.ToTable("PaymentTransactions", (string)null);
+                    b.ToTable("PaymentTransactions");
                 });
 
             modelBuilder.Entity("Rx.Domain.Entities.Tenant.Product", b =>
@@ -290,7 +290,7 @@ namespace Rx.Infrastructure.Migrations.TenantDb
 
                     b.HasKey("ProductId");
 
-                    b.ToTable("Products", (string)null);
+                    b.ToTable("Products");
                 });
 
             modelBuilder.Entity("Rx.Domain.Entities.Tenant.ProductPlan", b =>
@@ -321,7 +321,7 @@ namespace Rx.Infrastructure.Migrations.TenantDb
 
                     b.HasIndex("ProductId");
 
-                    b.ToTable("ProductPlans", (string)null);
+                    b.ToTable("ProductPlans");
                 });
 
             modelBuilder.Entity("Rx.Domain.Entities.Tenant.Subscription", b =>
@@ -361,7 +361,7 @@ namespace Rx.Infrastructure.Migrations.TenantDb
 
                     b.HasIndex("ProductPlanId");
 
-                    b.ToTable("Subscriptions", (string)null);
+                    b.ToTable("Subscriptions");
                 });
 
             modelBuilder.Entity("Rx.Domain.Entities.Tenant.SubscriptionWebhook", b =>
@@ -385,7 +385,7 @@ namespace Rx.Infrastructure.Migrations.TenantDb
 
                     b.HasKey("WebhookId");
 
-                    b.ToTable("SubscriptionWebhooks", (string)null);
+                    b.ToTable("SubscriptionWebhooks");
                 });
 
             modelBuilder.Entity("Rx.Domain.Entities.Tenant.AddOn", b =>
