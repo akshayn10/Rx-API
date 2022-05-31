@@ -29,6 +29,6 @@ public class GetSubscriptionByIdUseCaseHandler : IRequestHandler<GetSubscription
                 plan!.Name,
                 subscription.CreatedDate.ToString(),
                 subscription.EndDate.ToString(),
-                status: subscription.IsActive ? "Active" : "Inactive");
+                subscription.IsActive ? "Active" : "Inactive");
     }
 }

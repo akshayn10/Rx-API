@@ -1,3 +1,3 @@
 ﻿namespace Rx.Domain.DTOs.Tenant.Subscription;
 
-public record SubscriptionVm(string subscriptionId, string? customerName, string? product, string? plan, string? createdDate, string? endDate, string status);
+public record SubscriptionVm(string SubscriptionId, string? CustomerName, string? Product, string? Plan, string? CreatedDate, string? EndDate, string Status);

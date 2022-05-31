@@ -23,7 +23,12 @@ public class
                 join ao in _tenantDbContext.AddOns on aou.AddOnId equals ao.AddOnId
                 from aop in _tenantDbContext.AddOnPricePerPlans
                 where s.ProductPlanId == aop.ProductPlanId && aou.AddOnId == aop.AddOnId
-                select new AddOnUsageVm(aou.Date.ToString(),ao.Name,aou.Unit,aou.Unit*aop.Price)).ToListAsync(cancellationToken: cancellationToken);
-        return usages;
+                select new
+                {
+                    aou.Date,ao.Name,aou.Unit,aop.Price
+                }).ToListAsync(cancellationToken: cancellationToken);
+        var usageVms = usages.Select(x =>
+            new AddOnUsageVm(x.Date.ToString(), x.Name, x.Unit, x.Unit * x.Price));
+        return usageVms;
     }
 }

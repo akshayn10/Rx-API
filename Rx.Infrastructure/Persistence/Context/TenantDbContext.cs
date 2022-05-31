@@ -2,7 +2,6 @@
 using Microsoft.EntityFrameworkCore;
 using Rx.Domain.Entities.Tenant;
 using Rx.Domain.Interfaces.DbContext;
-
 namespace Rx.Infrastructure.Persistence.Context
 {
     public class TenantDbContext :DbContext,ITenantDbContext
@@ -19,7 +18,6 @@ namespace Rx.Infrastructure.Persistence.Context
                 .HasIndex(c => c.Email)
                 .IsUnique();
         }
-
         public DbSet<OrganizationCustomer>? OrganizationCustomers { get; set; }
         public DbSet<Product>? Products { get; set; }
         public DbSet<ProductPlan>? ProductPlans { get; set; }

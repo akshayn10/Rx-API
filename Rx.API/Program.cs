@@ -22,7 +22,8 @@ builder.Logging.AddSerilog(logger);
 
 // Add services to the container.
 
-builder.Services.AddPersistence(builder.Configuration);
+builder.Services.AddPrimaryDb(builder.Configuration);
+builder.Services.AddTenantDb(builder.Configuration);
 
 
 
