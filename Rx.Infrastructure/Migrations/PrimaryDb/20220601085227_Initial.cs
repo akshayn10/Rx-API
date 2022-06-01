@@ -24,16 +24,26 @@ namespace Rx.Infrastructure.Migrations.PrimaryDb
                     table.PrimaryKey("PK_Organizations", x => x.OrganizationId);
                 });
 
-            migrationBuilder.InsertData(
-                table: "Organizations",
-                columns: new[] { "OrganizationId", "Description", "LogoURL", "Name", "TenantId" },
-                values: new object[] { new Guid("c9d4c053-49b6-410c-bc78-2d54a9991870"), "Mobile Solutions provider", "www.apple.com/logo", "Apple", new Guid("3d490a70-94ce-4d15-9494-5248280c2ce3") });
+            migrationBuilder.CreateTable(
+                name: "OrganizationUsers",
+                columns: table => new
+                {
+                    OrganizationUserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(60)", maxLength: 60, nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_OrganizationUsers", x => x.OrganizationUserId);
+                });
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
                 name: "Organizations");
+
+            migrationBuilder.DropTable(
+                name: "OrganizationUsers");
         }
     }
 }

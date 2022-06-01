@@ -5,8 +5,10 @@ using Microsoft.Extensions.Azure;
 using Microsoft.OpenApi.Models;
 using Rx.API.Extensions;
 using Rx.Application;
+using Rx.Domain.Interfaces.DbContext;
 using Rx.Domain.Services.Primary;
 using Rx.Infrastructure.Persistence;
+using Rx.Infrastructure.Persistence.Context;
 using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -21,6 +23,8 @@ builder.Logging.ClearProviders();
 builder.Logging.AddSerilog(logger);
 
 // Add services to the container.
+builder.Services.AddScoped<IPrimaryDbContext, PrimaryDbContext>();
+builder.Services.AddScoped<ITenantDbContext,TenantDbContext>();
 
 builder.Services.AddPrimaryDb(builder.Configuration);
 builder.Services.AddTenantDb(builder.Configuration);

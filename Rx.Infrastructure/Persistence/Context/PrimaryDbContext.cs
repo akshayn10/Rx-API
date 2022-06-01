@@ -16,13 +16,17 @@ namespace Rx.Infrastructure.Persistence.Context
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
-            builder.ApplyConfiguration(new OrganizationConfiguration());
+            // builder.ApplyConfiguration(new OrganizationConfiguration());
         }
         
         public DbSet<Organization>? Organizations { get; set; }
+        public DbSet<OrganizationUser>? OrganizationUsers { get; set; }
+
         public async Task<int> SaveChangesAsync()
         {
             return await base.SaveChangesAsync();
         }
+
+        public DbContext Instance => this;
     }
 }

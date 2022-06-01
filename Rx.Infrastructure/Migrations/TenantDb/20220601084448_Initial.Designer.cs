@@ -12,7 +12,7 @@ using Rx.Infrastructure.Persistence.Context;
 namespace Rx.Infrastructure.Migrations.TenantDb
 {
     [DbContext(typeof(TenantDbContext))]
-    [Migration("20220531073343_Initial")]
+    [Migration("20220601084448_Initial")]
     partial class Initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -23,43 +23,6 @@ namespace Rx.Infrastructure.Migrations.TenantDb
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder, 1L, 1);
-
-            modelBuilder.Entity("Rx.Domain.Entities.Primary.Organization", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier")
-                        .HasColumnName("OrganizationId");
-
-                    b.Property<string>("Description")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("LogoURL")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(60)
-                        .HasColumnType("nvarchar(60)");
-
-                    b.Property<Guid>("TenantId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Organization");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = new Guid("c9d4c053-49b6-410c-bc78-2d54a9991870"),
-                            Description = "Mobile Solutions provider",
-                            LogoURL = "www.apple.com/logo",
-                            Name = "Apple",
-                            TenantId = new Guid("3d490a70-94ce-4d15-9494-5248280c2ce3")
-                        });
-                });
 
             modelBuilder.Entity("Rx.Domain.Entities.Tenant.AddOn", b =>
                 {
@@ -211,15 +174,6 @@ namespace Rx.Infrastructure.Migrations.TenantDb
                         .IsUnique();
 
                     b.ToTable("OrganizationCustomers");
-
-                    b.HasData(
-                        new
-                        {
-                            CustomerId = new Guid("be7e73a2-4dd5-4d2b-baaa-eef3a0143593"),
-                            Email = "apple@gmail.com",
-                            Name = "John Antony",
-                            PaymentGatewayId = "1234567"
-                        });
                 });
 
             modelBuilder.Entity("Rx.Domain.Entities.Tenant.PaymentTransaction", b =>

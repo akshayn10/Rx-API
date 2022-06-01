@@ -13,7 +13,7 @@ namespace Rx.Infrastructure.Persistence.Context
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
-            builder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
+            // builder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
             builder.Entity<OrganizationCustomer>()
                 .HasIndex(c => c.Email)
                 .IsUnique();
@@ -36,5 +36,7 @@ namespace Rx.Infrastructure.Persistence.Context
         {
             return await base.SaveChangesAsync();
         }
+
+        public DbContext Instance => this;
     }
 }

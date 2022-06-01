@@ -47,16 +47,23 @@ namespace Rx.Infrastructure.Migrations.PrimaryDb
                     b.HasKey("Id");
 
                     b.ToTable("Organizations");
+                });
 
-                    b.HasData(
-                        new
-                        {
-                            Id = new Guid("c9d4c053-49b6-410c-bc78-2d54a9991870"),
-                            Description = "Mobile Solutions provider",
-                            LogoURL = "www.apple.com/logo",
-                            Name = "Apple",
-                            TenantId = new Guid("3d490a70-94ce-4d15-9494-5248280c2ce3")
-                        });
+            modelBuilder.Entity("Rx.Domain.Entities.Primary.OrganizationUser", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("OrganizationUserId");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(60)
+                        .HasColumnType("nvarchar(60)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("OrganizationUsers");
                 });
 #pragma warning restore 612, 618
         }

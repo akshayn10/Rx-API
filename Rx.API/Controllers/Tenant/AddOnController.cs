@@ -19,6 +19,7 @@ public class AddOnController : ControllerBase
         _mediator = mediator;
         _logger = logger;
     }
+
     
     [HttpGet]
     [SwaggerOperation(Summary = "Get all addOns")]

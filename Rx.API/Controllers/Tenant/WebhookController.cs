@@ -22,6 +22,7 @@ namespace Rx.API.Controllers.Tenant
             _mediator = mediator;
         }
         
+
         // Retrieve Subscription Webhooks
         [HttpPost("subscribe",Name = "SubscriptionWebhook")]
         [SwaggerOperation(Summary = "Create Subscription webhooks")]

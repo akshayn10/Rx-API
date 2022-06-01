@@ -12,26 +12,28 @@ namespace Rx.Infrastructure.Persistence
     {
         public static void AddPrimaryDb(this IServiceCollection services, IConfiguration configuration)
         {
+            // services.AddScoped<IPrimaryDbContext, PrimaryDbContext>();
             services.AddDbContext<PrimaryDbContext>(options =>
-                options.UseSqlServer(configuration.GetConnectionString("PrimaryDbConnection"),
-                    b => b.MigrationsAssembly(typeof(PrimaryDbContext).Assembly.FullName)),
+                options.UseSqlServer(configuration.GetConnectionString("PrimaryDbConnection")
+                    // , b => b.MigrationsAssembly(typeof(PrimaryDbContext).Assembly.FullName)
+                    )
 
-                ServiceLifetime.Transient
+                //, ServiceLifetime.Transient
   
                 );
             // services.AddTransient<IPrimaryDbContext>(provider => provider.GetService<PrimaryDbContext>() ?? throw new InvalidOperationException());
-            services.AddScoped<IPrimaryDbContext, PrimaryDbContext>();
+            
         }
         public static void AddTenantDb(this IServiceCollection services, IConfiguration configuration)
         {
             services.AddDbContext<TenantDbContext>(options =>
-                options.UseSqlServer(
-                    configuration.GetConnectionString("TenantDbConnection"),
-                    b => b.MigrationsAssembly(typeof(TenantDbContext).Assembly.FullName)),
-            ServiceLifetime.Transient
+                options.UseSqlServer(configuration.GetConnectionString("TenantDbConnection")
+                    // , b => b.MigrationsAssembly(typeof(TenantDbContext).Assembly.FullName)
+                    )
+                // , ServiceLifetime.Transient
                 );
 
-            services.AddScoped<ITenantDbContext,TenantDbContext>();
+
         }
         public static void AddBlobStorage(this IServiceCollection services, IConfiguration configuration)
         {
