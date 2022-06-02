@@ -17,13 +17,6 @@ namespace Rx.API.Controllers.Tenant
             _mediator = mediator;
             _logger = logger;
         }
-        [HttpGet("redirect")]
-        [SwaggerOperation(Summary = "Redirect to the webhook url")]
-        public ActionResult Redirect()
-        {
-            return Redirect("https://www.google.com");
-        }
-
         [HttpGet]
         [SwaggerOperation(Summary = "Get all products")]
         public async Task<IActionResult> GetProducts()

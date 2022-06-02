@@ -6,6 +6,8 @@ using Microsoft.OpenApi.Models;
 using Rx.API.Extensions;
 using Rx.Application;
 using Rx.Domain.Interfaces.DbContext;
+using Rx.Domain.Interfaces.Payment;
+using Rx.Domain.Services.Payment;
 using Rx.Domain.Services.Primary;
 using Rx.Infrastructure.Persistence;
 using Rx.Infrastructure.Persistence.Context;
@@ -23,12 +25,22 @@ builder.Logging.ClearProviders();
 builder.Logging.AddSerilog(logger);
 
 // Add services to the container.
+builder.Services.AddControllersWithViews();
+
 builder.Services.AddScoped<IPrimaryDbContext, PrimaryDbContext>();
 builder.Services.AddScoped<ITenantDbContext,TenantDbContext>();
 
 builder.Services.AddPrimaryDb(builder.Configuration);
 builder.Services.AddTenantDb(builder.Configuration);
+builder.Services.AddSingleton<IPaymentService>(x => {
+    var service = x.GetRequiredService<ILogger<PaymentService>>();
+    string stripeSecretKey = builder.Configuration.GetSection("Stripe").GetValue<string>("secretKey");
+    string stripePublicKey = builder.Configuration.GetSection("Stripe").GetValue<string>("publicKey");
 
+    if (string.IsNullOrEmpty(stripeSecretKey) || string.IsNullOrEmpty(stripePublicKey))
+        service.LogError("Stripe keys are missing.");
+    return new PaymentService(service, stripeSecretKey);
+});
 
 
 builder.Services.AddBlobStorage(builder.Configuration);
@@ -69,6 +81,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+app.UseStaticFiles();
 
 app.UseHttpsRedirection();
 

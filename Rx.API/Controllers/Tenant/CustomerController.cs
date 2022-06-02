@@ -13,7 +13,6 @@ namespace Rx.API.Controllers.Tenant
     {
         private readonly IMediator _mediator;
         private readonly ILogger<CustomerController> _logger;
-
         public CustomerController(IMediator mediator, ILogger<CustomerController> logger)
         {
             _mediator = mediator;
@@ -22,15 +21,14 @@ namespace Rx.API.Controllers.Tenant
         
         [HttpGet]
         [SwaggerOperation(Summary = "Get all customers")]
-
         public async Task<IActionResult> GetCustomers()
         {
             var customers = await _mediator.Send(new GetCustomersUseCase() );
             return Ok(customers);
         }
+        
         [HttpGet("dto")]
         [SwaggerOperation(Summary = "Get all customersDto")]
-
         public async Task<IActionResult> GetCustomersDto()
         {
             var customers = await _mediator.Send(new GetCustomersDtoUseCase() );
@@ -43,11 +41,10 @@ namespace Rx.API.Controllers.Tenant
             var customer = await _mediator.Send(new GetCustomerByIdUseCase(id));
             return Ok(customer);
         }
-        
 
         [HttpPost]
         [SwaggerOperation(Summary = "Create a new customer")]
-        public async Task<IActionResult> CreateCustomer(OrganizationCustomerForCreationDto organizationCustomerForCreationDto)
+        public async Task<IActionResult> CreateCustomer(OrganizationCustomerForCreationDto? organizationCustomerForCreationDto)
         {
             if (organizationCustomerForCreationDto is null)
             {
@@ -66,7 +63,6 @@ namespace Rx.API.Controllers.Tenant
             var stats = await _mediator.Send(new GetCustomerStatsUseCase() );
             return Ok(stats);
         }
-        
         
         [HttpGet("product/{productId}")]
         [SwaggerOperation(Summary = "Get customers for given product")]
