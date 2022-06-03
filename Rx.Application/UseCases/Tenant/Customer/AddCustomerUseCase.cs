@@ -14,9 +14,9 @@ public class AddCustomerUseCaseHandler : IRequestHandler<AddCustomerUseCase, Org
     {
         _tenantServiceManager = tenantServiceManager;
     }
-    public Task<OrganizationCustomerDto> Handle(AddCustomerUseCase request, CancellationToken cancellationToken)
+    public async Task<OrganizationCustomerDto> Handle(AddCustomerUseCase request, CancellationToken cancellationToken)
     {
-        return _tenantServiceManager.OrganizationCustomerService.AddCustomer(request
+        return await _tenantServiceManager.OrganizationCustomerService.AddCustomer(request
             .OrganizationCustomerForCreationDto);
     }
 }

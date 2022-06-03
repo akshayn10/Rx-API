@@ -81,7 +81,7 @@ namespace Rx.API.Controllers.Tenant
         [SwaggerOperation(Summary = "Get subscription for a customer")]
         public async Task<IActionResult> GetSubscriptionByIdForCustomer(Guid customerId,Guid subscriptionId)
         {
-            var subscription = await _mediator.Send(new GetSubscriptionByIdForCustomerUseCase(customerId,subscriptionId));
+            var subscription = await _mediator.Send(new GetSubscriptionByIdForCustomerUseCase(customerId));
             return Ok(subscription);
         }
     }

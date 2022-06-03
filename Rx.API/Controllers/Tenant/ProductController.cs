@@ -17,7 +17,6 @@ namespace Rx.API.Controllers.Tenant
             _mediator = mediator;
             _logger = logger;
         }
-
         [HttpGet]
         [SwaggerOperation(Summary = "Get all products")]
         public async Task<IActionResult> GetProducts()

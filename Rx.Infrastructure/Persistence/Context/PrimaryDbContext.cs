@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Rx.Domain.Entities.Primary;
 using Rx.Domain.Interfaces.DbContext;
+using Rx.Infrastructure.Persistence.Configuration.Primary;
 
 namespace Rx.Infrastructure.Persistence.Context
 {
@@ -15,13 +16,17 @@ namespace Rx.Infrastructure.Persistence.Context
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
-            builder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
+            // builder.ApplyConfiguration(new OrganizationConfiguration());
         }
         
         public DbSet<Organization>? Organizations { get; set; }
+        public DbSet<OrganizationUser>? OrganizationUsers { get; set; }
+
         public async Task<int> SaveChangesAsync()
         {
             return await base.SaveChangesAsync();
         }
+
+        public DbContext Instance => this;
     }
 }

@@ -23,14 +23,15 @@ namespace Rx.Domain.Services.Tenant
             _mapper = mapper;
         }
 
-        public async Task<BillDto> CreateBill(Guid subscriptionId, BillForCreationDto billForCreationDto)
+        public async Task<BillDto> CreateBill(Guid customerId, BillForCreationDto billForCreationDto)
         {
-            var subscription = await _tenantDbContext.Subscriptions!.FindAsync(subscriptionId);
+            var customer = await _tenantDbContext.OrganizationCustomers!.FindAsync(customerId);
             
-            if(subscription == null)
-                throw new Exception("Subscription not found");
+            if(customer == null)
+                throw new Exception("Customer not found");
             
             var bill = _mapper.Map<Bill>(billForCreationDto);
+            bill.CustomerId = customerId;
             await _tenantDbContext.Bills.AddAsync(bill);
             await _tenantDbContext.SaveChangesAsync();
             return _mapper.Map<BillDto>(bill);

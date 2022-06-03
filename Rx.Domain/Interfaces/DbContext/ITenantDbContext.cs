@@ -3,7 +3,7 @@ using Rx.Domain.Entities.Tenant;
 
 namespace Rx.Domain.Interfaces.DbContext;
 
-public interface ITenantDbContext
+public interface ITenantDbContext:IDbContext
 {
     DbSet<OrganizationCustomer>? OrganizationCustomers { get; set; }
     DbSet<Product>? Products { get; set; }

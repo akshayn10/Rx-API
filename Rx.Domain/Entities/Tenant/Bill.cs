@@ -14,12 +14,11 @@ public class Bill
         [Required(ErrorMessage = "Total Amount is required")]
         [Column(TypeName = "decimal(18,4)")]
         public decimal TotalAmount { get; set; }
-        public ICollection<PaymentTransaction>? PaymentTransactions { get; set; }
 
-
-        [ForeignKey(nameof(Subscription))]
-        public Guid SubscriptionId { get; set; }
-        public Subscription? Subscription { get; set; }
+        
+        [ForeignKey(nameof(OrganizationCustomer))]
+        public Guid CustomerId { get; set; }
+        public OrganizationCustomer? OrganizationCustomer { get; set; }
 
     }
 

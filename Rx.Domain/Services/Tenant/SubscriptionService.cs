@@ -10,9 +10,6 @@ using Rx.Domain.Entities.Tenant;
 using Rx.Domain.Interfaces;
 using Rx.Domain.Interfaces.DbContext;
 using Rx.Domain.Interfaces.Tenant;
-
-
-
 namespace Rx.Domain.Services.Tenant
 {
     public class SubscriptionService : ISubscriptionService
@@ -62,17 +59,13 @@ namespace Rx.Domain.Services.Tenant
             var subscriptions = await _tenantDbContext.Subscriptions!.Where(x => x.OrganizationCustomerId == customerId).ToListAsync();
             return _mapper.Map<IEnumerable<SubscriptionDto>>(subscriptions);
         }
-
         public async Task<SubscriptionDto> DeactivateeSubscription(Guid subscriptionId)
         {
             var subscription = await _tenantDbContext.Subscriptions!.FindAsync(subscriptionId);
             subscription!.IsActive = false;
             await _tenantDbContext.SaveChangesAsync();
-            
             return _mapper.Map<SubscriptionDto>(subscription);
-            
         }
-
         public async Task<SubscriptionDto> CreateSubscriptionFromWebhook(SubscriptionWebhookForCreationDto subscriptionWebhookForCreationDto)
         {
             var customer =await _tenantDbContext.OrganizationCustomers!.FirstOrDefaultAsync(c=>c.Email == subscriptionWebhookForCreationDto.customerEmail);
@@ -87,7 +80,6 @@ namespace Rx.Domain.Services.Tenant
                 await _tenantDbContext.OrganizationCustomers!.AddAsync(customer);
                 await _tenantDbContext.SaveChangesAsync();
             }
-            
             //GetPlanDetails
             var plan = await _tenantDbContext.ProductPlans!.FindAsync(subscriptionWebhookForCreationDto.productPlanId);
             var product = await _tenantDbContext.Products!.FindAsync(plan!.ProductId);

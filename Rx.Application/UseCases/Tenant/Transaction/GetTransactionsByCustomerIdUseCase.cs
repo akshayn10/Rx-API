@@ -22,11 +22,10 @@ public class GetTransactionsByCustomerIdUseCaseHandler : IRequestHandler<GetTran
 
     public async Task<IEnumerable<TransactionDto>> Handle(GetTransactionsByCustomerIdUseCase request, CancellationToken cancellationToken)
     {
-        var transactions =await (from t in _tenantDbContext.PaymentTransactions
-            join b in _tenantDbContext.Bills on t.BillId equals b.BillId
-            join s in _tenantDbContext.Subscriptions on b.SubscriptionId equals s.SubscriptionId
+        var transactions = await (from t in _tenantDbContext.PaymentTransactions
+            join s in _tenantDbContext.Subscriptions on t.SubscriptionId equals s.SubscriptionId
             where s.OrganizationCustomerId == request.CustomerId
-            select t).ToListAsync(cancellationToken);
+                select t).ToListAsync(cancellationToken);
         return _mapper.Map<IEnumerable<TransactionDto>>(transactions);
         
     }

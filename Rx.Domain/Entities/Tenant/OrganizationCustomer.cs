@@ -24,6 +24,7 @@ namespace Rx.Domain.Entities.Tenant
         public string? PaymentGatewayId { get; set; }
 
         public ICollection<Subscription>? Subscriptions {get; set;}
+        public ICollection<Bill>? Bills { get; set; }
 
 
 

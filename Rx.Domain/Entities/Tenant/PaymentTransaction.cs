@@ -15,8 +15,8 @@ public class PaymentTransaction
         public string? TransactionPaymentGatewayResponse { get; set; }
         public string? TransactionCurrency { get; set; }
 
-        [ForeignKey(nameof(Bill))]
-        public Guid BillId { get; set; }
-        public Bill? Bill { get; set; }
+        [ForeignKey(nameof(Subscription))]
+        public Guid SubscriptionId { get; set; }
+        public Subscription? Subscription { get; set; }
     }
 

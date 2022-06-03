@@ -1,24 +1,36 @@
-﻿using AutoMapper;
+﻿
+
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 using Rx.Domain.DTOs.Tenant.Bill;
 using Rx.Domain.Interfaces.DbContext;
 
 namespace Rx.Application.UseCases.Tenant.Billing;
 
-public record GetBillsUseCase(Guid SubscriptionId):IRequest<IEnumerable<BillDto>>;
+public record GetBillsUseCase():IRequest<IEnumerable<BillVm>>;
 
-public class GetBillsUseCaseHandler : IRequestHandler<GetBillsUseCase, IEnumerable<BillDto>>
+public class GetBillUseCaseHandler : IRequestHandler<GetBillsUseCase, IEnumerable<BillVm>>
 {
     private readonly ITenantDbContext _tenantDbContext;
-    private readonly IMapper _mapper;
 
-    public GetBillsUseCaseHandler(ITenantDbContext tenantDbContext, IMapper mapper)
+    public GetBillUseCaseHandler(ITenantDbContext tenantDbContext)
     {
         _tenantDbContext = tenantDbContext;
-        _mapper = mapper;
     }
-    public Task<IEnumerable<BillDto>> Handle(GetBillsUseCase request, CancellationToken cancellationToken)
+    public async Task<IEnumerable<BillVm>> Handle(GetBillsUseCase request, CancellationToken cancellationToken)
     {
-        throw new NotImplementedException();
+        var bills = await (from b in _tenantDbContext.Bills
+            join c in _tenantDbContext.OrganizationCustomers on b.CustomerId equals c.CustomerId
+            select new {c.Name,c.Email,b.GeneratedDate,b.TotalAmount}).ToListAsync(cancellationToken);
+        var billVms = bills.Select(x=>new BillVm(
+            Name:x.Name,
+            Email:x.Email,
+            GeneratedDate:x.GeneratedDate.ToString(),
+            Amount:x.TotalAmount
+            ));
+        return billVms;
+
+
     }
 }
+

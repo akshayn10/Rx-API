@@ -31,13 +31,13 @@ public class GetSubscriptionUseCaseHandler : IRequestHandler<GetSubscriptionsUse
         var subVmsOrdered = subscriptions.OrderByDescending(s => s.CreatedDate);
         var subscriptionsVms = subVmsOrdered.Select(s =>
             new SubscriptionVm(
-                subscriptionId: s.SubscriptionId.ToString(),
-                customerName: s.CustomerName,
-                product: s.ProductName,
-                plan: s.PlanName,
-                createdDate: s.CreatedDate.ToString(),
-                endDate: s.EndDate.ToString(),
-                status: s.IsActive ? "Active" : "Inactive"
+                s.SubscriptionId.ToString(),
+                s.CustomerName,
+                s.ProductName,
+                s.PlanName,
+                s.CreatedDate.ToString(),
+                s.EndDate.ToString(),
+                s.IsActive ? "Active" : "Inactive"
             )
         );
         return subscriptionsVms;

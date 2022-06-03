@@ -16,42 +16,46 @@ public class BillController:ControllerBase
     {
         _mediator = mediator;
     }
-    [HttpGet("{subscriptionId}")]
+    [HttpGet]
     [SwaggerOperation(Summary = "Get All Bills")]
-    public async Task<IActionResult> GetAllBills(string subscriptionId)
+    public async Task<IActionResult> GetAllBills()
     {
-        var subscriptionGuid = new Guid(subscriptionId);
-        var bills =await _mediator.Send(new GetBillsUseCase(subscriptionGuid)); 
+        var bills =await _mediator.Send(new GetBillsUseCase()); 
         return Ok(bills);
     }
-    [HttpGet("{subscriptionId}/dtos")]
-    [SwaggerOperation(Summary = "Get All Bills")]
-    public async Task<IActionResult> GetAllBillDtos(string subscriptionId)
+    [HttpGet("dtos")]
+    [SwaggerOperation(Summary = "Get All Bills dtos")]
+    public async Task<IActionResult> GetAllBillDtos()
     {
-        var subscriptionGuid = new Guid(subscriptionId);
-        var bills =await _mediator.Send(new GetBillDtosUseCase(subscriptionGuid)); 
+        var bills =await _mediator.Send(new GetBillDtosUseCase()); 
+        return Ok(bills);
+    }
+    [HttpGet("/customer{customerId}")]
+    [SwaggerOperation(Summary = "Get All Bills by customerId")]
+    public async Task<IActionResult> GetAllBillsByCustomerId(string customerId)
+    {
+        var bills =await _mediator.Send(new GetBillsByCustomerIdUseCase(Guid.Parse(customerId))); 
         return Ok(bills);
     }
 
-    [HttpGet("{subscriptionId}/{billId}")]
+    [HttpGet("{billId}")]
     [SwaggerOperation(Summary = "Get a Bill by")]
-    public async Task<IActionResult> GetBillById(string subscriptionId, string billId)
+    public async Task<IActionResult> GetBillById(string billId)
     {
-        var subscriptionGuid = new Guid(subscriptionId);
-        var billGuid = new Guid(billId);
-        var bill = await _mediator.Send(new GetBillByIdUseCase(subscriptionGuid, billGuid));
+        var bill = await _mediator.Send(new GetBillByIdUseCase(Guid.Parse(billId)));
         return Ok(bill);
     }
 
-    [HttpPost("{subscriptionId}")]
+    [HttpPost("{customerId}")]
     [SwaggerOperation(Summary = "Create a Bill")]
-    public async Task<IActionResult> CreateBill(string subscriptionId, [FromBody] BillForCreationDto billForCreationDto)
+    public async Task<IActionResult> CreateBill(string customerId, [FromBody] BillForCreationDto billForCreationDto)
     {
-        var subscriptionGuid = new Guid(subscriptionId);
-        var createdBill = await _mediator.Send(new CreateBillUseCase(subscriptionGuid, billForCreationDto));
-        return CreatedAtAction(nameof(GetBillById), new { subscriptionId = subscriptionGuid, billId = createdBill.BillId }, createdBill);
+        var customerGuid = new Guid(customerId);
+        var createdBill = await _mediator.Send(new CreateBillUseCase(customerGuid, billForCreationDto));
+        return CreatedAtAction(nameof(GetBillById), new { billId = createdBill.BillId }, createdBill);
     }
 
 
 
 }
+

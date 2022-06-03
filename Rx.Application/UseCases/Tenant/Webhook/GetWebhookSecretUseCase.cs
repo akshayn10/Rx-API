@@ -21,6 +21,6 @@ public class GetWebhookSecretUseCaseHandler:IRequestHandler<GetWebhookSecretUseC
     {
         var webhookSecret = await _tenantDbContext.Products!.Where(p=>p.ProductId==request.ProductId)
             .Select(p=>p.WebhookSecret).FirstOrDefaultAsync(cancellationToken: cancellationToken);
-        return webhookSecret ?? throw new InvalidOperationException("");
+        return webhookSecret ?? throw new InvalidOperationException("Product Not Found");
     }
 }

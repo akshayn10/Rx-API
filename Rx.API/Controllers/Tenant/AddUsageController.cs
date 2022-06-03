@@ -18,11 +18,19 @@ public class AddUsageController:ControllerBase
         _mediator = mediator;
     }
 
-    [HttpGet("{subscriptionId}")]
+    [HttpGet("subscription/{subscriptionId}/dtos")]
     [SwaggerOperation(summary: "Get AddOnUsage Dtos for Subscription")]
     public async Task<IActionResult> GetAddOnUsageDtosForSubscription(string subscriptionId)
     {
         var addOnUsageDtos = await _mediator.Send(new GetAddOnUsageDtosForSubscription(Guid.Parse(subscriptionId)));
+        return Ok(addOnUsageDtos);
+        
+    }
+    [HttpGet("subscription/{subscriptionId}")]
+    [SwaggerOperation(summary: "Get AddOnUsage Dtos for Subscription")]
+    public async Task<IActionResult> GetAddOnUsageForSubscription(string subscriptionId)
+    {
+        var addOnUsageDtos = await _mediator.Send(new GetAddOnUsagesForSubscriptionUseCase(Guid.Parse(subscriptionId)));
         return Ok(addOnUsageDtos);
         
     }

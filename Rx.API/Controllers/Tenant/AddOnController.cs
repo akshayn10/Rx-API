@@ -7,7 +7,7 @@ using Swashbuckle.AspNetCore.Annotations;
 
 namespace Rx.API.Controllers.Tenant;
 
-[Route("api/product/{productId}/addOn")]
+[Route("api/addOn/{productId}")]
 [ApiController]
 public class AddOnController : ControllerBase
 {
@@ -19,6 +19,7 @@ public class AddOnController : ControllerBase
         _mediator = mediator;
         _logger = logger;
     }
+
     
     [HttpGet]
     [SwaggerOperation(Summary = "Get all addOns")]
@@ -30,7 +31,7 @@ public class AddOnController : ControllerBase
     }
 
     [HttpGet("{addOnId}")]
-    [SwaggerOperation(summary: "Get All Addon D tos")]
+    [SwaggerOperation(summary: "Get add by Id")]
     public async Task<IActionResult> GetAddOnById(string productId, string addOnId)
     {
         var productGuid = new Guid(productId);
@@ -53,46 +54,4 @@ public class AddOnController : ControllerBase
     }
 
 
-    //AddOn Price per Plan
-    [HttpGet("{addOnId}/price")]
-    [SwaggerOperation(summary: "Get Addon Price per Plan")]
-    public async Task<IActionResult> GetAddOnPricePerPlanDtos(string productId, string addOnId)
-    {
-        var productGuid = new Guid(productId);
-        var addOnGuid = new Guid(addOnId);
-        var addOnPricePerPlans = await _mediator.Send(new GetAddOnPricePerPlanUseCase(productGuid, addOnGuid));
-        return Ok(addOnPricePerPlans);
-    }
-
-    [HttpGet("{addOnId}/price/{pricePerPlanId}")]
-    [SwaggerOperation(summary: "Get Addon Price per Plan by id")]
-    public async Task<IActionResult> GetAddOnPriceById(string productId, string addOnId, string pricePerPlanId)
-    {
-        var productGuid = new Guid(productId);
-        var addOnGuid = new Guid(addOnId);
-        var pricePerPlanGuid = new Guid(pricePerPlanId);
-        var addOnPricePerPlan =
-            await _mediator.Send(new GetAddOnPricePerPlanByIdUseCase(productGuid, addOnGuid, pricePerPlanGuid));
-        return Ok(addOnPricePerPlan);
-    }
-
-    [HttpPost("{addOnId}/{planId}/price")]
-    [SwaggerOperation(summary: "Add Addon Price per Plan")]
-    public async Task<IActionResult> AddAddOnPrice(string planId, string addOnId,
-        [FromBody] AddOnPricePerPlanForCreationDto addOnPricePerPlanForCreationDto)
-    {
-        var planGuid = new Guid(planId);
-        var addOnGuid = new Guid(addOnId);
-        var createdAddOnPricePerPlan =
-            await _mediator.Send(new AddAddOnPricePerPlanUseCase(addOnGuid, planGuid,
-                addOnPricePerPlanForCreationDto));
-        return CreatedAtAction(nameof(GetAddOnPriceById),
-            new
-            {
-                productId = planGuid,
-                addOnId = createdAddOnPricePerPlan.AddOnId,
-                pricePerPlanId = createdAddOnPricePerPlan.AddOnPricePerPlanId
-            },
-            createdAddOnPricePerPlan);
-    }
 }

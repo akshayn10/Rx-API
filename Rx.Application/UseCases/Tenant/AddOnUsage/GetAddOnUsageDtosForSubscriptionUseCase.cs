@@ -20,7 +20,7 @@ public class GetAddOnUsageDtosForSubscriptionHandler : IRequestHandler<GetAddOnU
     }
     public async Task<IEnumerable<AddOnUsageDto>> Handle(GetAddOnUsageDtosForSubscription request, CancellationToken cancellationToken)
     {
-        var addOnUsages = await _tenantDbContext.AddOnUsages.Where(x => x.AddOnId == request.SubscriptionId).ToListAsync(cancellationToken);
+        var addOnUsages = await _tenantDbContext.AddOnUsages.Where(x => x.SubscriptionId == request.SubscriptionId).ToListAsync(cancellationToken);
         return _mapper.Map<IEnumerable<AddOnUsageDto>>(addOnUsages);
     }
 }

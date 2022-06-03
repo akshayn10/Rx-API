@@ -2,7 +2,6 @@
 using Microsoft.EntityFrameworkCore;
 using Rx.Domain.Entities.Tenant;
 using Rx.Domain.Interfaces.DbContext;
-
 namespace Rx.Infrastructure.Persistence.Context
 {
     public class TenantDbContext :DbContext,ITenantDbContext
@@ -14,12 +13,11 @@ namespace Rx.Infrastructure.Persistence.Context
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
-            builder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
+            // builder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
             builder.Entity<OrganizationCustomer>()
                 .HasIndex(c => c.Email)
                 .IsUnique();
         }
-
         public DbSet<OrganizationCustomer>? OrganizationCustomers { get; set; }
         public DbSet<Product>? Products { get; set; }
         public DbSet<ProductPlan>? ProductPlans { get; set; }
@@ -38,5 +36,7 @@ namespace Rx.Infrastructure.Persistence.Context
         {
             return await base.SaveChangesAsync();
         }
+
+        public DbContext Instance => this;
     }
 }
