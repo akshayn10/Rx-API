@@ -23,7 +23,7 @@ public class GetProductVmsUseCaseHandler : IRequestHandler<GetProductVmsUseCase,
     public async Task<IEnumerable<ProductVm>> Handle(GetProductVmsUseCase request, CancellationToken cancellationToken)
     {
         var products = await _tenantDbContext.Products!.
-            Select(p => new {p.ProductId,p.Name,p.RedirectURL,p.LogoURL}).ToListAsync(cancellationToken);
+            Select(p => new {p.ProductId,p.Name,p.RedirectURL,p.LogoURL,p.WebhookSecret}).ToListAsync(cancellationToken);
         
         var planCount =await _tenantDbContext.ProductPlans!.
             GroupBy(p=>p.ProductId).Select(group=>new {productId=group.Key,Count =group.Count()}).ToListAsync(cancellationToken);
@@ -39,7 +39,7 @@ public class GetProductVmsUseCaseHandler : IRequestHandler<GetProductVmsUseCase,
             select (
                 new ProductVm(
                     ProductId: p.ProductId.ToString(), Name: p.Name, RedirectURL: p.RedirectURL, LogoURL: p.LogoURL,
-                    PlanCount: pc?.Count??0, AddOnCount: ac?.Count??0
+                    PlanCount: pc?.Count??0, AddOnCount: ac?.Count??0,WebhookSecret:p.WebhookSecret
                 ));
         return productVms;
     }
