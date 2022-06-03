@@ -16,6 +16,6 @@ namespace Rx.Domain.Interfaces.Tenant
 
         Task<ProductPlanDto> AddProductPlan(ProductPlanForCreationDto planForCreationDto);
 
-        Task DeleteProductPlan(Guid productId,Guid planId);
+        Task<string> DeleteProductPlan(Guid productId,Guid planId);
     }
 }

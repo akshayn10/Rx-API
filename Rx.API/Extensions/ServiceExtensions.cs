@@ -27,10 +27,6 @@ namespace Rx.API.Extensions
         {
             services.AddScoped<IPrimaryServiceManager, PrimaryServiceManager>();
             services.AddScoped<ITenantServiceManager, TenantServiceManager>();
-
-
         }
-
-
     }
 }

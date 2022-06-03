@@ -32,7 +32,7 @@ namespace Rx.Domain.Services.Tenant
             var products = await _tenantDbContext.Products!.
                 Select(p => new
                 {
-                    p.ProductId,p.Name,p.LogoURL,p.RedirectURL
+                    p.ProductId,p.Name,p.LogoURL,p.RedirectURL,p.WebhookSecret
                 }).ToListAsync();
             var planCount =await _tenantDbContext.ProductPlans!.GroupBy(p=>p.PlanId).Select(group=>new {group.Key,Count=group.Count()}).ToListAsync();
             var addOnCount =await _tenantDbContext.AddOns!.GroupBy(p=>p.AddOnId).Select(group=>new {group.Key,Count=group.Count()}).ToListAsync();
@@ -43,7 +43,7 @@ namespace Rx.Domain.Services.Tenant
                 select (
                     new ProductVm(
                         ProductId: p.ProductId.ToString(), Name: p.Name, LogoURL: p.LogoURL, RedirectURL:p.RedirectURL,
-                        PlanCount: pc.Count, AddOnCount: ac.Count
+                        PlanCount: pc.Count, AddOnCount: ac.Count,WebhookSecret:p.WebhookSecret
                     ));
             return productVms;
         }

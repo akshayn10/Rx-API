@@ -41,6 +41,13 @@ namespace Rx.API.Controllers.Tenant
             var createdPlan = await _mediator.Send(new AddProductPlanUseCase(productPlanForCreationDto));
             return CreatedAtAction(nameof(GetProductPlanById), new { productId = createdPlan.ProductId, planId = createdPlan.PlanId }, createdPlan);
         }
+        [HttpDelete("{planId}")]
+        [SwaggerOperation(Summary = "Delete a plan by id for a product")]
+        public async Task<IActionResult> DeleteProductPlan(Guid productId, Guid planId)
+        {
+            await _mediator.Send(new DeleteProductPlanUseCase(productId, planId));
+            return NoContent();
+        }
 
     }
 }

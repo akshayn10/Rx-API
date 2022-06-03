@@ -20,7 +20,7 @@ namespace Rx.Domain.Services.Tenant
             _mapper = mapper;
             _logger = logger;
         }
-
+        
         public async Task<IEnumerable<ProductPlanDto>> GetProductPlans(Guid productId)
         {
             var plans = await _tenantDbContext.ProductPlans!.Where(pp=>pp.ProductId==productId).ToListAsync();
@@ -42,11 +42,17 @@ namespace Rx.Domain.Services.Tenant
             return _mapper.Map<ProductPlanDto>(plan);
         }
 
-        public async Task DeleteProductPlan(Guid productId,Guid planId)
+        public async Task<string> DeleteProductPlan(Guid productId,Guid planId)
         {
             var plan = await _tenantDbContext.ProductPlans!.FirstOrDefaultAsync(x => x.PlanId == planId && x.ProductId == productId);
 
-            if (plan != null) _tenantDbContext.ProductPlans!.Remove(plan);
+            if (plan == null)
+            {
+                throw new Exception("Plan not found");
+            }
+            _tenantDbContext.ProductPlans!.Remove(plan);
+            await _tenantDbContext.SaveChangesAsync();
+            return plan?.PlanId.ToString();
         }
     }
 }
