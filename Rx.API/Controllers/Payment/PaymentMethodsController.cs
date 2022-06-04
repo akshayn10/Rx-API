@@ -2,8 +2,16 @@
 using Microsoft.AspNetCore.Mvc;
 using Rx.Domain.DTOs.Payment;
 using Rx.Domain.Interfaces.Payment;
-using Swashbuckle.AspNetCore.Annotations;
 using System;
+using System.IO;
+using Microsoft.AspNetCore;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using System.Threading.Tasks;
+using Stripe;
 
 namespace Rx.API.Controllers.Payment;
 

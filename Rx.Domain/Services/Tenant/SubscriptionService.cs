@@ -79,6 +79,7 @@ namespace Rx.Domain.Services.Tenant
                 customer = _mapper.Map<OrganizationCustomer>(customerForCreationDto);
                 await _tenantDbContext.OrganizationCustomers!.AddAsync(customer);
                 await _tenantDbContext.SaveChangesAsync();
+                
             }
             //GetPlanDetails
             var plan = await _tenantDbContext.ProductPlans!.FindAsync(subscriptionWebhookForCreationDto.productPlanId);
