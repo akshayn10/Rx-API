@@ -1,6 +1,7 @@
 using Azure.Storage.Blobs;
 using Hangfire;
 using MediatR;
+using Microsoft.AspNetCore;
 using Microsoft.Extensions.Azure;
 using Microsoft.OpenApi.Models;
 using Rx.API.Extensions;
@@ -26,6 +27,7 @@ builder.Logging.AddSerilog(logger);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
+builder.Services.AddMvc().AddNewtonsoftJson();
 
 builder.Services.AddScoped<IPrimaryDbContext, PrimaryDbContext>();
 builder.Services.AddScoped<ITenantDbContext,TenantDbContext>();
@@ -81,6 +83,10 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+// WebHost.CreateDefaultBuilder(args)
+//     .UseUrls("http://0.0.0.0:5158/api")
+//     .UseWebRoot(".");
 
 app.UseStaticFiles();
 

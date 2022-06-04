@@ -1,10 +1,10 @@
-﻿using Hangfire;
-using MediatR;
+﻿using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Rx.API.Controllers.Tenant.Authorization;
 using Rx.Application.UseCases.Tenant.Subscription;
 using Rx.Domain.DTOs.Tenant.AddOn;
 using Rx.Domain.DTOs.Tenant.Subscription;
+using Stripe;
 using Swashbuckle.AspNetCore.Annotations;
 
 namespace Rx.API.Controllers.Tenant
@@ -21,7 +21,6 @@ namespace Rx.API.Controllers.Tenant
             _logger = logger;
             _mediator = mediator;
         }
-        
 
         // Retrieve Subscription Webhooks
         [HttpPost("subscribe",Name = "SubscriptionWebhook")]
