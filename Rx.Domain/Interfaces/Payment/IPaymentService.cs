@@ -7,6 +7,8 @@ public interface IPaymentService
     Task<bool> CreateCustomer(string name, string email, string systemId);
     Task<List<PaymentModel.CustomerModel>> GetCustomers(int take);
     Task<PaymentModel.CustomerModel> GetCustomerByEmail(string email, params PaymentModel.PaymentModelInclude[] include);
+    
+    Task<string> GetCustomerEmailById(string id);
     Task<PaymentModel.CustomerModel> DeleteCustomerByEmail(string email);
 
     /// <summary>

@@ -1,12 +1,11 @@
 ﻿using MediatR;
-using Rx.Domain.DTOs.Tenant.Subscription;
 using Rx.Domain.Interfaces;
 
 namespace Rx.Application.UseCases.Tenant.Subscription;
 
-public record CreateSubscriptionFromWebhookUseCase(SubscriptionWebhookForCreationDto SubscriptionWebhookForCreationDto):IRequest<SubscriptionDto>;
+public record CreateSubscriptionFromWebhookUseCase(Guid CustomerId):IRequest<string>;
 
-public class CreateSubscriptionFromWebhookUseCaseHandler : IRequestHandler<CreateSubscriptionFromWebhookUseCase, SubscriptionDto>
+public class CreateSubscriptionFromWebhookUseCaseHandler : IRequestHandler<CreateSubscriptionFromWebhookUseCase,string>
 {
     private readonly ITenantServiceManager _tenantServiceManager;
 
@@ -14,9 +13,8 @@ public class CreateSubscriptionFromWebhookUseCaseHandler : IRequestHandler<Creat
     {
         _tenantServiceManager = tenantServiceManager;
     }
-    public Task<SubscriptionDto> Handle(CreateSubscriptionFromWebhookUseCase request, CancellationToken cancellationToken)
+    public Task<string> Handle(CreateSubscriptionFromWebhookUseCase request, CancellationToken cancellationToken)
     {
-        return _tenantServiceManager.SubscriptionService.CreateSubscriptionFromWebhook(request.SubscriptionWebhookForCreationDto);
-        
+        return _tenantServiceManager.SubscriptionService.CreateSubscriptionFromWebhook(request.CustomerId);
     }
 }

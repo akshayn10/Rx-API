@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Rx.API.Controllers.Tenant.Authorization;
 using Rx.Application.UseCases.Tenant.Subscription;
+using Rx.Application.UseCases.Tenant.Webhook;
 using Rx.Domain.DTOs.Tenant.AddOn;
 using Rx.Domain.DTOs.Tenant.Subscription;
 using Stripe;
@@ -29,7 +30,7 @@ namespace Rx.API.Controllers.Tenant
         {
             var tenantId = Request.Headers["TenantId"];
             var secret =Request.Headers["Secret"];
-            var subscription =await _mediator.Send(new CreateSubscriptionFromWebhookUseCase(subscriptionWebhookForCreationDto));
+            var subscription =await _mediator.Send(new ManageWebhookUseCase(subscriptionWebhookForCreationDto));
             return Ok(subscription);
         }
         [HttpPost("unsubscribe",Name = "UnsubscribeWebhook")]

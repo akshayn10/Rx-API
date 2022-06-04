@@ -10,7 +10,7 @@ namespace Rx.Domain.Interfaces.Tenant
         Task<SubscriptionDto> GetSubscriptionByIdForCustomer(Guid customerId, Guid subscriptionId);
         Task<IEnumerable<SubscriptionDto>> GetSubscriptionsForCustomer(Guid customerId);
         
-        Task<SubscriptionDto> CreateSubscriptionFromWebhook (SubscriptionWebhookForCreationDto subscriptionWebhookForCreationDto);
-        Task<SubscriptionDto> DeactivateeSubscription(Guid subscriptionId);
+        Task<string> CreateSubscriptionFromWebhook (Guid customerId);
+        Task<SubscriptionDto> DeactivateSubscription(Guid subscriptionId);
     }
 }

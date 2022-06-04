@@ -28,6 +28,7 @@ public class PaymentService:IPaymentService
                 SystemId = x.Metadata["ID"]
             }).ToList();
         }
+     
 
         public async Task<PaymentModel.CustomerModel> GetCustomerByEmail(string email, params PaymentModel.PaymentModelInclude[] includes)
         {
@@ -55,6 +56,14 @@ public class PaymentService:IPaymentService
 
             return customerModel;
         }
+        public async Task<string> GetCustomerEmailById(string id)
+        {
+            var service = new CustomerService();
+            var customer= await service.GetAsync(id);
+            return customer.Email;
+        }
+
+
 
         public async Task<bool> CreateCustomer(string name, string email, string systemId)
         {
