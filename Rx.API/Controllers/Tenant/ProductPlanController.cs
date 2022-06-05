@@ -48,6 +48,20 @@ namespace Rx.API.Controllers.Tenant
             await _mediator.Send(new DeleteProductPlanUseCase(productId, planId));
             return NoContent();
         }
+        
+        [HttpPut("{planId}")]
+        [SwaggerOperation(Summary = "Update a plan by id for a product")]
+        public async Task<IActionResult> UpdateProductPlan(string productId, string planId, [FromBody] ProductPlanForUpdateDto productPlanForUpdateDto)
+        {
+            if (productPlanForUpdateDto is null)
+            {
+                return BadRequest("Body is empty");
+            }
+
+            
+            var updatedPlan = await _mediator.Send(new EditProductPlanUseCase(Guid.Parse(productId), Guid.Parse(planId), productPlanForUpdateDto));
+            return Ok(updatedPlan);
+        }
 
     }
 }
