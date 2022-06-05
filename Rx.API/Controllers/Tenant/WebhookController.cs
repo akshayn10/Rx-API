@@ -30,8 +30,8 @@ namespace Rx.API.Controllers.Tenant
         {
             var tenantId = Request.Headers["TenantId"];
             var secret =Request.Headers["Secret"];
-            var subscription =await _mediator.Send(new ManageWebhookUseCase(subscriptionWebhookForCreationDto));
-            return Ok(subscription);
+            var paymentRedirectUrl =await _mediator.Send(new ManageWebhookUseCase(subscriptionWebhookForCreationDto));
+            return Ok(paymentRedirectUrl);
         }
         [HttpPost("unsubscribe",Name = "UnsubscribeWebhook")]
         [SwaggerOperation(Summary = "Unsubscribe webhook")]

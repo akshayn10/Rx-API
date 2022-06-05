@@ -23,7 +23,7 @@ public class GetCustomersUseCaseHandler : IRequestHandler<GetCustomersUseCase, I
             select
                 new
                 {
-                    c.CustomerId,c.Email,c.Name,s.IsActive
+                    c.CustomerId,c.Email,c.Name,s.IsActive,c.Last4
                 }
             ).OrderByDescending(c=>c.IsActive).ToListAsync(cancellationToken);
         
@@ -32,7 +32,8 @@ public class GetCustomersUseCaseHandler : IRequestHandler<GetCustomersUseCase, I
                 customerId: c.CustomerId.ToString(),
                 name: c.Name,
                 email: c.Email,
-                status: c.IsActive ? "Active" : "Inactive"
+                status: c.IsActive ? "Active" : "Inactive",
+                last4:c.Last4
             )
         ).DistinctBy(x => x.customerId);
 

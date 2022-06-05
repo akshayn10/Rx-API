@@ -51,14 +51,15 @@ namespace Rx.Domain.Services.Tenant
 
         public async Task<Guid> AddPaymentMethod(string customerId, string last4)
         {
-            var customer =
-                await _tenantDbContext.OrganizationCustomers!.FindAsync(_paymentService.GetCustomerByEmail(customerId));
-            if (customer != null)
+            var customerEmail=await _paymentService.GetCustomerEmailById(customerId);
+            var customer = await _tenantDbContext.OrganizationCustomers!.FirstOrDefaultAsync(c=>c.Email==customerEmail);
+            if (customer == null)
             {
-                customer.PaymentGatewayId = customerId;
-                customer.Last4 = last4;
-                await _tenantDbContext.SaveChangesAsync();
+                throw new NullReferenceException("Customer not found for the email");
             }
+            customer.PaymentGatewayId = customerId;
+            customer.Last4 = last4;
+            await _tenantDbContext.SaveChangesAsync();
 
             return customer!.CustomerId;
         }

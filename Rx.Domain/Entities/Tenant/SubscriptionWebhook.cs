@@ -22,8 +22,6 @@ namespace Rx.Domain.Entities.Tenant
         public string? CustomerName { get; set; }
 
         public Guid ProductPlanId { get; set; }
-
-
-
+        public DateTime RetrievedDate { get; set; }
     }
 }

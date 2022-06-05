@@ -24,18 +24,25 @@ public class CreateSubscriptionFromWebhookUseCaseHandler : IRequestHandler<Manag
     }
     public async Task<string> Handle(ManageWebhookUseCase request, CancellationToken cancellationToken)
     {
+        //Store Webhook in Database
         var subscriptionWebhookDto = new SubscriptionWebhookDto(
-            request.SubscriptionWebhookForCreationDto.SenderWebhookId,
-            request.SubscriptionWebhookForCreationDto.customerEmail,
-            request.SubscriptionWebhookForCreationDto.customerName,
-            request.SubscriptionWebhookForCreationDto.productPlanId);
+            SenderWebhookId:request.SubscriptionWebhookForCreationDto.SenderWebhookId,
+            CustomerEmail:request.SubscriptionWebhookForCreationDto.customerEmail,
+            CustomerName:request.SubscriptionWebhookForCreationDto.customerName,
+            ProductPlanId:request.SubscriptionWebhookForCreationDto.productPlanId,
+            RetrievedDate:DateTime.Now
+        );
         var subscriptionWebhook = _mapper.Map<SubscriptionWebhook>(subscriptionWebhookDto);
-
+        await _tenantDbContext.SubscriptionWebhooks.AddAsync(subscriptionWebhook, cancellationToken);
+        await _tenantDbContext.SaveChangesAsync();
+        
+        //Check if the customer is new or existing
         var customer =await _tenantDbContext.OrganizationCustomers!.FirstOrDefaultAsync(c=>c.Email==request.SubscriptionWebhookForCreationDto.customerEmail, cancellationToken: cancellationToken);
         if (customer != null)
         {
-           await _tenantServiceManager.OrganizationCustomerService.CreateCustomerFromWebhook(request.SubscriptionWebhookForCreationDto);
+            // Create new function for existing customer
+            return await _tenantServiceManager.SubscriptionService.CreateSubscriptionFromWebhook(customer.CustomerId);
         }
-        return await _tenantServiceManager.SubscriptionService.CreateSubscriptionFromWebhook(customer.CustomerId);
+        return await _tenantServiceManager.OrganizationCustomerService.CreateCustomerFromWebhook(request.SubscriptionWebhookForCreationDto);
     }
 }

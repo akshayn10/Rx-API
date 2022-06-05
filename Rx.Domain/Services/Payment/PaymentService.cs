@@ -62,9 +62,7 @@ public class PaymentService:IPaymentService
             var customer= await service.GetAsync(id);
             return customer.Email;
         }
-
-
-
+        
         public async Task<bool> CreateCustomer(string name, string email, string systemId)
         {
             this._logger.LogInformation("Creating Customer in Stripe");

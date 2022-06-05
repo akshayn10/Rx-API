@@ -72,7 +72,7 @@ namespace Rx.Domain.Services.Tenant
         public async Task<string> CreateSubscriptionFromWebhook(Guid customerId)
         {
             var customer =await _tenantDbContext.OrganizationCustomers!.FindAsync(customerId);
-            var webhook = await _tenantDbContext.SubscriptionWebhooks.FirstOrDefaultAsync(s=>s.CustomerEmail == customer.Email);
+            var webhook = await _tenantDbContext.SubscriptionWebhooks.OrderByDescending(c=>c.RetrievedDate).FirstOrDefaultAsync();
             
             //GetPlanDetails
             var plan = await _tenantDbContext.ProductPlans!.FindAsync(webhook.ProductPlanId);
@@ -97,8 +97,7 @@ namespace Rx.Domain.Services.Tenant
             await _tenantDbContext.SaveChangesAsync();
             // _backgroundJobClient.Schedule(()=>DeactivateSubscription(subscription.SubscriptionId), subscription.EndDate);
             _backgroundJobClient.Schedule(()=>DeactivateSubscription(subscription.SubscriptionId), subscription.CreatedDate.AddMinutes(1));
-            return string.Empty;
-
+            return "Subscription Created";
         }
     }
 }
