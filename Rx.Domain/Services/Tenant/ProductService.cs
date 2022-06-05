@@ -115,5 +115,37 @@ namespace Rx.Domain.Services.Tenant
                 select p).ToListAsync();
          return _mapper.Map<IEnumerable<ProductDto>>(products);
         }
+        
+        public async Task<string> DeleteProduct(Guid productId)
+        {
+            var product = await _tenantDbContext.Products!.FirstOrDefaultAsync(x=>x.ProductId==productId);
+            if (product == null)
+            {
+                return "Product not found";
+            }
+            _tenantDbContext.Products.Remove(product);
+            await _tenantDbContext.SaveChangesAsync();
+            return "Product deleted";
+        }
+
+       
+        public async Task<ProductDto> UpdateProduct(Guid productId, ProductForUpdateDto productForUpdateDto)
+        {
+            var product = await _tenantDbContext.Products!.FindAsync(productId);
+            if (product == null)
+            {
+                throw new NullReferenceException("Product not found");
+            }
+            product.Name = productForUpdateDto.Name;
+            product.Description = productForUpdateDto.Description;
+            product.WebhookURL = productForUpdateDto.WebhookURL;
+            product.FreeTrialDays = productForUpdateDto.FreeTrialDays;
+            product.RedirectURL = productForUpdateDto.RedirectUrl;
+            
+           
+            await _tenantDbContext.SaveChangesAsync();
+            return _mapper.Map<ProductDto>(product);
+        }
     }
 }
+

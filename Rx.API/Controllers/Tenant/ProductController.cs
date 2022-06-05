@@ -17,6 +17,7 @@ namespace Rx.API.Controllers.Tenant
             _mediator = mediator;
             _logger = logger;
         }
+
         [HttpGet]
         [SwaggerOperation(Summary = "Get all products")]
         public async Task<IActionResult> GetProducts()
@@ -31,7 +32,7 @@ namespace Rx.API.Controllers.Tenant
         public async Task<IActionResult> GetProductById(Guid id)
         {
             var product = await _mediator.Send(new GetProductByIdUseCase(id));
-            
+
             return Ok(product);
 
         }
@@ -58,5 +59,29 @@ namespace Rx.API.Controllers.Tenant
             var products = await _mediator.Send(new GetProductsForCustomerUseCase(customerId));
             return Ok(products);
         }
+
+        [HttpDelete("{productId}")]
+        [SwaggerOperation(Summary = "Delete a product")]
+        public async Task<IActionResult> DeleteProduct(Guid productId)
+        {
+            await _mediator.Send(new DeleteProductUseCase(productId));
+            return NoContent();
+        }
+
+        [HttpPut("{productId}")]
+        [SwaggerOperation(Summary = "Update a product")]
+        public async Task<IActionResult> UpdateProduct(string productId,
+            [FromForm] ProductForUpdateDto productForUpdateDto)
+        {
+            if (productForUpdateDto is null)
+            {
+                return BadRequest("Body is empty");
+            }
+
+            var updateProduct = await _mediator.Send(new EditProductUseCase(Guid.Parse(productId), productForUpdateDto));
+            return Ok(updateProduct);
+        }
+
+
     }
 }

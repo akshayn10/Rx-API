@@ -14,6 +14,9 @@ namespace Rx.Domain.Interfaces.Tenant
         
         Task<IEnumerable<ProductDto>> GetProductsForCustomer(Guid customerId);
         
+        Task<string> DeleteProduct(Guid productId);
+        
+        Task<ProductDto> UpdateProduct(Guid productId, ProductForUpdateDto productForUpdateDto);
 
 
     }
