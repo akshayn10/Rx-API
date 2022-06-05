@@ -16,6 +16,6 @@ public class DeactivateSubscriptionUseCaseHandler : IRequestHandler<DeactivateSu
     }
     public Task<SubscriptionDto> Handle(DeactivateSubscriptionUseCase request, CancellationToken cancellationToken)
     {
-        return _tenantServiceManager.SubscriptionService.DeactivateeSubscription(request.SubscriptionId);
+        return _tenantServiceManager.SubscriptionService.DeactivateSubscription(request.SubscriptionId);
     }
 }

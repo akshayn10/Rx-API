@@ -9,6 +9,7 @@ using Rx.Domain.DTOs.Tenant.Subscription;
 using Rx.Domain.Entities.Tenant;
 using Rx.Domain.Interfaces;
 using Rx.Domain.Interfaces.DbContext;
+using Rx.Domain.Interfaces.Payment;
 using Rx.Domain.Interfaces.Tenant;
 namespace Rx.Domain.Services.Tenant
 {
@@ -18,13 +19,15 @@ namespace Rx.Domain.Services.Tenant
         private readonly ILogger<TenantServiceManager> _logger;
         private readonly IMapper _mapper;
         private readonly IBackgroundJobClient _backgroundJobClient;
+        private readonly IPaymentService _paymentService;
 
-        public SubscriptionService(ITenantDbContext tenantDbContext, ILogger<TenantServiceManager> logger, IMapper mapper,IBackgroundJobClient backgroundJobClient)
+        public SubscriptionService(ITenantDbContext tenantDbContext, ILogger<TenantServiceManager> logger, IMapper mapper,IBackgroundJobClient backgroundJobClient,IPaymentService paymentService)
         {
             _tenantDbContext = tenantDbContext;
             _logger = logger;
             _mapper = mapper;
             _backgroundJobClient = backgroundJobClient;
+            _paymentService = paymentService;
         }
 
         public async Task<IEnumerable<SubscriptionDto>> GetSubscriptions()
@@ -59,30 +62,20 @@ namespace Rx.Domain.Services.Tenant
             var subscriptions = await _tenantDbContext.Subscriptions!.Where(x => x.OrganizationCustomerId == customerId).ToListAsync();
             return _mapper.Map<IEnumerable<SubscriptionDto>>(subscriptions);
         }
-        public async Task<SubscriptionDto> DeactivateeSubscription(Guid subscriptionId)
+        public async Task<SubscriptionDto> DeactivateSubscription(Guid subscriptionId)
         {
             var subscription = await _tenantDbContext.Subscriptions!.FindAsync(subscriptionId);
             subscription!.IsActive = false;
             await _tenantDbContext.SaveChangesAsync();
             return _mapper.Map<SubscriptionDto>(subscription);
         }
-        public async Task<SubscriptionDto> CreateSubscriptionFromWebhook(SubscriptionWebhookForCreationDto subscriptionWebhookForCreationDto)
+        public async Task<string> CreateSubscriptionFromWebhook(Guid customerId)
         {
-            var customer =await _tenantDbContext.OrganizationCustomers!.FirstOrDefaultAsync(c=>c.Email == subscriptionWebhookForCreationDto.customerEmail);
-            if (customer is null)
-            {
-                var customerForCreationDto = new OrganizationCustomerForCreationDto(
-                    Email: subscriptionWebhookForCreationDto.customerEmail,
-                    Name: subscriptionWebhookForCreationDto.customerName
-                );
-                //Create New Customer
-                customer = _mapper.Map<OrganizationCustomer>(customerForCreationDto);
-                await _tenantDbContext.OrganizationCustomers!.AddAsync(customer);
-                await _tenantDbContext.SaveChangesAsync();
-                
-            }
+            var customer =await _tenantDbContext.OrganizationCustomers!.FindAsync(customerId);
+            var webhook = await _tenantDbContext.SubscriptionWebhooks.OrderByDescending(c=>c.RetrievedDate).FirstOrDefaultAsync();
+            
             //GetPlanDetails
-            var plan = await _tenantDbContext.ProductPlans!.FindAsync(subscriptionWebhookForCreationDto.productPlanId);
+            var plan = await _tenantDbContext.ProductPlans!.FindAsync(webhook.ProductPlanId);
             var product = await _tenantDbContext.Products!.FindAsync(plan!.ProductId);
             if (product == null || plan == null)
             {
@@ -103,9 +96,8 @@ namespace Rx.Domain.Services.Tenant
             await _tenantDbContext.Subscriptions!.AddAsync(subscription);
             await _tenantDbContext.SaveChangesAsync();
             // _backgroundJobClient.Schedule(()=>DeactivateSubscription(subscription.SubscriptionId), subscription.EndDate);
-            _backgroundJobClient.Schedule(()=>DeactivateeSubscription(subscription.SubscriptionId), subscription.CreatedDate.AddMinutes(1));
-            return _mapper.Map<SubscriptionDto>(subscription);
-
+            _backgroundJobClient.Schedule(()=>DeactivateSubscription(subscription.SubscriptionId), subscription.CreatedDate.AddMinutes(1));
+            return "Subscription Created";
         }
     }
 }

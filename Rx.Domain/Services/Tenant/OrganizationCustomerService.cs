@@ -2,9 +2,11 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Rx.Domain.DTOs.Tenant.OrganizationCustomer;
+using Rx.Domain.DTOs.Tenant.Subscription;
 using Rx.Domain.Entities.Tenant;
 using Rx.Domain.Interfaces;
 using Rx.Domain.Interfaces.DbContext;
+using Rx.Domain.Interfaces.Payment;
 using Rx.Domain.Interfaces.Tenant;
 
 
@@ -15,13 +17,14 @@ namespace Rx.Domain.Services.Tenant
         private readonly ITenantDbContext _tenantDbContext;
         private readonly ILogger _logger;
         private readonly IMapper _mapper;
+        private readonly IPaymentService _paymentService;
 
-        public OrganizationCustomerService(ITenantDbContext tenantDbContext,ILogger logger, IMapper mapper)
+        public OrganizationCustomerService(ITenantDbContext tenantDbContext,ILogger logger, IMapper mapper,IPaymentService paymentService)
         {
             _tenantDbContext = tenantDbContext;
             _logger = logger;
             _mapper = mapper;
-
+            _paymentService = paymentService;
         }
 
         public async Task<IEnumerable<OrganizationCustomerDto>> GetCustomers()
@@ -44,6 +47,37 @@ namespace Rx.Domain.Services.Tenant
             await _tenantDbContext.SaveChangesAsync();
 
             return _mapper.Map<OrganizationCustomerDto>(customer);
+        }
+
+        public async Task<Guid> AddPaymentMethod(string customerId, string last4)
+        {
+            var customerEmail=await _paymentService.GetCustomerEmailById(customerId);
+            var customer = await _tenantDbContext.OrganizationCustomers!.FirstOrDefaultAsync(c=>c.Email==customerEmail);
+            if (customer == null)
+            {
+                throw new NullReferenceException("Customer not found for the email");
+            }
+            customer.PaymentGatewayId = customerId;
+            customer.Last4 = last4;
+            await _tenantDbContext.SaveChangesAsync();
+
+            return customer!.CustomerId;
+        }
+        
+        public async Task<string> CreateCustomerFromWebhook(SubscriptionWebhookForCreationDto subscriptionWebhookForCreationDto)
+        {
+
+                var customerForCreationDto = new OrganizationCustomerForCreationDto(
+                    Email: subscriptionWebhookForCreationDto.customerEmail,
+                    Name: subscriptionWebhookForCreationDto.customerName
+                );
+                //Create New Customer
+                var customer = _mapper.Map<OrganizationCustomer>(customerForCreationDto);
+                await _tenantDbContext.OrganizationCustomers!.AddAsync(customer);
+                await _tenantDbContext.SaveChangesAsync();
+                await _paymentService.CreateCustomer(customer.Name, customer.Email,customer.CustomerId.ToString());
+            
+                return "https://localhost:44352/api/Payment?customerEmail="+customer.Email;;
         }
 
         public async Task<CustomerStatsDto> GetCustomerStats()
