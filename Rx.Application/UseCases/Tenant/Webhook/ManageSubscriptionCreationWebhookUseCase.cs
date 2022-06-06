@@ -8,9 +8,9 @@ using Rx.Domain.Interfaces.DbContext;
 
 namespace Rx.Application.UseCases.Tenant.Webhook;
 
-public record ManageWebhookUseCase(SubscriptionWebhookForCreationDto SubscriptionWebhookForCreationDto):IRequest<string>;
+public record ManageSubscriptionCreationWebhookUseCase(SubscriptionWebhookForCreationDto SubscriptionWebhookForCreationDto):IRequest<string>;
 
-public class CreateSubscriptionFromWebhookUseCaseHandler : IRequestHandler<ManageWebhookUseCase, string>
+public class CreateSubscriptionFromWebhookUseCaseHandler : IRequestHandler<ManageSubscriptionCreationWebhookUseCase, string>
 {
     private readonly ITenantServiceManager _tenantServiceManager;
     private readonly ITenantDbContext _tenantDbContext;
@@ -22,7 +22,7 @@ public class CreateSubscriptionFromWebhookUseCaseHandler : IRequestHandler<Manag
         _tenantDbContext = tenantDbContext;
         _mapper = mapper;
     }
-    public async Task<string> Handle(ManageWebhookUseCase request, CancellationToken cancellationToken)
+    public async Task<string> Handle(ManageSubscriptionCreationWebhookUseCase request, CancellationToken cancellationToken)
     {
         //Store Webhook in Database
         var subscriptionWebhookDto = new SubscriptionWebhookDto(
@@ -30,7 +30,8 @@ public class CreateSubscriptionFromWebhookUseCaseHandler : IRequestHandler<Manag
             CustomerEmail:request.SubscriptionWebhookForCreationDto.customerEmail,
             CustomerName:request.SubscriptionWebhookForCreationDto.customerName,
             ProductPlanId:request.SubscriptionWebhookForCreationDto.productPlanId,
-            RetrievedDate:DateTime.Now
+            RetrievedDate:DateTime.Now,
+            SubscriptionType:request.SubscriptionWebhookForCreationDto.subscriptionType
         );
         var subscriptionWebhook = _mapper.Map<SubscriptionWebhook>(subscriptionWebhookDto);
         await _tenantDbContext.SubscriptionWebhooks.AddAsync(subscriptionWebhook, cancellationToken);

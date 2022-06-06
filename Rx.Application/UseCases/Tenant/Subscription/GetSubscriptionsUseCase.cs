@@ -26,7 +26,7 @@ public class GetSubscriptionUseCaseHandler : IRequestHandler<GetSubscriptionsUse
                 join p in _tenantDbContext.Products on pp.ProductId equals p.ProductId
                 select new
                 {
-                    s.SubscriptionId, CustomerName = oc.Name,ProductName=p.Name, PlanName = pp.Name, s.CreatedDate, s.EndDate, s.IsActive
+                    s.SubscriptionId, CustomerName = oc.Name,ProductName=p.Name, PlanName = pp.Name, s.CreatedDate, s.EndDate, s.IsActive,s.SubscriptionType,s.IsTrial
                 }).ToListAsync(cancellationToken);
         var subVmsOrdered = subscriptions.OrderByDescending(s => s.CreatedDate);
         var subscriptionsVms = subVmsOrdered.Select(s =>
@@ -37,7 +37,9 @@ public class GetSubscriptionUseCaseHandler : IRequestHandler<GetSubscriptionsUse
                 s.PlanName,
                 s.CreatedDate.ToString(),
                 s.EndDate.ToString(),
-                s.IsActive ? "Active" : "Inactive"
+                s.IsActive ? "Active" : "Inactive",
+                subscriptionType: (s.SubscriptionType? "Recurring"  :s.SubscriptionType==false? "One Time":null)!,
+                s.IsTrial
             )
         );
         return subscriptionsVms;

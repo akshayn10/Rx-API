@@ -55,8 +55,7 @@ namespace Rx.API.Mapping
             CreateMap<SubscriptionWebhookDto, SubscriptionWebhook>();
             CreateMap<SubscriptionWebhookForCreationDto, SubscriptionWebhook>();
             //AddOnWebhook
-            CreateMap<AddOnWebhook, AddOnWebhookDto>();
-            CreateMap<AddOnWebhookForCreationDto, AddOnWebhook>();
+            CreateMap<AddOnWebhookDto, AddOnWebhook>();
 
 
         }

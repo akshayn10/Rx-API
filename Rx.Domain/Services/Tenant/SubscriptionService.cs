@@ -1,13 +1,9 @@
-﻿using System.ComponentModel;
-using AutoMapper;
+﻿using AutoMapper;
 using Hangfire;
-using Hangfire.Server;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using Rx.Domain.DTOs.Tenant.OrganizationCustomer;
 using Rx.Domain.DTOs.Tenant.Subscription;
 using Rx.Domain.Entities.Tenant;
-using Rx.Domain.Interfaces;
 using Rx.Domain.Interfaces.DbContext;
 using Rx.Domain.Interfaces.Payment;
 using Rx.Domain.Interfaces.Tenant;
@@ -89,15 +85,16 @@ namespace Rx.Domain.Services.Tenant
                 IsActive:true,
                 IsTrial: (product!.FreeTrialDays > 0),
                 CreatedDate:DateTime.Now,
-                OrganizationCustomerId:customer.CustomerId,
-                ProductPlanId:plan.PlanId
+                OrganizationCustomerId:customer!.CustomerId,
+                ProductPlanId:plan.PlanId,
+                SubscriptionType:webhook.SubscriptionType
             );
             var subscription = _mapper.Map<Subscription>(subscriptionForCreationDto);
             await _tenantDbContext.Subscriptions!.AddAsync(subscription);
             await _tenantDbContext.SaveChangesAsync();
             // _backgroundJobClient.Schedule(()=>DeactivateSubscription(subscription.SubscriptionId), subscription.EndDate);
             _backgroundJobClient.Schedule(()=>DeactivateSubscription(subscription.SubscriptionId), subscription.CreatedDate.AddMinutes(1));
-            return "Subscription Created";
+            return subscription.SubscriptionId.ToString();
         }
     }
 }

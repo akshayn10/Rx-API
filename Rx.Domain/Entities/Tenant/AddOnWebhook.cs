@@ -9,8 +9,8 @@ public class AddOnWebhook
     [Column]
     public Guid AddOnWebhookId { get; set; }
     public Guid SenderAddOnWebhookId { get; set; }
-    public string? CustomerEmail { get; set; }
     public Guid AddOnId { get; set; }
-    public Guid ProductPlanId { get; set; }
+    public Guid SubscriptionId { get; set; }
     public int Unit { get; set; }
+    public DateTime RetrievedDateTime { get; set; }
 }

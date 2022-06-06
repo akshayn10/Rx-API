@@ -12,7 +12,7 @@ namespace Rx.Domain.Interfaces.Tenant
 
         Task<OrganizationCustomerDto> AddCustomer(OrganizationCustomerForCreationDto organizationCustomerForCreationDto);
 
-        Task<Guid> AddPaymentMethod(string requestCustomerId, string requestLast4);
+        Task<Guid> AddPaymentMethod(string customerId, string last4,string paymentMethodId);
         Task<string> CreateCustomerFromWebhook(SubscriptionWebhookForCreationDto subscriptionWebhookForCreationDto);
     }
 }

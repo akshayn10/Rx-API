@@ -3,7 +3,7 @@ using Rx.Domain.Interfaces;
 
 namespace Rx.Application.UseCases.Payment;
 
-public record PaymentMethodAttachedUseCase(string CustomerId,string Last4):IRequest<Guid>;
+public record PaymentMethodAttachedUseCase(string CustomerId,string Last4,string PaymentMethodId):IRequest<Guid>;
 
 public class PaymentMethodAttachedUseCaseHandler : IRequestHandler<PaymentMethodAttachedUseCase,Guid>
 {
@@ -15,6 +15,6 @@ public class PaymentMethodAttachedUseCaseHandler : IRequestHandler<PaymentMethod
     }
     public async Task<Guid> Handle(PaymentMethodAttachedUseCase request, CancellationToken cancellationToken)
     {
-       return await _tenantServiceManager.OrganizationCustomerService.AddPaymentMethod(request.CustomerId, request.Last4);
+       return await _tenantServiceManager.OrganizationCustomerService.AddPaymentMethod(request.CustomerId, request.Last4,request.PaymentMethodId);
     }
 }

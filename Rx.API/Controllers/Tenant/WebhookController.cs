@@ -4,6 +4,7 @@ using Rx.API.Controllers.Tenant.Authorization;
 using Rx.Application.UseCases.Tenant.Subscription;
 using Rx.Application.UseCases.Tenant.Webhook;
 using Rx.Domain.DTOs.Tenant.AddOn;
+using Rx.Domain.DTOs.Tenant.AddOnUsage;
 using Rx.Domain.DTOs.Tenant.Subscription;
 using Stripe;
 using Swashbuckle.AspNetCore.Annotations;
@@ -30,7 +31,7 @@ namespace Rx.API.Controllers.Tenant
         {
             var tenantId = Request.Headers["TenantId"];
             var secret =Request.Headers["Secret"];
-            var paymentRedirectUrl =await _mediator.Send(new ManageWebhookUseCase(subscriptionWebhookForCreationDto));
+            var paymentRedirectUrl =await _mediator.Send(new ManageSubscriptionCreationWebhookUseCase(subscriptionWebhookForCreationDto));
             return Ok(paymentRedirectUrl);
         }
         [HttpPost("unsubscribe",Name = "UnsubscribeWebhook")]
@@ -65,11 +66,11 @@ namespace Rx.API.Controllers.Tenant
         //Retrieve AddOn Webhooks
         [HttpPost("addOn")]
         [SwaggerOperation(Summary = "Add On webhook")]
-        public async Task<IActionResult> AddOnWebhook([FromBody] AddOnWebhookForCreationDto addOnWebhookForCreationDto)
+        public async Task<IActionResult> AddOnWebhook([FromBody] AddOnUsageFromWebhookForCreationDto addOnUsageFromWebhookForCreationDto)
         {
             var tenantId = Request.Headers["TenantId"];
             var secret = Request.Headers["Secret"];
-            _logger.LogInformation(secret + " " + tenantId + " " + addOnWebhookForCreationDto);
+            _logger.LogInformation(secret + " " + tenantId + " " );
             return Ok();
         }
     }

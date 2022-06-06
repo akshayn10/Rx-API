@@ -49,7 +49,7 @@ namespace Rx.Domain.Services.Tenant
             return _mapper.Map<OrganizationCustomerDto>(customer);
         }
 
-        public async Task<Guid> AddPaymentMethod(string customerId, string last4)
+        public async Task<Guid> AddPaymentMethod(string customerId, string last4,string paymentMethodId)
         {
             var customerEmail=await _paymentService.GetCustomerEmailById(customerId);
             var customer = await _tenantDbContext.OrganizationCustomers!.FirstOrDefaultAsync(c=>c.Email==customerEmail);
@@ -59,6 +59,7 @@ namespace Rx.Domain.Services.Tenant
             }
             customer.PaymentGatewayId = customerId;
             customer.Last4 = last4;
+            customer.PaymentMethodId = paymentMethodId;
             await _tenantDbContext.SaveChangesAsync();
 
             return customer!.CustomerId;
@@ -75,7 +76,7 @@ namespace Rx.Domain.Services.Tenant
                 var customer = _mapper.Map<OrganizationCustomer>(customerForCreationDto);
                 await _tenantDbContext.OrganizationCustomers!.AddAsync(customer);
                 await _tenantDbContext.SaveChangesAsync();
-                await _paymentService.CreateCustomer(customer.Name, customer.Email,customer.CustomerId.ToString());
+                await _paymentService.CreateCustomer(customer.Name!, customer.Email!,customer.CustomerId.ToString());
             
                 return "https://localhost:44352/api/Payment?customerEmail="+customer.Email;;
         }

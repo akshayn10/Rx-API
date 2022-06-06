@@ -8,6 +8,7 @@ using Stripe;
 namespace Rx.API.Controllers.Payment;
 
 [ApiController]
+[ApiExplorerSettings(IgnoreApi = true)]
 [Route("api/stripe")]
 public class StripeController:Controller
 {
@@ -36,9 +37,8 @@ public class StripeController:Controller
                 // Handle the event
                 _logger.LogInformation("PaymentMethodAttached Webhook Recieved");
                 var paymentMethod = stripeEvent.Data.Object as PaymentMethod;
-                var customerId=await _mediator.Send(new PaymentMethodAttachedUseCase(paymentMethod!.CustomerId,paymentMethod.Card.Last4));
+                var customerId=await _mediator.Send(new PaymentMethodAttachedUseCase(paymentMethod!.CustomerId,paymentMethod.Card.Last4,paymentMethod.Id));
                 await _mediator.Send(new CreateSubscriptionFromWebhookUseCase(customerId));
-
             }
             return Ok();
         }
