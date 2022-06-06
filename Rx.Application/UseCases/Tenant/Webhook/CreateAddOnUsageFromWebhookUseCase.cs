@@ -25,14 +25,15 @@ public class CreateAddOnUsageFromWebhookUseCaseHandler : IRequestHandler<CreateA
     public async Task<string> Handle(CreateAddOnUsageFromWebhookUseCase request, CancellationToken cancellationToken)
     {
         var addOnWebhookDto = new AddOnWebhookDto(
-            SenderWebhookId: request.AddOnUsageFromWebhookForCreationDto.SenderWebhookId,
+            SenderAddOnWebhookId: request.AddOnUsageFromWebhookForCreationDto.SenderAddOnWebhookId,
             AddOnId: request.AddOnUsageFromWebhookForCreationDto.AddOnId,
             SubscriptionId: request.AddOnUsageFromWebhookForCreationDto.SubscriptionId,
             Unit: request.AddOnUsageFromWebhookForCreationDto.Unit,
-            RetrievedDateTime: DateTime.Now
+            RetrievedDateTime: DateTime.Now,
+            OrganizationCustomerId:request.AddOnUsageFromWebhookForCreationDto.CustomerId
         );
         var addOnWebhook = _mapper.Map<AddOnWebhook>(addOnWebhookDto);
-        await _tenantDbContext.AddOnWebhooks.AddAsync(addOnWebhook, cancellationToken);
+        _tenantDbContext.AddOnWebhooks.Add(addOnWebhook);
         await _tenantDbContext.SaveChangesAsync();
 
         return await _tenantServiceManager.AddOnUsageService.CreateAddOnUsageFromWebhook(request.AddOnUsageFromWebhookForCreationDto);

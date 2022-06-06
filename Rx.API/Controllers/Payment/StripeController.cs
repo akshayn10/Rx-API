@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using Rx.Application.UseCases.Payment;
 using Rx.Application.UseCases.Tenant.Subscription;
+using Rx.Application.UseCases.Tenant.Webhook;
 using Rx.Domain.DTOs.Payment;
 using Stripe;
 namespace Rx.API.Controllers.Payment;
@@ -39,6 +40,17 @@ public class StripeController:Controller
                 var paymentMethod = stripeEvent.Data.Object as PaymentMethod;
                 var customerId=await _mediator.Send(new PaymentMethodAttachedUseCase(paymentMethod!.CustomerId,paymentMethod.Card.Last4,paymentMethod.Id));
                 await _mediator.Send(new CreateSubscriptionFromWebhookUseCase(customerId));
+            }
+
+            if (stripeEvent.Type==Events.ChargeSucceeded)
+            {
+                var chargeSucceeded = stripeEvent.Data.Object as Charge;
+                _logger.LogInformation(chargeSucceeded!.ToString());
+                if (chargeSucceeded.Description == "addOn")
+                {
+                    await _mediator.Send(new ActivateAddOnUsageAfterPaymentUseCase(chargeSucceeded.CustomerId));
+                }
+                
             }
             return Ok();
         }

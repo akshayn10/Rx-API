@@ -12,5 +12,6 @@ public class AddOnWebhook
     public Guid AddOnId { get; set; }
     public Guid SubscriptionId { get; set; }
     public int Unit { get; set; }
+    public Guid OrganizationCustomerId { get; set; }
     public DateTime RetrievedDateTime { get; set; }
 }

@@ -24,7 +24,7 @@ public interface IPaymentService
     Task DeletePaymentMethod(string paymentMethodId);
 
     Task<string> Charge(string customerId, string paymentMethodId, PaymentModel.Currency currency, long unitAmount,
-        string customerEmail, bool sendEmailAfterSuccess = true, string emailDescription = "");
+        string customerEmail, bool sendEmailAfterSuccess , string chargeDescription);
 
     Task ChargeWithCustomerEmail(string customerEmail, string paymentMethodId, PaymentModel.Currency currency, long unitAmount,
         bool sendEmailAfterSuccess = true, string emailDescription = "");

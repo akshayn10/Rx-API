@@ -1,7 +1,7 @@
 ﻿using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using Rx.Domain.DTOs.Tenant.AddOn;
+using Rx.Domain.DTOs.Payment;
 using Rx.Domain.DTOs.Tenant.AddOnUsage;
 using Rx.Domain.Entities.Tenant;
 using Rx.Domain.Interfaces;
@@ -50,37 +50,45 @@ public class AddOnUsageService: IAddOnUsageService
             throw new NullReferenceException("Subscription not found");
         }
 
-        var customer =await _tenantDbContext.OrganizationCustomers!.FindAsync(subscription.OrganizationCustomerId);
-        var addOnPriceForPlan =await 
-            _tenantDbContext.AddOnPricePerPlans!.Where(
+        var customer =await _tenantDbContext.OrganizationCustomers!.FindAsync(addOnUsageFromWebhookForCreationDto.CustomerId);
+        var addOnPriceForPlan =await _tenantDbContext.AddOnPricePerPlans!.Where(
                 ap=>ap.AddOnId==addOnUsageFromWebhookForCreationDto.AddOnId 
                     && ap.ProductPlanId==subscription.ProductPlanId)
                 .FirstOrDefaultAsync();
-        var amountToBeCharged= addOnPriceForPlan!.Price*addOnUsageFromWebhookForCreationDto.Unit;
+        if (addOnPriceForPlan == null)
+        {
+            throw new NullReferenceException("AddOnPricePerPlan not found");
+        }
+        var unitInDecimal = Convert.ToDecimal(addOnUsageFromWebhookForCreationDto.Unit);
+        var amountToBeCharged = addOnPriceForPlan.Price*unitInDecimal;
        
-        var paymentResponse = await _paymentService.Charge(
+        await _paymentService.Charge(
             customer!.PaymentGatewayId!,
             customer.PaymentMethodId!,
-            DTOs.Payment.PaymentModel.Currency.USD,
+            PaymentModel.Currency.USD,
             Convert.ToInt64(amountToBeCharged),
             customer.Email!,
             false,
-            ""
-            
-            );
-        if (paymentResponse == "succeeded")
-        {
-            var addOnUsageDto = new AddOnUsageForCreationDto(
-                Unit:addOnUsageFromWebhookForCreationDto.Unit,
-                AddOnId:addOnUsageFromWebhookForCreationDto.AddOnId,
-                SubscriptionId:addOnUsageFromWebhookForCreationDto.SubscriptionId
-            );
-            var addOnUsage = _mapper.Map<AddOnUsage>(addOnUsageDto);
-            addOnUsage.Date=DateTime.Now;
-            await _tenantDbContext.AddOnUsages!.AddAsync(addOnUsage);
-            await _tenantDbContext.SaveChangesAsync();
-            return addOnUsage.AddOnUsageId.ToString();
-        }
-        return "AddOn Subscription Failed";
+            "addOn"
+        );
+
+        
+        return "Payment Processing";
+    }
+
+    public async Task<string> ActivateAddOnUsageAfterPayment(string customerId)
+    {
+        var customer =await _tenantDbContext.OrganizationCustomers!.FirstOrDefaultAsync(c=>c.PaymentGatewayId==customerId);
+        var lastAddOnWebhook= await _tenantDbContext.AddOnWebhooks.Where(aw=>aw.OrganizationCustomerId==customer!.CustomerId).OrderByDescending(aw=>aw.RetrievedDateTime).FirstOrDefaultAsync();
+        var addOnUsageDto = new AddOnUsageForCreationDto(
+            Unit:lastAddOnWebhook!.Unit,
+            AddOnId:lastAddOnWebhook.AddOnId,
+            SubscriptionId:lastAddOnWebhook.SubscriptionId
+        );
+        var addOnUsage = _mapper.Map<AddOnUsage>(addOnUsageDto);
+        addOnUsage.Date=DateTime.Now;
+        await _tenantDbContext.AddOnUsages!.AddAsync(addOnUsage);
+        await _tenantDbContext.SaveChangesAsync();
+        return addOnUsage.AddOnUsageId.ToString();
     }
 }

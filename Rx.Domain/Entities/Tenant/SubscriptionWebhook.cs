@@ -16,7 +16,6 @@ namespace Rx.Domain.Entities.Tenant
         
         [Required(ErrorMessage = "SenderWebhookId is required")]
         public Guid SenderWebhookId { get; set; }
-        
         [Required(ErrorMessage = "Customer Email is required")]
         public string? CustomerEmail { get; set; }
         [Required(ErrorMessage = "Customer Name is required")]

@@ -71,7 +71,8 @@ namespace Rx.API.Controllers.Tenant
             var tenantId = Request.Headers["TenantId"];
             var secret = Request.Headers["Secret"];
             _logger.LogInformation(secret + " " + tenantId + " " );
-            return Ok();
+            var x =await _mediator.Send(new CreateAddOnUsageFromWebhookUseCase(addOnUsageFromWebhookForCreationDto));
+            return Ok(x);
         }
     }
 }

@@ -68,7 +68,7 @@ namespace Rx.Domain.Services.Tenant
         public async Task<string> CreateSubscriptionFromWebhook(Guid customerId)
         {
             var customer =await _tenantDbContext.OrganizationCustomers!.FindAsync(customerId);
-            var webhook = await _tenantDbContext.SubscriptionWebhooks.OrderByDescending(c=>c.RetrievedDate).FirstOrDefaultAsync();
+            var webhook = await _tenantDbContext.SubscriptionWebhooks.FirstOrDefaultAsync(sw=>sw.CustomerEmail == customer!.Email);
             
             //GetPlanDetails
             var plan = await _tenantDbContext.ProductPlans!.FindAsync(webhook.ProductPlanId);
