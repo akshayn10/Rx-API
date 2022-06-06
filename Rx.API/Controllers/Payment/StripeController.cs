@@ -48,7 +48,7 @@ public class StripeController:Controller
                 _logger.LogInformation(chargeSucceeded!.ToString());
                 if (chargeSucceeded.Description == "addOn")
                 {
-                    await _mediator.Send(new ActivateAddOnUsageAfterPaymentUseCase(chargeSucceeded.CustomerId));
+                    await _mediator.Send(new ActivateAddOnUsageAfterPaymentUseCase(chargeSucceeded.CustomerId,chargeSucceeded.Amount));
                 }
                 
             }
