@@ -4,7 +4,7 @@ using Rx.Domain.Interfaces;
 
 namespace Rx.Application.UseCases.Tenant.Transaction;
 
-public record CreateTransactionUseCase(Guid BillId,TransactionForCreationDto TransactionForCreationDto):IRequest<TransactionDto>;
+public record CreateTransactionUseCase(Guid SubscriptionId,TransactionForCreationDto TransactionForCreationDto):IRequest<TransactionDto>;
 
 public class CreateTransactionUseCaseHandler : IRequestHandler<CreateTransactionUseCase, TransactionDto>
 {
@@ -16,6 +16,6 @@ public class CreateTransactionUseCaseHandler : IRequestHandler<CreateTransaction
     }
     public  Task<TransactionDto> Handle(CreateTransactionUseCase request, CancellationToken cancellationToken)
     {
-        return _tenantServiceManager.TransactionService.AddTransaction(request.BillId, request.TransactionForCreationDto);
+        return _tenantServiceManager.TransactionService.AddTransaction(request.SubscriptionId, request.TransactionForCreationDto);
     }
 }

@@ -4,6 +4,6 @@ namespace Rx.Domain.Interfaces.Tenant;
 
 public interface ITransactionService
 {
-    Task<TransactionDto> AddTransaction(Guid BillId,TransactionForCreationDto transactionForCreationDto);
+    Task<TransactionDto> AddTransaction(Guid subscriptionId,TransactionForCreationDto transactionForCreationDto);
 
 }
