@@ -31,7 +31,7 @@ public class BillController:ControllerBase
         var bills =await _mediator.Send(new GetBillDtosUseCase()); 
         return Ok(bills);
     }
-    [HttpGet("/customer{customerId}")]
+    [HttpGet("customer/{customerId}")]
     [SwaggerOperation(Summary = "Get All Bill by customerId")]
     public async Task<IActionResult> GetAllBillByCustomerId(string customerId)
     {
