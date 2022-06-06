@@ -36,7 +36,7 @@ public class GetTransactionVmsUseCaseHandler : IRequestHandler<GetTransactionVms
                 CustomerName:t.customerName,
                 Amount:t.TransactionAmount,
                 Status:t.TransactionStatus,
-                PaymentFor:t.TransactionDescription=="AddOn"?"Add On":"Subscription",
+                PaymentFor:t.TransactionDescription==""?"Subscription":"Add on",
                 AddonName:t.TransactionDescription
             )
             );
