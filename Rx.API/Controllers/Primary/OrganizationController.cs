@@ -47,4 +47,5 @@ namespace Rx.API.Controllers.Primary
             return CreatedAtRoute("CreateOrganization", new { id = createdOrganization.Id }, createdOrganization);
         }
     }
-}
+}       
+     
