@@ -9,7 +9,8 @@ namespace Rx.Domain.Entities.Tenant
         public Guid AddOnUsageId { get; set; }
         public DateTime Date { get; set; }
         public int Unit { get; set; }
-        public int TotalAmount { get; set; }
+        [Column(TypeName = "decimal(18,4)")]
+        public decimal TotalAmount { get; set; }
         [ForeignKey(nameof(AddOn))]
         public Guid? AddOnId { get; set; }
         public AddOn? AddOn { get; set; }

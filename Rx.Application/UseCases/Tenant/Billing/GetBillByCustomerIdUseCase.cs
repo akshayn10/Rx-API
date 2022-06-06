@@ -35,7 +35,9 @@ public class GetBillsByCustomerIdUseCaseHandler : IRequestHandler<GetBillByCusto
                         new AddOnForSubscription(
                             a.Date.ToString(),
                             a.AddOn.Name,
-                            a.Unit
+                            a.Unit,
+                            a.TotalAmount/a.Unit,
+                            a.TotalAmount
                             )
                         )
                     )
