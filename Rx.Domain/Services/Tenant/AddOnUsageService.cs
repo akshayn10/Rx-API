@@ -76,14 +76,15 @@ public class AddOnUsageService: IAddOnUsageService
         return "Payment Processing";
     }
 
-    public async Task<string> ActivateAddOnUsageAfterPayment(string customerId)
+    public async Task<string> ActivateAddOnUsageAfterPayment(string customerId,long amount)
     {
         var customer =await _tenantDbContext.OrganizationCustomers!.FirstOrDefaultAsync(c=>c.PaymentGatewayId==customerId);
         var lastAddOnWebhook= await _tenantDbContext.AddOnWebhooks.Where(aw=>aw.OrganizationCustomerId==customer!.CustomerId).OrderByDescending(aw=>aw.RetrievedDateTime).FirstOrDefaultAsync();
         var addOnUsageDto = new AddOnUsageForCreationDto(
             Unit:lastAddOnWebhook!.Unit,
             AddOnId:lastAddOnWebhook.AddOnId,
-            SubscriptionId:lastAddOnWebhook.SubscriptionId
+            SubscriptionId:lastAddOnWebhook.SubscriptionId,
+            TotalAmount:Convert.ToDecimal(amount)
         );
         var addOnUsage = _mapper.Map<AddOnUsage>(addOnUsageDto);
         addOnUsage.Date=DateTime.Now;

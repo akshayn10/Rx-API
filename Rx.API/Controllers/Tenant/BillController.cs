@@ -32,11 +32,11 @@ public class BillController:ControllerBase
         return Ok(bills);
     }
     [HttpGet("/customer{customerId}")]
-    [SwaggerOperation(Summary = "Get All Bills by customerId")]
-    public async Task<IActionResult> GetAllBillsByCustomerId(string customerId)
+    [SwaggerOperation(Summary = "Get All Bill by customerId")]
+    public async Task<IActionResult> GetAllBillByCustomerId(string customerId)
     {
-        var bills =await _mediator.Send(new GetBillsByCustomerIdUseCase(Guid.Parse(customerId))); 
-        return Ok(bills);
+        var bill =await _mediator.Send(new GetBillByCustomerIdUseCase(Guid.Parse(customerId))); 
+        return Ok(bill);
     }
 
     [HttpGet("{billId}")]

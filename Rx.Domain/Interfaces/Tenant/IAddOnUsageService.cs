@@ -7,5 +7,5 @@ public interface IAddOnUsageService
 {
     Task<AddOnUsageDto> CreateAddOnUsage(Guid subscriptionId,Guid addOnId,AddOnUsageForCreationDto addOnUsageForCreationDto);
     Task<string> CreateAddOnUsageFromWebhook(AddOnUsageFromWebhookForCreationDto addOnUsageFromWebhookForCreationDto);
-    Task<string> ActivateAddOnUsageAfterPayment(string customerId);
+    Task<string> ActivateAddOnUsageAfterPayment(string customerId,long amount);
 }
