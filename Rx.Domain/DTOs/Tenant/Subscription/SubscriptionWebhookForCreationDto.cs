@@ -2,4 +2,3 @@
 
 public record SubscriptionWebhookForCreationDto(Guid SenderWebhookId,string customerEmail,string customerName,Guid productPlanId,bool subscriptionType);
 
- 

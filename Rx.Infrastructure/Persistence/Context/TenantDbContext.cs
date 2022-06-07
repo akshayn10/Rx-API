@@ -27,6 +27,7 @@ namespace Rx.Infrastructure.Persistence.Context
         public DbSet<AddOn>? AddOns { get; set; }
         public DbSet<AddOnPricePerPlan>? AddOnPricePerPlans { get; set; }
         public DbSet<AddOnUsage>? AddOnUsages { get; set; }
+        public DbSet<SubscriptionStat>? SubscriptionStats { get; set; }
         
         //Webhooks Storage
         public DbSet<SubscriptionWebhook>? SubscriptionWebhooks { get; set; }

@@ -213,10 +213,211 @@ namespace Rx.Domain.Services.Tenant
             return subscription.SubscriptionId.ToString();
         }
 
+        public async Task<string> Unsubscribe(UnsubscriptionWebhookDto unsubscriptionWebhookDto)
+        {
+            var subscription = await _tenantDbContext.Subscriptions!.FindAsync(unsubscriptionWebhookDto.SubscriptionId);
+            if (subscription == null)
+            {
+                throw new NullReferenceException("Subscription not found at Unsubscription");
+            }
+            subscription.IsActive = false;
+            subscription.IsCancelled = true;
+            await _tenantDbContext.SaveChangesAsync();
+
+            //Cancel Recurring job for recurring subscription
+            if (subscription.SubscriptionType)
+            {
+                _recurringJobManager.RemoveIfExists(subscription.JobId);
+            }
+
+            var plan =await _tenantDbContext.ProductPlans!.FindAsync(subscription.ProductPlanId);
+
+            var subStat = new SubscriptionStat()
+            {
+                Change = "unsubscribe",
+                SubscriptionId = subscription.SubscriptionId,
+                Date = DateTime.Now,
+                ProductId = plan!.ProductId
+            };
+            await _tenantDbContext.SubscriptionStats!.AddAsync(subStat);
+            await _tenantDbContext.SaveChangesAsync();
+            
+            _logger.LogInformation("Subscription Cancelled for " + unsubscriptionWebhookDto.SubscriptionId);
+            return "Subscription Cancelled";
+        }
+
+        public async Task<string> UpgradeSubscriptionUseCase(ChangeSubscriptionWebhookDto changeSubscriptionWebhookDto)
+        {
+            //Cancel old Subscription
+             var unsubscriptionDto=new UnsubscriptionWebhookDto(changeSubscriptionWebhookDto.SenderWebhookId,changeSubscriptionWebhookDto.SubscriptionId);
+             await Unsubscribe(unsubscriptionDto);
+             
+            var customer=await _tenantDbContext.OrganizationCustomers!.FindAsync(changeSubscriptionWebhookDto.CustomerId);
+            if(customer is null)
+            {
+                throw new NullReferenceException("Customer not found");
+            }
+            var plan=await _tenantDbContext.ProductPlans!.FindAsync(changeSubscriptionWebhookDto.PlanId);
+            if(plan is null)
+            {
+                throw new NullReferenceException("Plan not found");
+            }
+
+            var planDuration = Convert.ToDouble(plan.Duration);
+            var subscriptionForCreationDto = new SubscriptionForCreationDto(
+                StartDate:DateTime.Now,
+                EndDate:DateTime.Now.AddDays(planDuration),
+                IsActive:false,
+                IsTrial: false,
+                CreatedDate:DateTime.Now,
+                OrganizationCustomerId:changeSubscriptionWebhookDto.CustomerId,
+                ProductPlanId:changeSubscriptionWebhookDto.PlanId,
+                SubscriptionType:changeSubscriptionWebhookDto.NewSubscriptionType
+            );
+            var subscription = _mapper.Map<Subscription>(subscriptionForCreationDto);
+            await _tenantDbContext.Subscriptions!.AddAsync(subscription);
+            await _tenantDbContext.SaveChangesAsync();
+            
+            // Update SubscriptionStats
+            var subStat = new SubscriptionStat()
+            {
+                Change = "upgrade",
+                SubscriptionId = subscription.SubscriptionId,
+                Date = DateTime.Now,
+                ProductId = plan!.ProductId
+            };
+            await _tenantDbContext.SubscriptionStats!.AddAsync(subStat);
+            await _tenantDbContext.SaveChangesAsync();
+            var stripeDescription = new StripeDescription("changeSubscription", subscription.SubscriptionId.ToString());
+            var stripeDescriptionJson = JsonConvert.SerializeObject(stripeDescription,Formatting.Indented);
+            
+            await _paymentService.Charge(
+                customer!.PaymentGatewayId!,
+                customer.PaymentMethodId!,
+                PaymentModel.Currency.USD,
+                Convert.ToInt64(plan!.Price),
+                customer.Email!,
+                false,
+                stripeDescriptionJson
+            );
+            
+            return "Payment processig for Upgrade Subscription";
+            
+        }
+        public async Task<string> DowngradeSubscriptionUseCase(ChangeSubscriptionWebhookDto changeSubscriptionWebhookDto)
+        {
+            //Cancel old Subscription
+             var unsubscriptionDto=new UnsubscriptionWebhookDto(changeSubscriptionWebhookDto.SenderWebhookId,changeSubscriptionWebhookDto.SubscriptionId);
+             await Unsubscribe(unsubscriptionDto);
+             
+             
+             
+            var customer=await _tenantDbContext.OrganizationCustomers!.FindAsync(changeSubscriptionWebhookDto.CustomerId);
+            if(customer is null)
+            {
+                throw new NullReferenceException("Customer not found");
+            }
+            var plan=await _tenantDbContext.ProductPlans!.FindAsync(changeSubscriptionWebhookDto.PlanId);
+            if(plan is null)
+            {
+                throw new NullReferenceException("Plan not found");
+            }
+
+            var planDuration = Convert.ToDouble(plan.Duration);
+            var subscriptionForCreationDto = new SubscriptionForCreationDto(
+                StartDate:DateTime.Now,
+                EndDate:DateTime.Now.AddDays(planDuration),
+                IsActive:false,
+                IsTrial: false,
+                CreatedDate:DateTime.Now,
+                OrganizationCustomerId:changeSubscriptionWebhookDto.CustomerId,
+                ProductPlanId:changeSubscriptionWebhookDto.PlanId,
+                SubscriptionType:changeSubscriptionWebhookDto.NewSubscriptionType
+            );
+            var subscription = _mapper.Map<Subscription>(subscriptionForCreationDto);
+            await _tenantDbContext.Subscriptions!.AddAsync(subscription);
+            await _tenantDbContext.SaveChangesAsync();
+            
+            // Update SubscriptionStats
+            var subStat = new SubscriptionStat()
+            {
+                Change = "downgrade",
+                SubscriptionId = subscription.SubscriptionId,
+                Date = DateTime.Now,
+                ProductId = plan!.ProductId
+            };
+            await _tenantDbContext.SubscriptionStats!.AddAsync(subStat);
+            await _tenantDbContext.SaveChangesAsync();
+            
+            var stripeDescription = new StripeDescription("changeSubscription", subscription.SubscriptionId.ToString());
+            var stripeDescriptionJson = JsonConvert.SerializeObject(stripeDescription,Formatting.Indented);
+            
+            await _paymentService.Charge(
+                customer!.PaymentGatewayId!,
+                customer.PaymentMethodId!,
+                PaymentModel.Currency.USD,
+                Convert.ToInt64(plan!.Price),
+                customer.Email!,
+                false,
+                stripeDescriptionJson
+            );
+            
+            return "Payment processig for Upgrade Subscription";
+            
+        }
+
+        public async Task<string> ActivateSubscriptionAfterChange(Guid subscriptionId)
+        {
+            var subscription =await _tenantDbContext.Subscriptions!.FindAsync(subscriptionId);
+            
+            if (subscription is null)
+            {
+                throw new NullReferenceException("Subscription not found");
+            }
+
+            var plan =await _tenantDbContext.ProductPlans!.FindAsync(subscription.ProductPlanId);
+            if (plan is null)
+            {
+                throw new NullReferenceException("Plan not found");
+            }
+            
+            // subscription.StartDate = DateTime.Now;
+            // subscription.EndDate=DateTime.Now.AddMonths((int) plan.Duration!);
+            subscription.IsActive = true;
+            await _tenantDbContext.SaveChangesAsync();
+            if (subscription.SubscriptionType==false)
+            {
+                _backgroundJobClient.Schedule(() => DeactivateSubscription(subscription.SubscriptionId),
+                    subscription.StartDate.AddMonths((int) plan.Duration));
+                _logger.LogInformation("One TimeSubscription Activated Change " + subscription.SubscriptionId);
+            }
+
+            if (subscription.SubscriptionType)
+            {
+                var jobId = Guid.NewGuid().ToString("N");
+                var subscriptionUpdate =await _tenantDbContext.Subscriptions!.FindAsync(subscription.SubscriptionId);
+                if(subscriptionUpdate is null)
+                {
+                    throw new NullReferenceException("Subscription not found");
+                }
+                subscriptionUpdate!.JobId = jobId;
+                //Subscription Frequency is Monthly
+                _recurringJobManager.AddOrUpdate(jobId,()=>RecurringSubscription(subscription.SubscriptionId),Cron.Monthly());
+                _logger.LogInformation("Recurring subscription Activated Change " + subscription.SubscriptionId);
+            }
+
+            return subscription.SubscriptionId.ToString();
+            
+        }
+
         public async Task<string> CreateSubscriptionFromWebhook(Guid customerId)
         {
             //Get Customer
             var customer =await _tenantDbContext.OrganizationCustomers!.FindAsync(customerId);
+            if (customer is null)
+            {
+                throw new NullReferenceException("Customer not found");
+            }
             //Get last Webhook for customer
             var webhook = await _tenantDbContext.SubscriptionWebhooks.Where(
                 sw=>sw.CustomerEmail == customer!.Email)
@@ -229,6 +430,10 @@ namespace Rx.Domain.Services.Tenant
             
             //GetPlanDetails
             var plan = await _tenantDbContext.ProductPlans!.FindAsync(webhook!.ProductPlanId);
+            if (plan is null)
+            {
+                throw new NullReferenceException("Plan not found");
+            }
             //Get Product Details
             var product = await _tenantDbContext.Products!.FindAsync(plan!.ProductId);
             if (product == null || plan == null)

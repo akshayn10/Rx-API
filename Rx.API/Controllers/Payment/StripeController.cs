@@ -49,6 +49,7 @@ public class StripeController:Controller
                 var stripeDescription = JsonConvert.DeserializeObject<StripeDescription>(chargeSucceeded.Description);
                 if (stripeDescription!.PaymentType == "addOn")
                 {
+                    _logger.LogInformation(stripeDescription.Id+" "+stripeDescription.PaymentType);
                     await _mediator.Send(new ActivateAddOnUsageAfterPaymentUseCase(stripeDescription.Id,chargeSucceeded.Amount));
                 }
                 if(stripeDescription.PaymentType=="activateAfterTrial")
@@ -63,6 +64,10 @@ public class StripeController:Controller
                 if (stripeDescription.PaymentType == "activateRecurringSubscription")
                 {
                     await _mediator.Send(new ActivateRecurringSubscriptionUseCase(Guid.Parse(stripeDescription.Id)));
+                }
+                if (stripeDescription.PaymentType == "changeSubscription")
+                {
+                    await _mediator.Send(new ActivateSubscriptionAfterChangeUseCase(Guid.Parse(stripeDescription.Id)));
                 }
             }
             return Ok();
