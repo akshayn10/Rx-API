@@ -284,8 +284,8 @@ public class PaymentService:IPaymentService
         // customize receipt -> https://dashboard.stripe.com/settings/branding
         // -> https://dashboard.stripe.com/settings/billing/invoice
         // in case of email send uppon failure -> https://dashboard.stripe.com/settings/billing/automatic
-        public async Task Charge(string customerId, string paymentMethodId,
-            PaymentModel.Currency currency, long unitAmount, string customerEmail, bool sendEmailAfterSuccess = false, string emailDescription = "")
+        public async Task<string> Charge(string customerId, string paymentMethodId,
+            PaymentModel.Currency currency, long unitAmount, string customerEmail, bool sendEmailAfterSuccess, string chargeDescription)
         {
             try
             {
@@ -299,9 +299,10 @@ public class PaymentService:IPaymentService
                     Confirm = true,
                     OffSession = true,
                     ReceiptEmail = sendEmailAfterSuccess ? customerEmail : null,
-                    Description = emailDescription,
+                    Description = chargeDescription,
                 };
                 await service.CreateAsync(options);
+                return "Payment Processing";
             }
             catch (StripeException e)
             {
@@ -312,7 +313,7 @@ public class PaymentService:IPaymentService
                         Console.WriteLine("Error code: " + e.StripeError.Code);
                         var paymentIntentId = e.StripeError.PaymentIntent.Id;
                         var service = new PaymentIntentService();
-                        var paymentIntent = service.Get(paymentIntentId);
+                        var paymentIntent =await service.GetAsync(paymentIntentId);
 
                         Console.WriteLine(paymentIntent.Id);
                         break;
@@ -320,6 +321,8 @@ public class PaymentService:IPaymentService
                         break;
                 }
             }
+
+            return "Payment Failed";
         }
 
 

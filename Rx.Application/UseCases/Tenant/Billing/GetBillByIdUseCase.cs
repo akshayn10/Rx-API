@@ -23,4 +23,5 @@ public class GetBillByIdUseCaseHandler : IRequestHandler<GetBillByIdUseCase, Bil
         var bill =await _tenantDbContext.Bills.FirstOrDefaultAsync(x=>x.BillId==request.BillId);
         return _mapper.Map<BillDto>(bill);
     }
+    
 }

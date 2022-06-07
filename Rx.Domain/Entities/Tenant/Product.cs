@@ -20,6 +20,7 @@ namespace Rx.Domain.Entities.Tenant
         public int FreeTrialDays { get; set; }
         public ICollection<ProductPlan>? ProductPlans { get; set; }
         public ICollection<AddOn>? AddOns { get; set; }
+        public ICollection<SubscriptionStat>? SubscriptionStats { get; set; }
 
 
     }

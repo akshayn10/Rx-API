@@ -49,7 +49,7 @@ namespace Rx.Domain.Services.Tenant
             return _mapper.Map<OrganizationCustomerDto>(customer);
         }
 
-        public async Task<Guid> AddPaymentMethod(string customerId, string last4)
+        public async Task<Guid> AddPaymentMethod(string customerId, string last4,string paymentMethodId)
         {
             var customerEmail=await _paymentService.GetCustomerEmailById(customerId);
             var customer = await _tenantDbContext.OrganizationCustomers!.FirstOrDefaultAsync(c=>c.Email==customerEmail);
@@ -59,30 +59,30 @@ namespace Rx.Domain.Services.Tenant
             }
             customer.PaymentGatewayId = customerId;
             customer.Last4 = last4;
+            customer.PaymentMethodId = paymentMethodId;
             await _tenantDbContext.SaveChangesAsync();
 
             return customer!.CustomerId;
         }
         
-        public async Task<string> CreateCustomerFromWebhook(SubscriptionWebhookForCreationDto subscriptionWebhookForCreationDto)
+        public async Task<string> CreateCustomerFromWebhook(Guid webhookId)
         {
+            var webhook =await _tenantDbContext.SubscriptionWebhooks.FindAsync(webhookId);
 
                 var customerForCreationDto = new OrganizationCustomerForCreationDto(
-                    Email: subscriptionWebhookForCreationDto.customerEmail,
-                    Name: subscriptionWebhookForCreationDto.customerName
+                    Email: webhook!.CustomerEmail!,
+                    Name: webhook.CustomerName!
                 );
                 //Create New Customer
                 var customer = _mapper.Map<OrganizationCustomer>(customerForCreationDto);
                 await _tenantDbContext.OrganizationCustomers!.AddAsync(customer);
                 await _tenantDbContext.SaveChangesAsync();
-                await _paymentService.CreateCustomer(customer.Name, customer.Email,customer.CustomerId.ToString());
-            
+                await _paymentService.CreateCustomer(customer.Name!, customer.Email!,customer.CustomerId.ToString());
                 return "https://localhost:44352/api/Payment?customerEmail="+customer.Email;;
         }
 
         public async Task<CustomerStatsDto> GetCustomerStats()
         {
-            
             var totalCustomer =await _tenantDbContext.OrganizationCustomers!.CountAsync();
             var totalActiveCustomer = await (from c in _tenantDbContext.OrganizationCustomers
                 join s in _tenantDbContext.Subscriptions on c.CustomerId equals s.OrganizationCustomerId
@@ -90,7 +90,6 @@ namespace Rx.Domain.Services.Tenant
                 select c).Distinct().CountAsync();
             CustomerStatsDto customerStatsDto = new CustomerStatsDto(totalCustomer, totalActiveCustomer);
             return customerStatsDto;
-            
         }
     }
 }

@@ -14,10 +14,13 @@
         public DateTime EndDate { get; set; }
         [Required(ErrorMessage = "IsActive is required")]
         public bool IsActive { get; set; }
+        [Required(ErrorMessage = "SubscriptionType is required")]
+        public bool SubscriptionType { get; set; }
         [Required(ErrorMessage = "IsCancelled is required")]
         public bool IsCancelled { get; set; }
         [Required(ErrorMessage = "IsTrial is required")]
         public bool IsTrial { get; set; }
+        public string? JobId { get; set; }
         [Required(ErrorMessage = "Created Date is required")]
         public DateTime CreatedDate { get; set; }
         public ICollection<AddOnUsage>? AddOnUsages { get; set; }

@@ -52,7 +52,7 @@ public class AddUsageController:ControllerBase
         return Ok(addOnUsageDto);
     }
     [HttpPost("{subscriptionId}/{addOnId}")]
-    [SwaggerOperation(summary: "Add AddOnUsage Dto")]
+    [SwaggerOperation(summary: "Create AddOnUsage")]
     public async Task<IActionResult> AddAddOnUsageDto(string subscriptionId, string addOnId,[FromBody] AddOnUsageForCreationDto addOnUsageForCreationDto)
     {
         var createdAddOnUsageDto =await _mediator.Send(

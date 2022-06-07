@@ -16,6 +16,7 @@ public interface ITenantDbContext:IDbContext
     DbSet<Bill> Bills { get; set; }
     DbSet<SubscriptionWebhook> SubscriptionWebhooks { get; set; }
     DbSet<AddOnWebhook> AddOnWebhooks { get; set; }
-    
+    DbSet<SubscriptionStat> SubscriptionStats { get; set; }
+
     Task<int> SaveChangesAsync();
 }
