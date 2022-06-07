@@ -115,5 +115,52 @@ namespace Rx.Domain.Services.Tenant
                 select p).ToListAsync();
          return _mapper.Map<IEnumerable<ProductDto>>(products);
         }
+        
+        public async Task<string> DeleteProduct(Guid productId)
+        {
+            var product = await _tenantDbContext.Products!.FirstOrDefaultAsync(x=>x.ProductId==productId);
+            if (product == null)
+            {
+                return "Product not found";
+            }
+            _tenantDbContext.Products.Remove(product);
+            await _tenantDbContext.SaveChangesAsync();
+            return "Product deleted";
+        }
+
+       
+        public async Task<ProductDto> UpdateProduct(Guid productId, ProductForUpdateDto productForUpdateDto)
+        {
+            var product = await _tenantDbContext.Products!.FindAsync(productId);
+            if (product == null)
+            {
+                throw new NullReferenceException("Product not found");
+            }
+            var fileName=string.Empty;
+            _logger.LogInformation("Upload Started");
+            var logoImage = productForUpdateDto.LogoImage;
+            if (logoImage.Length > 0)
+            {
+                await using var fileStream = new FileStream(logoImage.FileName, FileMode.Create);
+                _logger.LogInformation("file found");
+                await logoImage.CopyToAsync(fileStream);
+                fileName = fileStream.Name;
+            }
+            var stream = File.OpenRead(logoImage.FileName);
+            var url =await _blobStorage.UploadFile(stream,productForUpdateDto.Name);
+            _logger.LogInformation("Upload Completed");
+            stream.Close();
+            File.Delete(fileName);
+
+            product.Name = productForUpdateDto.Name;
+            product.Description = productForUpdateDto.Description;
+            product.LogoURL = url;
+            product.WebhookURL = productForUpdateDto.WebhookURL;
+            product.FreeTrialDays = productForUpdateDto.FreeTrialDays;
+            product.RedirectURL = productForUpdateDto.RedirectUrl;
+            await _tenantDbContext.SaveChangesAsync();
+            return _mapper.Map<ProductDto>(product);
+        }
     }
 }
+
