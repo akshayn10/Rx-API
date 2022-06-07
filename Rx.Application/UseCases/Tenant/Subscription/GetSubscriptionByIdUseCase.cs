@@ -22,13 +22,16 @@ public class GetSubscriptionByIdUseCaseHandler : IRequestHandler<GetSubscription
         var plan = await _tenantDbContext.ProductPlans!.FirstOrDefaultAsync(p=>p.PlanId==subscription!.ProductPlanId, cancellationToken: cancellationToken);
         var product = await _tenantDbContext.Products!.FirstOrDefaultAsync(p=>p.ProductId==plan!.ProductId, cancellationToken: cancellationToken);
         var customer = await _tenantDbContext.OrganizationCustomers!.FindAsync(subscription!.OrganizationCustomerId);
-            return new SubscriptionVm(
-                subscription!.SubscriptionId.ToString(),
-                customer!.Name,
-                product!.Name,
-                plan!.Name,
-                subscription.CreatedDate.ToString(),
-                subscription.EndDate.ToString(),
-                subscription.IsActive ? "Active" : "Inactive");
+        return new SubscriptionVm(
+            subscription!.SubscriptionId.ToString(),
+            customer!.Name,
+            product!.Name,
+            plan!.Name,
+            subscription.CreatedDate.ToString(),
+            subscription.EndDate.ToString(),
+            subscription.IsActive ? "Active" : "Inactive",
+            subscriptionType: subscription.SubscriptionType ? "Recurring" : "One Time",
+            subscription.IsTrial
+            );
     }
 }

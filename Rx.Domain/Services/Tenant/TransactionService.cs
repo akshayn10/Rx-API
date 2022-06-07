@@ -24,15 +24,16 @@ public class TransactionService:ITransactionService
   
     
 
-    public async Task<TransactionDto> AddTransaction(Guid billId,TransactionForCreationDto transactionForCreationDto)
+    public async Task<TransactionDto> AddTransaction(Guid subscriptionId,TransactionForCreationDto transactionForCreationDto)
     {
-        var bill = await _tenantDbContext.Bills.FirstOrDefaultAsync(x => x.BillId == billId);
-        if (bill == null)
+        var subscription = await _tenantDbContext.Subscriptions!.FirstOrDefaultAsync(x => x.SubscriptionId == subscriptionId);
+        if (subscription == null)
         {
-            throw new InvalidOperationException("Bill not found");
+            throw new InvalidOperationException("Subscription not found");
         }
         
         var transaction = _mapper.Map<PaymentTransaction>(transactionForCreationDto);
+        transaction.TransactionDate = DateTime.Now;
         await _tenantDbContext.PaymentTransactions.AddAsync(transaction);
         await _tenantDbContext.SaveChangesAsync();
         return _mapper.Map<TransactionDto>(transaction);

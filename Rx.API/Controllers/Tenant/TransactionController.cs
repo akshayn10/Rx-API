@@ -20,11 +20,18 @@ public class TransactionController:ControllerBase
         _logger = logger;
     }
 
-    [HttpGet]
+    [HttpGet("dtos")]
     [SwaggerOperation(Summary = "Get all transactions")]
     public async Task<IActionResult> GetTransactions()
     {
         var transactions =await _mediator.Send(new GetTransactionsUseCase());
+        return Ok(transactions);
+    }
+    [HttpGet]
+    [SwaggerOperation(Summary = "Get all transactions")]
+    public async Task<IActionResult> GetTransactionVms()
+    {
+        var transactions =await _mediator.Send(new GetTransactionVmsUseCase());
         return Ok(transactions);
     }
 
@@ -35,12 +42,12 @@ public class TransactionController:ControllerBase
         var transaction = await _mediator.Send(new GetTransactionByIdUseCase(transactionId));
         return Ok(transaction);
     }
-    [HttpPost("{billId}")]
+    [HttpPost("{subscriptionId}")]
     [SwaggerOperation(Summary = "Create transaction")]
-    public async Task<IActionResult> CreateTransaction(string billId,[FromBody] TransactionForCreationDto transactionForCreationDto)
+    public async Task<IActionResult> CreateTransaction(string subscriptionId,[FromBody] TransactionForCreationDto transactionForCreationDto)
     {
-        var billGuid = new Guid(billId);
-        var transaction = await _mediator.Send(new CreateTransactionUseCase(billGuid,transactionForCreationDto));
+
+        var transaction = await _mediator.Send(new CreateTransactionUseCase(Guid.Parse(subscriptionId),transactionForCreationDto));
         return Ok(transaction);
     }
     
@@ -62,14 +69,7 @@ public class TransactionController:ControllerBase
         return Ok(transactions);
     }
 
-    [HttpGet("/bill/{billId}")]
-    [SwaggerOperation(Summary = "Get transactions by bill id")]
-    public async Task<IActionResult> GetTransactionsByBillId(string billId)
-    {
-        var billGuid = new Guid(billId);
-        var transactions = await _mediator.Send(new GetTransactionsByBillIdUseCase(billGuid));
-        return Ok(transactions);
-    }
+
     
     
 

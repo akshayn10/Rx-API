@@ -22,11 +22,9 @@ namespace Rx.Domain.Entities.Tenant
         public string? Name { get; set; }
 
         public string? PaymentGatewayId { get; set; }
-
+        public string? Last4 { get; set; }
+        public string? PaymentMethodId { get; set; }
         public ICollection<Subscription>? Subscriptions {get; set;}
         public ICollection<Bill>? Bills { get; set; }
-
-
-
-}
+    }
 }

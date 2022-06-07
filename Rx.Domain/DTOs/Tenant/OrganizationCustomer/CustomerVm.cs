@@ -1,3 +1,3 @@
 ﻿namespace Rx.Domain.DTOs.Tenant.OrganizationCustomer;
 
-public record CustomerVm(string? customerId,string? name,string? email,string status );
+public record CustomerVm(string? customerId,string? name,string? email,string status,string? last4 );

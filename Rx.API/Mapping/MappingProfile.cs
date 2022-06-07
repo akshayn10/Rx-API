@@ -52,11 +52,10 @@ namespace Rx.API.Mapping
             CreateMap<AddOnPricePerPlan, AddOnPricePerPlanDto>();
             CreateMap<AddOnPricePerPlanForCreationDto, AddOnPricePerPlan>();
             //SubscriptionWebhook
-            CreateMap<SubscriptionWebhook, SubscriptionWebhookDto>();
+            CreateMap<SubscriptionWebhookDto, SubscriptionWebhook>();
             CreateMap<SubscriptionWebhookForCreationDto, SubscriptionWebhook>();
             //AddOnWebhook
-            CreateMap<AddOnWebhook, AddOnWebhookDto>();
-            CreateMap<AddOnWebhookForCreationDto, AddOnWebhook>();
+            CreateMap<AddOnWebhookDto, AddOnWebhook>();
 
 
         }

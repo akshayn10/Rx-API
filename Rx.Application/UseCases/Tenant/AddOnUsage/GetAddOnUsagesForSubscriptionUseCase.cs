@@ -26,7 +26,7 @@ public class
                 select new
                 {
                     aou.Date,ao.Name,aou.Unit,aop.Price
-                }).ToListAsync(cancellationToken: cancellationToken);
+                }).OrderByDescending(ao=>ao.Date).ToListAsync(cancellationToken: cancellationToken);
         var usageVms = usages.Select(x =>
             new AddOnUsageVm(x.Date.ToString(), x.Name, x.Unit, x.Unit * x.Price));
         return usageVms;

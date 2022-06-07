@@ -1,3 +1,5 @@
-﻿namespace Rx.Application.UseCases.Tenant.Subscription;
+﻿using Rx.Domain.DTOs.Tenant.Subscription;
 
-public record DowngradeSubscriptionUseCase();
+namespace Rx.Application.UseCases.Tenant.Subscription;
+
+public record DowngradeSubscriptionUseCase(ChangeSubscriptionWebhookDto ChangeSubscriptionWebhookDto);

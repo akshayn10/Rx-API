@@ -86,6 +86,9 @@ namespace Rx.Infrastructure.Migrations.TenantDb
                     b.Property<Guid?>("SubscriptionId")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<decimal>("TotalAmount")
+                        .HasColumnType("decimal(18,4)");
+
                     b.Property<int>("Unit")
                         .HasColumnType("int");
 
@@ -107,13 +110,16 @@ namespace Rx.Infrastructure.Migrations.TenantDb
                     b.Property<Guid>("AddOnId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<string>("CustomerEmail")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<Guid>("ProductPlanId")
+                    b.Property<Guid>("OrganizationCustomerId")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<DateTime>("RetrievedDateTime")
+                        .HasColumnType("datetime2");
+
                     b.Property<Guid>("SenderAddOnWebhookId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("SubscriptionId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<int>("Unit")
@@ -158,12 +164,18 @@ namespace Rx.Infrastructure.Migrations.TenantDb
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
+                    b.Property<string>("Last4")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(60)
                         .HasColumnType("nvarchar(60)");
 
                     b.Property<string>("PaymentGatewayId")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("PaymentMethodId")
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("CustomerId");
@@ -303,6 +315,9 @@ namespace Rx.Infrastructure.Migrations.TenantDb
                     b.Property<bool>("IsTrial")
                         .HasColumnType("bit");
 
+                    b.Property<string>("JobId")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<Guid>("OrganizationCustomerId")
                         .HasColumnType("uniqueidentifier");
 
@@ -311,6 +326,9 @@ namespace Rx.Infrastructure.Migrations.TenantDb
 
                     b.Property<DateTime>("StartDate")
                         .HasColumnType("datetime2");
+
+                    b.Property<bool>("SubscriptionType")
+                        .HasColumnType("bit");
 
                     b.HasKey("SubscriptionId");
 
@@ -321,6 +339,33 @@ namespace Rx.Infrastructure.Migrations.TenantDb
                     b.ToTable("Subscriptions");
                 });
 
+            modelBuilder.Entity("Rx.Domain.Entities.Tenant.SubscriptionStat", b =>
+                {
+                    b.Property<Guid>("SubscriptionStatsId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("Stat Id");
+
+                    b.Property<string>("Change")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("Date")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("ProductId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("SubscriptionId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("SubscriptionStatsId");
+
+                    b.HasIndex("ProductId");
+
+                    b.ToTable("SubscriptionStats");
+                });
+
             modelBuilder.Entity("Rx.Domain.Entities.Tenant.SubscriptionWebhook", b =>
                 {
                     b.Property<Guid>("WebhookId")
@@ -329,16 +374,24 @@ namespace Rx.Infrastructure.Migrations.TenantDb
                         .HasColumnName("WebhookId");
 
                     b.Property<string>("CustomerEmail")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("CustomerName")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<Guid>("ProductPlanId")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<DateTime>("RetrievedDate")
+                        .HasColumnType("datetime2");
+
                     b.Property<Guid>("SenderWebhookId")
                         .HasColumnType("uniqueidentifier");
+
+                    b.Property<bool>("SubscriptionType")
+                        .HasColumnType("bit");
 
                     b.HasKey("WebhookId");
 
@@ -438,6 +491,17 @@ namespace Rx.Infrastructure.Migrations.TenantDb
                     b.Navigation("ProductPlan");
                 });
 
+            modelBuilder.Entity("Rx.Domain.Entities.Tenant.SubscriptionStat", b =>
+                {
+                    b.HasOne("Rx.Domain.Entities.Tenant.Product", "Product")
+                        .WithMany("SubscriptionStats")
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Product");
+                });
+
             modelBuilder.Entity("Rx.Domain.Entities.Tenant.AddOn", b =>
                 {
                     b.Navigation("AddOnPricePerPlans");
@@ -457,6 +521,8 @@ namespace Rx.Infrastructure.Migrations.TenantDb
                     b.Navigation("AddOns");
 
                     b.Navigation("ProductPlans");
+
+                    b.Navigation("SubscriptionStats");
                 });
 
             modelBuilder.Entity("Rx.Domain.Entities.Tenant.ProductPlan", b =>

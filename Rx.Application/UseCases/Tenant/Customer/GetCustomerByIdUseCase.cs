@@ -24,9 +24,12 @@ public class GetCustomerByIdUseCaseHandler : IRequestHandler<GetCustomerByIdUseC
         var customer = await _tenantDbContext.OrganizationCustomers!.FindAsync(request.CustomerId);
         var subscriptions = await _tenantDbContext.Subscriptions!.Where(s=>s.OrganizationCustomerId==request.CustomerId).OrderByDescending(s=>s.IsActive).ToListAsync(cancellationToken);
         var subscription = subscriptions.First();
-        var customerVm = new CustomerVm(customer?.CustomerId.ToString(), customer?.Name,
+        var customerVm = new CustomerVm(
+            customerId:customer?.CustomerId.ToString(),
+            name:customer?.Name,
             email: customer?.Email,
-            status: subscription.IsActive ? "Active" : "Inactive"
+            status: subscription.IsActive ? "Active" : "Inactive",
+            last4:customer?.Last4
         );
         return customerVm;
     }

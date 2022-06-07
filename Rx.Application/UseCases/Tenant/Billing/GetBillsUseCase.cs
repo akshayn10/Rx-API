@@ -21,12 +21,13 @@ public class GetBillUseCaseHandler : IRequestHandler<GetBillsUseCase, IEnumerabl
     {
         var bills = await (from b in _tenantDbContext.Bills
             join c in _tenantDbContext.OrganizationCustomers on b.CustomerId equals c.CustomerId
-            select new {c.Name,c.Email,b.GeneratedDate,b.TotalAmount}).ToListAsync(cancellationToken);
+            select new {c.Name,c.Email,b.GeneratedDate,b.TotalAmount,b.BillId}).ToListAsync(cancellationToken);
         var billVms = bills.Select(x=>new BillVm(
-            Name:x.Name,
+            billId:x.BillId.ToString(),
+          customerName:x.Name,
             Email:x.Email,
             GeneratedDate:x.GeneratedDate.ToString(),
-            Amount:x.TotalAmount
+            totalAmount:x.TotalAmount
             ));
         return billVms;
 

@@ -4,8 +4,19 @@
     ViewBag.Title = "";
 }
 
-<h3>Add Your Card Details:@Model.Email</h3>
-
+<h3>Add Your Card Details for the email @Model.Email</h3>
+<h4>Add new card</h4>
+<div class="col-md-5">
+    <input id="cardholder-name" placeholder="card holders name" type="text">
+    <!-- placeholder for Elements -->
+    <form id="payment-setup-form" data-secret='@ViewData["ClientSecret"]'>
+        <div id="card-element"></div>
+        <button id="card-button">
+            Save Card
+        </button>
+    </form>
+    <input type="hidden" id="stripePublicKey" value="@ViewData["StripePublicKey"]"/>
+</div>
 <br /><br />
 <div class="col-md-5">
     <h4>Existing Payment Methods</h4>
@@ -23,31 +34,17 @@
                 <input type="hidden" name="paymentmethodid" class="form-control" value="@pm.Id">
                 <button type="submit" class="btn btn-primary">Delete</button>
             </div>
-
         }
     }
-
-    <br /><br /><br />
-    <h4>Add new card</h4>
-    <input id="cardholder-name" placeholder="card holders name" type="text">
-    <!-- placeholder for Elements -->
-    <form id="payment-setup-form" data-secret='@ViewData["ClientSecret"]'>
-        <div id="card-element"></div>
-        <button id="card-button">
-            Save Card
-        </button>
-    </form>
-
-    <input type="hidden" id="stripePublicKey" value="@ViewData["StripePublicKey"]"/>
-
 </div>
+
 @section Scripts{
     <script>
         let $keyInput = $('#stripePublicKey');
-        var stripe = Stripe($keyInput.val());
+        const stripe = Stripe($keyInput.val());
 
-        var elements = stripe.elements();
-        var cardElement = elements.create('card', {
+        const elements = stripe.elements();
+        const cardElement = elements.create('card', {
             hidePostalCode: true,
             style: {
                 base: {
@@ -58,17 +55,14 @@
             }
         });
         cardElement.mount('#card-element');
-
-        var cardholderName = document.getElementById('cardholder-name');
-        var setupForm = document.getElementById('payment-setup-form');
-        var clientSecret = setupForm.dataset.secret;
-
+        const cardholderName = document.getElementById('cardholder-name');
+        const setupForm = document.getElementById('payment-setup-form');
+        const clientSecret = setupForm.dataset.secret;
         setupForm.addEventListener('submit', function (ev) {
             ev.preventDefault();
 
             confirmCardSetup();
         });
-
         function confirmCardSetup() {
             stripe.confirmCardSetup(
                 clientSecret,
@@ -88,6 +82,5 @@
                 }
             });
         }
-
     </script>
 }

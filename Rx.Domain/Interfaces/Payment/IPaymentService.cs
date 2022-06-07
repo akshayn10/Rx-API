@@ -7,6 +7,8 @@ public interface IPaymentService
     Task<bool> CreateCustomer(string name, string email, string systemId);
     Task<List<PaymentModel.CustomerModel>> GetCustomers(int take);
     Task<PaymentModel.CustomerModel> GetCustomerByEmail(string email, params PaymentModel.PaymentModelInclude[] include);
+    
+    Task<string> GetCustomerEmailById(string id);
     Task<PaymentModel.CustomerModel> DeleteCustomerByEmail(string email);
 
     /// <summary>
@@ -21,8 +23,8 @@ public interface IPaymentService
     Task<List<PaymentModel.PaymentMethodModel>> GetPaymentMethodsByCustomerEmail(string customerEmail, PaymentModel.PaymentMethodType paymentMethodType);
     Task DeletePaymentMethod(string paymentMethodId);
 
-    Task Charge(string customerId, string paymentMethodId, PaymentModel.Currency currency, long unitAmount,
-        string customerEmail, bool sendEmailAfterSuccess = true, string emailDescription = "");
+    Task<string> Charge(string customerId, string paymentMethodId, PaymentModel.Currency currency, long unitAmount,
+        string customerEmail, bool sendEmailAfterSuccess , string chargeDescription);
 
     Task ChargeWithCustomerEmail(string customerEmail, string paymentMethodId, PaymentModel.Currency currency, long unitAmount,
         bool sendEmailAfterSuccess = true, string emailDescription = "");
