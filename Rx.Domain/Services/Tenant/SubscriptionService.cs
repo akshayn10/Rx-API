@@ -127,8 +127,15 @@ namespace Rx.Domain.Services.Tenant
 
             if (subscription.SubscriptionType)
             {
+                var jobId = Guid.NewGuid().ToString("N");
+                var subscriptionUpdate =await _tenantDbContext.Subscriptions!.FindAsync(subscription.SubscriptionId);
+                if(subscriptionUpdate is null)
+                {
+                    throw new NullReferenceException("Subscription not found");
+                }
+                subscriptionUpdate!.JobId = jobId;
                 //Subscription Frequency is Monthly
-                _recurringJobManager.AddOrUpdate("jobId",()=>RecurringSubscription(subscription.SubscriptionId),Cron.Monthly());
+                _recurringJobManager.AddOrUpdate(jobId,()=>RecurringSubscription(subscription.SubscriptionId),Cron.Monthly());
             }
 
             return subscription.SubscriptionId.ToString();
@@ -315,12 +322,19 @@ namespace Rx.Domain.Services.Tenant
                 //Check of the Subscription is Recurring
                 if (webhook.SubscriptionType)
                 {
-                    _recurringJobManager.AddOrUpdate("jobId",()=>RecurringSubscription(subscription.SubscriptionId),Cron.Monthly());
+                    var jobId = Guid.NewGuid().ToString("N");
+                    var subscriptionUpdate =await _tenantDbContext.Subscriptions!.FindAsync(subscription.SubscriptionId);
+                    if(subscriptionUpdate is null)
+                    {
+                        throw new NullReferenceException("Subscription not found");
+                    }
+                    subscriptionUpdate!.JobId = jobId;
+                    await _tenantDbContext.SaveChangesAsync();
+                    _recurringJobManager.AddOrUpdate(jobId,()=>RecurringSubscription(subscription.SubscriptionId),Cron.Monthly());
                     _logger.LogInformation("Processing Payment");
                 }
             }
-
-            return "";
+            return "Unhandled Error on Subscription Creation";
         }
     }
 }
