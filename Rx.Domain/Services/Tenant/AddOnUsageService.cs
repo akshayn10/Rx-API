@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 using Rx.Domain.DTOs.Payment;
 using Rx.Domain.DTOs.Tenant.AddOnUsage;
 using Rx.Domain.Entities.Tenant;
@@ -42,25 +43,27 @@ public class AddOnUsageService: IAddOnUsageService
         
     }
 
-    public async Task<string> CreateAddOnUsageFromWebhook(AddOnUsageFromWebhookForCreationDto addOnUsageFromWebhookForCreationDto)
+    public async Task<string> CreateAddOnUsageFromWebhook(AddOnWebhook addOnWebhook)
     {
-        var subscription =await _tenantDbContext.Subscriptions!.FindAsync(addOnUsageFromWebhookForCreationDto.SubscriptionId);
+        var subscription =await _tenantDbContext.Subscriptions!.FindAsync(addOnWebhook.SubscriptionId);
         if(subscription==null)
         {
             throw new NullReferenceException("Subscription not found");
         }
 
-        var customer =await _tenantDbContext.OrganizationCustomers!.FindAsync(addOnUsageFromWebhookForCreationDto.CustomerId);
+        var customer =await _tenantDbContext.OrganizationCustomers!.FindAsync(addOnWebhook.OrganizationCustomerId);
         var addOnPriceForPlan =await _tenantDbContext.AddOnPricePerPlans!.Where(
-                ap=>ap.AddOnId==addOnUsageFromWebhookForCreationDto.AddOnId 
+                ap=>ap.AddOnId==addOnWebhook.AddOnId 
                     && ap.ProductPlanId==subscription.ProductPlanId)
                 .FirstOrDefaultAsync();
         if (addOnPriceForPlan == null)
         {
             throw new NullReferenceException("AddOnPricePerPlan not found");
         }
-        var unitInDecimal = Convert.ToDecimal(addOnUsageFromWebhookForCreationDto.Unit);
+        var unitInDecimal = Convert.ToDecimal(addOnWebhook.Unit);
         var amountToBeCharged = addOnPriceForPlan.Price*unitInDecimal;
+        var stripeDescription = new StripeDescription("addOn",addOnWebhook.AddOnWebhookId.ToString());
+        var stripeDescriptionJson = JsonConvert.SerializeObject(stripeDescription,Formatting.Indented);
        
         await _paymentService.Charge(
             customer!.PaymentGatewayId!,
@@ -69,21 +72,20 @@ public class AddOnUsageService: IAddOnUsageService
             Convert.ToInt64(amountToBeCharged),
             customer.Email!,
             false,
-            "addOn"
+            stripeDescriptionJson
         );
 
         
         return "Payment Processing";
     }
 
-    public async Task<string> ActivateAddOnUsageAfterPayment(string customerId,long amount)
+    public async Task<string> ActivateAddOnUsageAfterPayment(string webhookId,long amount)
     {
-        var customer =await _tenantDbContext.OrganizationCustomers!.FirstOrDefaultAsync(c=>c.PaymentGatewayId==customerId);
-        var lastAddOnWebhook= await _tenantDbContext.AddOnWebhooks.Where(aw=>aw.OrganizationCustomerId==customer!.CustomerId).OrderByDescending(aw=>aw.RetrievedDateTime).FirstOrDefaultAsync();
+        var webhook = await _tenantDbContext.AddOnWebhooks.FindAsync(Guid.Parse(webhookId));
         var addOnUsageDto = new AddOnUsageForCreationDto(
-            Unit:lastAddOnWebhook!.Unit,
-            AddOnId:lastAddOnWebhook.AddOnId,
-            SubscriptionId:lastAddOnWebhook.SubscriptionId,
+            Unit:webhook!.Unit,
+            AddOnId:webhook.AddOnId,
+            SubscriptionId:webhook.SubscriptionId,
             TotalAmount:Convert.ToDecimal(amount)
         );
         var addOnUsage = _mapper.Map<AddOnUsage>(addOnUsageDto);

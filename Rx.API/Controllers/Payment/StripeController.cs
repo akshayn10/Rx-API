@@ -46,11 +46,24 @@ public class StripeController:Controller
             {
                 var chargeSucceeded = stripeEvent.Data.Object as Charge;
                 _logger.LogInformation(chargeSucceeded!.ToString());
-                if (chargeSucceeded.Description == "addOn")
+                var stripeDescription = JsonConvert.DeserializeObject<StripeDescription>(chargeSucceeded.Description);
+                if (stripeDescription!.PaymentType == "addOn")
                 {
-                    await _mediator.Send(new ActivateAddOnUsageAfterPaymentUseCase(chargeSucceeded.CustomerId,chargeSucceeded.Amount));
+                    await _mediator.Send(new ActivateAddOnUsageAfterPaymentUseCase(stripeDescription.Id,chargeSucceeded.Amount));
                 }
-                
+                if(stripeDescription.PaymentType=="activateAfterTrial")
+                {
+                    await _mediator.Send(new ActivateSubscriptionAfterTrialUseCase(Guid.Parse(stripeDescription.Id)));
+                }
+
+                if (stripeDescription.PaymentType == "activateOneTimeSubscription")
+                {
+                    await _mediator.Send(new ActivateOneTimeSubscriptionUseCase(Guid.Parse(stripeDescription.Id)));
+                }
+                if (stripeDescription.PaymentType == "activateRecurringSubscription")
+                {
+                    await _mediator.Send(new ActivateRecurringSubscriptionUseCase(Guid.Parse(stripeDescription.Id)));
+                }
             }
             return Ok();
         }

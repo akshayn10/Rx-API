@@ -65,25 +65,24 @@ namespace Rx.Domain.Services.Tenant
             return customer!.CustomerId;
         }
         
-        public async Task<string> CreateCustomerFromWebhook(SubscriptionWebhookForCreationDto subscriptionWebhookForCreationDto)
+        public async Task<string> CreateCustomerFromWebhook(Guid webhookId)
         {
+            var webhook =await _tenantDbContext.SubscriptionWebhooks.FindAsync(webhookId);
 
                 var customerForCreationDto = new OrganizationCustomerForCreationDto(
-                    Email: subscriptionWebhookForCreationDto.customerEmail,
-                    Name: subscriptionWebhookForCreationDto.customerName
+                    Email: webhook!.CustomerEmail!,
+                    Name: webhook.CustomerName!
                 );
                 //Create New Customer
                 var customer = _mapper.Map<OrganizationCustomer>(customerForCreationDto);
                 await _tenantDbContext.OrganizationCustomers!.AddAsync(customer);
                 await _tenantDbContext.SaveChangesAsync();
                 await _paymentService.CreateCustomer(customer.Name!, customer.Email!,customer.CustomerId.ToString());
-            
                 return "https://localhost:44352/api/Payment?customerEmail="+customer.Email;;
         }
 
         public async Task<CustomerStatsDto> GetCustomerStats()
         {
-            
             var totalCustomer =await _tenantDbContext.OrganizationCustomers!.CountAsync();
             var totalActiveCustomer = await (from c in _tenantDbContext.OrganizationCustomers
                 join s in _tenantDbContext.Subscriptions on c.CustomerId equals s.OrganizationCustomerId
@@ -91,7 +90,6 @@ namespace Rx.Domain.Services.Tenant
                 select c).Distinct().CountAsync();
             CustomerStatsDto customerStatsDto = new CustomerStatsDto(totalCustomer, totalActiveCustomer);
             return customerStatsDto;
-            
         }
     }
 }

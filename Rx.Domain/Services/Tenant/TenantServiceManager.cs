@@ -21,11 +21,11 @@ namespace Rx.Domain.Services.Tenant
         private readonly Lazy<IAddOnService> _addOnService;
         private readonly Lazy<IAddOnUsageService> _addOnUsageService;
 
-        public TenantServiceManager(ITenantDbContext tenantDbContext,ILogger<TenantServiceManager> logger,IPaymentService paymentService ,IMapper mapper,IBackgroundJobClient backgroundJobClient,IBlobStorage blobStorage)
+        public TenantServiceManager(ITenantDbContext tenantDbContext,ILogger<TenantServiceManager> logger,IPaymentService paymentService ,IMapper mapper,IBackgroundJobClient backgroundJobClient,IRecurringJobManager recurringJobManager,IBlobStorage blobStorage)
         {
             _organizationCustomerService = new Lazy<IOrganizationCustomerService>(() => new OrganizationCustomerService(tenantDbContext, logger, mapper,paymentService));
             _productService = new Lazy<IProductService>(() => new ProductService(tenantDbContext, logger, mapper,blobStorage));
-            _subscriptionService = new Lazy<ISubscriptionService>(() => new SubscriptionService(tenantDbContext, logger, mapper,backgroundJobClient,paymentService));
+            _subscriptionService = new Lazy<ISubscriptionService>(() => new SubscriptionService(tenantDbContext, logger, mapper,backgroundJobClient,paymentService,recurringJobManager));
             _billingService = new Lazy<IBillingService>(() => new BillingService(tenantDbContext, logger,mapper));
             _productPlanService = new Lazy<IProductPlanService>(() => new ProductPlanService(tenantDbContext, mapper, logger) );
             _transactionService = new Lazy<ITransactionService>(() => new TransactionService(tenantDbContext, mapper, logger));

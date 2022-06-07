@@ -3,7 +3,7 @@ using Rx.Domain.Interfaces;
 
 namespace Rx.Application.UseCases.Tenant.Webhook;
 
-public record ActivateAddOnUsageAfterPaymentUseCase(string CustomerId,long Amount):IRequest<string>;
+public record ActivateAddOnUsageAfterPaymentUseCase(string WebhookId,long Amount):IRequest<string>;
 
 public class ActivateAddOnUsageAfterPaymentUseCaseHandler:IRequestHandler<ActivateAddOnUsageAfterPaymentUseCase,string>
 {
@@ -15,6 +15,6 @@ public class ActivateAddOnUsageAfterPaymentUseCaseHandler:IRequestHandler<Activa
     }
     public async Task<string> Handle(ActivateAddOnUsageAfterPaymentUseCase request, CancellationToken cancellationToken)
     {
-        return await _tenantServiceManager.AddOnUsageService.ActivateAddOnUsageAfterPayment(request.CustomerId,request.Amount);
+        return await _tenantServiceManager.AddOnUsageService.ActivateAddOnUsageAfterPayment(request.WebhookId,request.Amount);
     }
 }

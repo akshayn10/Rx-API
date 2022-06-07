@@ -42,8 +42,8 @@ public class CreateSubscriptionFromWebhookUseCaseHandler : IRequestHandler<Manag
         if (customer != null)
         {
             // Create new function for existing customer
-            return await _tenantServiceManager.SubscriptionService.CreateSubscriptionFromWebhook(customer.CustomerId);
+            return await _tenantServiceManager.SubscriptionService.CreateSubscriptionFromWebhook(subscriptionWebhook.WebhookId);
         }
-        return await _tenantServiceManager.OrganizationCustomerService.CreateCustomerFromWebhook(request.SubscriptionWebhookForCreationDto);
+        return await _tenantServiceManager.OrganizationCustomerService.CreateCustomerFromWebhook(subscriptionWebhook.WebhookId);
     }
 }

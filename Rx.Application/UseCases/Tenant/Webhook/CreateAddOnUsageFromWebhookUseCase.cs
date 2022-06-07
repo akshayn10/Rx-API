@@ -36,6 +36,6 @@ public class CreateAddOnUsageFromWebhookUseCaseHandler : IRequestHandler<CreateA
         _tenantDbContext.AddOnWebhooks.Add(addOnWebhook);
         await _tenantDbContext.SaveChangesAsync();
 
-        return await _tenantServiceManager.AddOnUsageService.CreateAddOnUsageFromWebhook(request.AddOnUsageFromWebhookForCreationDto);
+        return await _tenantServiceManager.AddOnUsageService.CreateAddOnUsageFromWebhook(addOnWebhook);
     }
 }
