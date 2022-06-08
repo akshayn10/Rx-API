@@ -5,7 +5,9 @@ using Rx.API.Extensions;
 using Rx.Application;
 using Rx.Domain.Interfaces.DbContext;
 using Rx.Domain.Interfaces.Payment;
+using Rx.Domain.Interfaces.WebhookSendClient;
 using Rx.Domain.Services.Payment;
+using Rx.Domain.Services.WebhookSendClient;
 using Rx.Infrastructure.Persistence;
 using Rx.Infrastructure.Persistence.Context;
 using Serilog;
@@ -61,6 +63,7 @@ builder.Services.ConfigureServiceManager();
 
 //HttpClient
 builder.Services.AddHttpClient();
+builder.Services.AddScoped<ISendWebhookService,SendWebhookService>();
 
 //Hangfire configuration
 builder.Services.AddHangfire(x =>

@@ -13,6 +13,7 @@ using Rx.Domain.Interfaces;
 using Rx.Domain.Interfaces.DbContext;
 using Rx.Domain.Interfaces.Payment;
 using Rx.Domain.Interfaces.Tenant;
+using Rx.Domain.Interfaces.WebhookSendClient;
 using Stripe;
 
 namespace Rx.Domain.Services.Tenant;
@@ -24,16 +25,23 @@ public class AddOnUsageService: IAddOnUsageService
     private readonly IMapper _mapper;
     private readonly IPaymentService _paymentService;
     private readonly IHttpClientFactory _httpClientFactory;
+    private readonly ISendWebhookService _sendWebhookService;
     private HttpClient? _httpClient;
     private static RetryPolicy? _retryPolicy;
 
-    public AddOnUsageService(ITenantDbContext tenantDbContext,ILogger<ITenantServiceManager> logger,IMapper mapper,IPaymentService paymentService,IHttpClientFactory httpClientFactory)
+    public AddOnUsageService(ITenantDbContext tenantDbContext,
+        ILogger<ITenantServiceManager> logger,
+        IMapper mapper,
+        IPaymentService paymentService,
+        IHttpClientFactory httpClientFactory,
+        ISendWebhookService sendWebhookService) 
     {
         _tenantDbContext = tenantDbContext;
         _logger = logger;
         _mapper = mapper;
         _paymentService = paymentService;
         _httpClientFactory = httpClientFactory;
+        _sendWebhookService = sendWebhookService;
         _retryPolicy = Policy
             .Handle<Exception>()
             .Retry(2);
@@ -105,11 +113,10 @@ public class AddOnUsageService: IAddOnUsageService
         await _tenantDbContext.SaveChangesAsync();
         
         //Response to Backends
-        _httpClient = _httpClientFactory.CreateClient();
-        _httpClient.DefaultRequestHeaders.Add("ApiKey", "ApiSecretKey");
+      
         var backendAddOnResponse = new BackendAddOnResponse(
             "AddOnActivated",webhook.OrganizationCustomerId.ToString(), webhook.SubscriptionId.ToString(),webhook.AddOnId.ToString());
-        var response = await _retryPolicy.Execute(()=> _httpClient.PostAsJsonAsync("https://baeb0b32f6296cd6566129eed5eb1a12.m.pipedream.net",backendAddOnResponse ));
+        await _sendWebhookService.SendAddOnWebhookToProductBackend(backendAddOnResponse);
         return addOnUsage.AddOnUsageId.ToString();
     }
 }
