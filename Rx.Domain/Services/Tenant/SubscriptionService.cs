@@ -1,8 +1,11 @@
-﻿using AutoMapper;
+﻿using System.Net.Http.Json;
+using AutoMapper;
 using Hangfire;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
+using Polly;
+using Polly.Retry;
 using Rx.Domain.DTOs.Payment;
 using Rx.Domain.DTOs.Tenant.Subscription;
 using Rx.Domain.Entities.Tenant;
@@ -19,8 +22,17 @@ namespace Rx.Domain.Services.Tenant
         private readonly IBackgroundJobClient _backgroundJobClient;
         private readonly IPaymentService _paymentService;
         private readonly IRecurringJobManager _recurringJobManager;
+        private readonly IHttpClientFactory _httpClientFactory;
+        private HttpClient? _httpClient;
+        private static RetryPolicy? _retryPolicy;
 
-        public SubscriptionService(ITenantDbContext tenantDbContext, ILogger<TenantServiceManager> logger, IMapper mapper,IBackgroundJobClient backgroundJobClient,IPaymentService paymentService,IRecurringJobManager recurringJobManager)
+        public SubscriptionService(ITenantDbContext tenantDbContext,
+            ILogger<TenantServiceManager> logger,
+            IMapper mapper,
+            IBackgroundJobClient backgroundJobClient,
+            IPaymentService paymentService,
+            IRecurringJobManager recurringJobManager,
+            IHttpClientFactory httpClientFactory)
         {
             _tenantDbContext = tenantDbContext;
             _logger = logger;
@@ -28,6 +40,10 @@ namespace Rx.Domain.Services.Tenant
             _backgroundJobClient = backgroundJobClient;
             _paymentService = paymentService;
             _recurringJobManager = recurringJobManager;
+            _httpClientFactory = httpClientFactory;
+            _retryPolicy = Policy
+                .Handle<Exception>()
+                .Retry(2);
         }
 
         public async Task<IEnumerable<SubscriptionDto>> GetSubscriptions()
@@ -76,6 +92,13 @@ namespace Rx.Domain.Services.Tenant
             var subscription = await _tenantDbContext.Subscriptions!.FindAsync(subscriptionId);
             subscription!.IsTrial = false;
             await _tenantDbContext.SaveChangesAsync();
+            
+            //Response to Backends
+            _httpClient = _httpClientFactory.CreateClient();
+            _httpClient.DefaultRequestHeaders.Add("ApiKey", "ApiSecretKey");
+            var backendSubscriptionResponse = new BackendSubscriptionResponse(
+                "DeActivatedTrial",subscription.SubscriptionId.ToString(),subscription.OrganizationCustomerId.ToString(),subscription.ProductPlanId.ToString());
+            var response = await _retryPolicy.Execute(()=> _httpClient.PostAsJsonAsync("https://baeb0b32f6296cd6566129eed5eb1a12.m.pipedream.net",backendSubscriptionResponse ));
             
             //Deserialize Description
             var stripeDescription = new StripeDescription("activateAfterTrial", subscription.SubscriptionId.ToString());
@@ -137,6 +160,13 @@ namespace Rx.Domain.Services.Tenant
                 //Subscription Frequency is Monthly
                 _recurringJobManager.AddOrUpdate(jobId,()=>RecurringSubscription(subscription.SubscriptionId),Cron.Monthly());
             }
+            _httpClient = _httpClientFactory.CreateClient();
+            _httpClient.DefaultRequestHeaders.Add("ApiKey", "ApiSecretKey");
+            var backendSubscriptionResponse = new BackendSubscriptionResponse(
+                "ActivatedSubscription",subscription.SubscriptionId.ToString(),subscription.OrganizationCustomerId.ToString(),subscription.ProductPlanId.ToString());
+            var response = await _retryPolicy.Execute(()=> _httpClient.PostAsJsonAsync("https://baeb0b32f6296cd6566129eed5eb1a12.m.pipedream.net",backendSubscriptionResponse ));
+
+            _logger.LogInformation(response.ToString());
 
             return subscription.SubscriptionId.ToString();
         }
@@ -159,6 +189,12 @@ namespace Rx.Domain.Services.Tenant
             subscription.IsActive = true;
             await _tenantDbContext.SaveChangesAsync();
             _backgroundJobClient.Schedule(()=>DeactivateSubscription(subscription.SubscriptionId), subscription.StartDate.AddMonths(((int) plan.Duration)!));
+            
+            _httpClient = _httpClientFactory.CreateClient();
+            _httpClient.DefaultRequestHeaders.Add("ApiKey", "ApiSecretKey");
+            var backendSubscriptionResponse = new BackendSubscriptionResponse(
+                "ActivatedSubscription",subscription.SubscriptionId.ToString(),subscription.OrganizationCustomerId.ToString(),subscription.ProductPlanId.ToString());
+            var response = await _retryPolicy.Execute(()=> _httpClient.PostAsJsonAsync("https://baeb0b32f6296cd6566129eed5eb1a12.m.pipedream.net",backendSubscriptionResponse ));
             _logger.LogInformation("One Time added Subscription Activated  for "+subscription.SubscriptionId);
             return subscription.SubscriptionId.ToString();
         }
@@ -185,6 +221,7 @@ namespace Rx.Domain.Services.Tenant
                 false,
                 stripeDescriptionJson
             );
+            
             _logger.LogInformation("Processing Payment For Recurring");
             return subscription.SubscriptionId.ToString();
         }
@@ -194,22 +231,22 @@ namespace Rx.Domain.Services.Tenant
             var subscription = await _tenantDbContext.Subscriptions!.FindAsync(subscriptionId);
             if (subscription == null)
             {
-                throw new NullReferenceException("Subscription not found at Reactivation");
+                throw new NullReferenceException("Subscription not found at activation");
             }
             
             var plan =await _tenantDbContext.ProductPlans!.FindAsync(subscription.ProductPlanId);
             if (plan == null)
             {
-                throw new NullReferenceException("Plan not found at Reactivation");
-            }
-
-            if (plan.HaveTrial == false)
-            {
-                
+                throw new NullReferenceException("Plan not found at activation");
             }
             
             subscription.IsActive = true;
             await _tenantDbContext.SaveChangesAsync();
+            
+            var backendSubscriptionResponse = new BackendSubscriptionResponse(
+                "ActivatedSubscription",subscription.SubscriptionId.ToString(),subscription.OrganizationCustomerId.ToString(),subscription.ProductPlanId.ToString());
+            var response = await _retryPolicy.Execute(()=> _httpClient.PostAsJsonAsync("https://baeb0b32f6296cd6566129eed5eb1a12.m.pipedream.net",backendSubscriptionResponse ));
+            
             return subscription.SubscriptionId.ToString();
         }
 
@@ -241,6 +278,12 @@ namespace Rx.Domain.Services.Tenant
             };
             await _tenantDbContext.SubscriptionStats!.AddAsync(subStat);
             await _tenantDbContext.SaveChangesAsync();
+            
+            _httpClient = _httpClientFactory.CreateClient();
+            _httpClient.DefaultRequestHeaders.Add("ApiKey", "ApiSecretKey");
+            var backendSubscriptionResponse = new BackendSubscriptionResponse(
+                "unsubscribe",subscription.SubscriptionId.ToString(),subscription.OrganizationCustomerId.ToString(),subscription.ProductPlanId.ToString());
+            var response = await _retryPolicy.Execute(()=> _httpClient.PostAsJsonAsync("https://baeb0b32f6296cd6566129eed5eb1a12.m.pipedream.net",backendSubscriptionResponse ));
             
             _logger.LogInformation("Subscription Cancelled for " + unsubscriptionWebhookDto.SubscriptionId);
             return "Subscription Cancelled";
@@ -403,6 +446,11 @@ namespace Rx.Domain.Services.Tenant
                 subscriptionUpdate!.JobId = jobId;
                 //Subscription Frequency is Monthly
                 _recurringJobManager.AddOrUpdate(jobId,()=>RecurringSubscription(subscription.SubscriptionId),Cron.Monthly());
+                _httpClient = _httpClientFactory.CreateClient();
+                _httpClient.DefaultRequestHeaders.Add("ApiKey", "ApiSecretKey");
+                var backendSubscriptionResponse = new BackendSubscriptionResponse(
+                    "ActivatedSubscription",subscription.SubscriptionId.ToString(),subscription.OrganizationCustomerId.ToString(),subscription.ProductPlanId.ToString());
+                var response = await _retryPolicy.Execute(()=> _httpClient.PostAsJsonAsync("https://baeb0b32f6296cd6566129eed5eb1a12.m.pipedream.net",backendSubscriptionResponse ));
                 _logger.LogInformation("Recurring subscription Activated Change " + subscription.SubscriptionId);
             }
 
@@ -410,22 +458,20 @@ namespace Rx.Domain.Services.Tenant
             
         }
 
-        public async Task<string> CreateSubscriptionFromWebhook(Guid customerId)
+        public async Task<string> CreateSubscriptionFromWebhook(Guid webhookId)
         {
-            //Get Customer
-            var customer =await _tenantDbContext.OrganizationCustomers!.FindAsync(customerId);
-            if (customer is null)
-            {
-                throw new NullReferenceException("Customer not found");
-            }
+            
             //Get last Webhook for customer
-            var webhook = await _tenantDbContext.SubscriptionWebhooks.Where(
-                sw=>sw.CustomerEmail == customer!.Email)
-                .OrderByDescending(sw=>sw.RetrievedDate)
-                .FirstOrDefaultAsync();
+            var webhook = await _tenantDbContext.SubscriptionWebhooks.FindAsync(webhookId);
             if (webhook is  null)
             {
                 throw new Exception("Webhook not found");
+            }
+            //Get Customer
+            var customer =await _tenantDbContext.OrganizationCustomers!.FirstOrDefaultAsync(c=>c.Email==webhook.CustomerEmail);
+            if (customer is null)
+            {
+                throw new NullReferenceException("Customer not found");
             }
             
             //GetPlanDetails
@@ -463,7 +509,13 @@ namespace Rx.Domain.Services.Tenant
                     var subscription = _mapper.Map<Subscription>(subscriptionForCreationDto);
                     await _tenantDbContext.Subscriptions!.AddAsync(subscription);
                     await _tenantDbContext.SaveChangesAsync();
+                    
                     _backgroundJobClient.Schedule(()=>DeactivateTrialAndActivateSubscription(subscription.SubscriptionId), subscription.CreatedDate.AddMinutes(1));
+                    _httpClient = _httpClientFactory.CreateClient();
+                    _httpClient.DefaultRequestHeaders.Add("ApiKey", "ApiSecretKey");
+                    var backendSubscriptionResponse = new BackendSubscriptionResponse(
+                        "ActivatedTrial",subscription.SubscriptionId.ToString(),subscription.OrganizationCustomerId.ToString(),subscription.ProductPlanId.ToString());
+                    var response = await _retryPolicy.Execute(()=> _httpClient.PostAsJsonAsync("https://baeb0b32f6296cd6566129eed5eb1a12.m.pipedream.net",backendSubscriptionResponse ));
                     
                 }
                 //Check of the Subscription is Recurring
@@ -483,6 +535,13 @@ namespace Rx.Domain.Services.Tenant
                     await _tenantDbContext.Subscriptions!.AddAsync(subscription);
                     await _tenantDbContext.SaveChangesAsync();
                     _backgroundJobClient.Schedule(()=>DeactivateTrialAndActivateSubscription(subscription.SubscriptionId), subscription.CreatedDate.AddMinutes(1));
+                    
+                    _httpClient = _httpClientFactory.CreateClient();
+                    _httpClient.DefaultRequestHeaders.Add("ApiKey", "ApiSecretKey");
+                    var backendSubscriptionResponse = new BackendSubscriptionResponse(
+                        "ActivatedTrial",subscription.SubscriptionId.ToString(),subscription.OrganizationCustomerId.ToString(),subscription.ProductPlanId.ToString());
+                    var response = await _retryPolicy.Execute(()=> _httpClient.PostAsJsonAsync("https://baeb0b32f6296cd6566129eed5eb1a12.m.pipedream.net",backendSubscriptionResponse ));
+                    return "Activated Trial";
                 }
             }
             //Check if the plan has no Trial
@@ -522,7 +581,8 @@ namespace Rx.Domain.Services.Tenant
                     
                     _logger.LogInformation("Processing Payment");
 
-                    _backgroundJobClient.Schedule(()=>DeactivateTrialAndActivateSubscription(subscription.SubscriptionId), subscription.CreatedDate.AddMinutes(1));
+                    _backgroundJobClient.Schedule(()=>DeactivateSubscription(subscription.SubscriptionId), subscription.CreatedDate.AddMinutes(1));
+                    return "Payment processing for One Time Subscription without trial";
                 }
                 //Check of the Subscription is Recurring
                 if (webhook.SubscriptionType)
@@ -537,6 +597,7 @@ namespace Rx.Domain.Services.Tenant
                     await _tenantDbContext.SaveChangesAsync();
                     _recurringJobManager.AddOrUpdate(jobId,()=>RecurringSubscription(subscription.SubscriptionId),Cron.Monthly());
                     _logger.LogInformation("Processing Payment");
+                    return "Payment processing for Recurring Subscription without trial";
                 }
             }
             return "Unhandled Error on Subscription Creation";

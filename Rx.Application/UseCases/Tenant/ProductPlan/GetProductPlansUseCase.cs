@@ -14,8 +14,8 @@ public class GetProductPlansUseCaseHandler:IRequestHandler<GetProductPlansUseCas
     {
         _tenantServiceManager = tenantServiceManager;
     }
-    public Task<IEnumerable<ProductPlanDto>> Handle(GetProductPlansUseCase request, CancellationToken cancellationToken)
+    public async Task<IEnumerable<ProductPlanDto>> Handle(GetProductPlansUseCase request, CancellationToken cancellationToken)
     {
-        return _tenantServiceManager.ProductPlanService.GetProductPlans(request.ProductId);
+        return await _tenantServiceManager.ProductPlanService.GetProductPlans(request.ProductId);
     }
 }

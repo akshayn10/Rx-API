@@ -1,9 +1,13 @@
-﻿using AutoMapper;
+﻿using System.Net.Http.Json;
+using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
+using Polly;
+using Polly.Retry;
 using Rx.Domain.DTOs.Payment;
 using Rx.Domain.DTOs.Tenant.AddOnUsage;
+using Rx.Domain.DTOs.Tenant.Subscription;
 using Rx.Domain.Entities.Tenant;
 using Rx.Domain.Interfaces;
 using Rx.Domain.Interfaces.DbContext;
@@ -19,13 +23,20 @@ public class AddOnUsageService: IAddOnUsageService
     private readonly ILogger<ITenantServiceManager> _logger;
     private readonly IMapper _mapper;
     private readonly IPaymentService _paymentService;
+    private readonly IHttpClientFactory _httpClientFactory;
+    private HttpClient? _httpClient;
+    private static RetryPolicy? _retryPolicy;
 
-    public AddOnUsageService(ITenantDbContext tenantDbContext,ILogger<ITenantServiceManager> logger,IMapper mapper,IPaymentService paymentService)
+    public AddOnUsageService(ITenantDbContext tenantDbContext,ILogger<ITenantServiceManager> logger,IMapper mapper,IPaymentService paymentService,IHttpClientFactory httpClientFactory)
     {
         _tenantDbContext = tenantDbContext;
         _logger = logger;
         _mapper = mapper;
         _paymentService = paymentService;
+        _httpClientFactory = httpClientFactory;
+        _retryPolicy = Policy
+            .Handle<Exception>()
+            .Retry(2);
     }
     public async Task<AddOnUsageDto> CreateAddOnUsage(Guid subscriptionId, Guid addOnId, AddOnUsageForCreationDto addOnUsageForCreationDto)
     {
@@ -92,6 +103,13 @@ public class AddOnUsageService: IAddOnUsageService
         addOnUsage.Date=DateTime.Now;
         await _tenantDbContext.AddOnUsages!.AddAsync(addOnUsage);
         await _tenantDbContext.SaveChangesAsync();
+        
+        //Response to Backends
+        _httpClient = _httpClientFactory.CreateClient();
+        _httpClient.DefaultRequestHeaders.Add("ApiKey", "ApiSecretKey");
+        var backendAddOnResponse = new BackendAddOnResponse(
+            "AddOnActivated",webhook.OrganizationCustomerId.ToString(), webhook.SubscriptionId.ToString(),webhook.AddOnId.ToString());
+        var response = await _retryPolicy.Execute(()=> _httpClient.PostAsJsonAsync("https://baeb0b32f6296cd6566129eed5eb1a12.m.pipedream.net",backendAddOnResponse ));
         return addOnUsage.AddOnUsageId.ToString();
     }
 }
