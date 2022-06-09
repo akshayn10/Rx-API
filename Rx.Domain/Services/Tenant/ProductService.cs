@@ -69,7 +69,7 @@ namespace Rx.Domain.Services.Tenant
                 fileName = fileStream.Name;
             }
             var stream = File.OpenRead(logoImage.FileName);
-            var url =await _blobStorage.UploadFile(stream,productForCreationDto.Name);
+            var url =await _blobStorage.UploadFile(stream);
             _logger.LogInformation("Upload Completed");
             stream.Close();
             File.Delete(fileName);
@@ -123,7 +123,7 @@ namespace Rx.Domain.Services.Tenant
             {
                 return "Product not found";
             }
-            _tenantDbContext.Products.Remove(product);
+            _tenantDbContext.Products!.Remove(product);
             await _tenantDbContext.SaveChangesAsync();
             return "Product deleted";
         }
@@ -147,10 +147,14 @@ namespace Rx.Domain.Services.Tenant
                 fileName = fileStream.Name;
             }
             var stream = File.OpenRead(logoImage.FileName);
-            var url =await _blobStorage.UploadFile(stream,productForUpdateDto.Name);
+            var url =await _blobStorage.UploadFile(stream);
             _logger.LogInformation("Upload Completed");
             stream.Close();
             File.Delete(fileName);
+
+            var oldFileName = product.LogoURL!.Substring(56);
+            await _blobStorage.DeleteFile(oldFileName);
+            _logger.LogInformation("Old image deleted");
 
             product.Name = productForUpdateDto.Name;
             product.Description = productForUpdateDto.Description;
