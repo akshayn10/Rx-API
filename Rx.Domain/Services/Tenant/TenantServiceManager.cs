@@ -39,7 +39,7 @@ namespace Rx.Domain.Services.Tenant
             _productPlanService = new Lazy<IProductPlanService>(() => new ProductPlanService(tenantDbContext, mapper, logger) );
             _transactionService = new Lazy<ITransactionService>(() => new TransactionService(tenantDbContext, mapper, logger));
             _addOnService = new Lazy<IAddOnService>(() => new AddOnService(tenantDbContext, mapper, logger));
-            _addOnUsageService = new Lazy<IAddOnUsageService>(() => new AddOnUsageService(tenantDbContext, logger,mapper,paymentService,httpClientFactory,sendWebhookService));
+            _addOnUsageService = new Lazy<IAddOnUsageService>(() => new AddOnUsageService(tenantDbContext, logger,mapper,paymentService,sendWebhookService));
         }
 
 

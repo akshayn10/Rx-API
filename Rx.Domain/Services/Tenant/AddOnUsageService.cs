@@ -24,27 +24,19 @@ public class AddOnUsageService: IAddOnUsageService
     private readonly ILogger<ITenantServiceManager> _logger;
     private readonly IMapper _mapper;
     private readonly IPaymentService _paymentService;
-    private readonly IHttpClientFactory _httpClientFactory;
     private readonly ISendWebhookService _sendWebhookService;
-    private HttpClient? _httpClient;
-    private static RetryPolicy? _retryPolicy;
 
     public AddOnUsageService(ITenantDbContext tenantDbContext,
         ILogger<ITenantServiceManager> logger,
         IMapper mapper,
         IPaymentService paymentService,
-        IHttpClientFactory httpClientFactory,
         ISendWebhookService sendWebhookService) 
     {
         _tenantDbContext = tenantDbContext;
         _logger = logger;
         _mapper = mapper;
         _paymentService = paymentService;
-        _httpClientFactory = httpClientFactory;
         _sendWebhookService = sendWebhookService;
-        _retryPolicy = Policy
-            .Handle<Exception>()
-            .Retry(2);
     }
     public async Task<AddOnUsageDto> CreateAddOnUsage(Guid subscriptionId, Guid addOnId, AddOnUsageForCreationDto addOnUsageForCreationDto)
     {
@@ -93,7 +85,6 @@ public class AddOnUsageService: IAddOnUsageService
             false,
             stripeDescriptionJson
         );
-
         
         return "Payment Processing";
     }
@@ -113,7 +104,6 @@ public class AddOnUsageService: IAddOnUsageService
         await _tenantDbContext.SaveChangesAsync();
         
         //Response to Backends
-      
         var backendAddOnResponse = new BackendAddOnResponse(
             "AddOnActivated",webhook.OrganizationCustomerId.ToString(), webhook.SubscriptionId.ToString(),webhook.AddOnId.ToString());
         await _sendWebhookService.SendAddOnWebhookToProductBackend(backendAddOnResponse);
