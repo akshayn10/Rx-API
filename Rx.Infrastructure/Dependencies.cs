@@ -3,10 +3,13 @@ using Microsoft.Extensions.Azure;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Rx.Domain.Interfaces.Blob;
-using Rx.Domain.Interfaces.DbContext;
+using Rx.Domain.Interfaces.Email;
+using Rx.Domain.Settings;
+using Rx.Infrastructure.Persistence;
 using Rx.Infrastructure.Persistence.Context;
+using Rx.Infrastructure.Shared;
 
-namespace Rx.Infrastructure.Persistence
+namespace Rx.Infrastructure
 {
     public static class Dependencies
     {
@@ -17,12 +20,9 @@ namespace Rx.Infrastructure.Persistence
                 options.UseSqlServer(configuration.GetConnectionString("PrimaryDbConnection")
                     // , b => b.MigrationsAssembly(typeof(PrimaryDbContext).Assembly.FullName)
                     )
-
                 //, ServiceLifetime.Transient
-  
-                );
+            );
             // services.AddTransient<IPrimaryDbContext>(provider => provider.GetService<PrimaryDbContext>() ?? throw new InvalidOperationException());
-            
         }
         public static void AddTenantDb(this IServiceCollection services, IConfiguration configuration)
         {
@@ -32,8 +32,6 @@ namespace Rx.Infrastructure.Persistence
                     )
                 // , ServiceLifetime.Transient
                 );
-
-
         }
         public static void AddBlobStorage(this IServiceCollection services, IConfiguration configuration)
         {
@@ -42,6 +40,12 @@ namespace Rx.Infrastructure.Persistence
                 b.AddBlobServiceClient(configuration.GetConnectionString("productBlobStorageConnectionString"));
             });
             services.AddScoped<IBlobStorage, BlobStorage>();
+        }
+
+        public static void AddSharedInfrastructure(this IServiceCollection services, IConfiguration configuration)
+        {
+            services.Configure<MailSettings>(configuration.GetSection("MailSettings"));
+            services.AddTransient<IEmailService, EmailService>();
         }
     }
 }

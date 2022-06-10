@@ -1,14 +1,19 @@
-﻿using AutoMapper;
+﻿using System.Net.Http.Json;
+using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
+using Polly;
+using Polly.Retry;
 using Rx.Domain.DTOs.Payment;
 using Rx.Domain.DTOs.Tenant.AddOnUsage;
+using Rx.Domain.DTOs.Tenant.Subscription;
 using Rx.Domain.Entities.Tenant;
 using Rx.Domain.Interfaces;
 using Rx.Domain.Interfaces.DbContext;
 using Rx.Domain.Interfaces.Payment;
 using Rx.Domain.Interfaces.Tenant;
+using Rx.Domain.Interfaces.WebhookSendClient;
 using Stripe;
 
 namespace Rx.Domain.Services.Tenant;
@@ -19,13 +24,19 @@ public class AddOnUsageService: IAddOnUsageService
     private readonly ILogger<ITenantServiceManager> _logger;
     private readonly IMapper _mapper;
     private readonly IPaymentService _paymentService;
+    private readonly ISendWebhookService _sendWebhookService;
 
-    public AddOnUsageService(ITenantDbContext tenantDbContext,ILogger<ITenantServiceManager> logger,IMapper mapper,IPaymentService paymentService)
+    public AddOnUsageService(ITenantDbContext tenantDbContext,
+        ILogger<ITenantServiceManager> logger,
+        IMapper mapper,
+        IPaymentService paymentService,
+        ISendWebhookService sendWebhookService) 
     {
         _tenantDbContext = tenantDbContext;
         _logger = logger;
         _mapper = mapper;
         _paymentService = paymentService;
+        _sendWebhookService = sendWebhookService;
     }
     public async Task<AddOnUsageDto> CreateAddOnUsage(Guid subscriptionId, Guid addOnId, AddOnUsageForCreationDto addOnUsageForCreationDto)
     {
@@ -74,7 +85,6 @@ public class AddOnUsageService: IAddOnUsageService
             false,
             stripeDescriptionJson
         );
-
         
         return "Payment Processing";
     }
@@ -92,6 +102,11 @@ public class AddOnUsageService: IAddOnUsageService
         addOnUsage.Date=DateTime.Now;
         await _tenantDbContext.AddOnUsages!.AddAsync(addOnUsage);
         await _tenantDbContext.SaveChangesAsync();
+        
+        //Response to Backends
+        var backendAddOnResponse = new BackendAddOnResponse(
+            "AddOnActivated",webhook.OrganizationCustomerId.ToString(), webhook.SubscriptionId.ToString(),webhook.AddOnId.ToString());
+        await _sendWebhookService.SendAddOnWebhookToProductBackend(backendAddOnResponse);
         return addOnUsage.AddOnUsageId.ToString();
     }
 }

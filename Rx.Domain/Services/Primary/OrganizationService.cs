@@ -38,7 +38,6 @@ namespace Rx.Domain.Services.Primary
             _logger = logger;
             _mapper = mapper;
             _httpClientFactory = httpClientFactory;
-
             _retryPolicy = Policy
                 .Handle<Exception>()
                 .Retry(2);
@@ -49,8 +48,8 @@ namespace Rx.Domain.Services.Primary
             Debug.Assert(_primaryContext.Organizations != null, "_primaryContext.Organizations != null");
             var organizations = await _primaryContext.Organizations.ToListAsync();
             _httpClient = _httpClientFactory.CreateClient();
-            _httpClient.DefaultRequestHeaders.Add("ApiKey", "erg");
-            _httpClient.DefaultRequestHeaders.Add("erg","wgewr");
+            _httpClient.DefaultRequestHeaders.Add("ApiKey", "webHookSecret");
+
             var response = await _retryPolicy.Execute(()=> _httpClient.PostAsJsonAsync("https://baeb0b32f6296cd6566129eed5eb1a12.m.pipedream.net", newOrg));
 
             _logger.LogInformation(response.ToString());

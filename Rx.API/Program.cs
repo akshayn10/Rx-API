@@ -5,7 +5,10 @@ using Rx.API.Extensions;
 using Rx.Application;
 using Rx.Domain.Interfaces.DbContext;
 using Rx.Domain.Interfaces.Payment;
+using Rx.Domain.Interfaces.WebhookSendClient;
 using Rx.Domain.Services.Payment;
+using Rx.Domain.Services.WebhookSendClient;
+using Rx.Infrastructure;
 using Rx.Infrastructure.Persistence;
 using Rx.Infrastructure.Persistence.Context;
 using Serilog;
@@ -50,6 +53,9 @@ builder.Services.AddSingleton<IPaymentService>(x => {
 //Azure Blob storage
 builder.Services.AddBlobStorage(builder.Configuration);
 
+//Add Shared infrastructure
+builder.Services.AddSharedInfrastructure(builder.Configuration);
+
 //Cors Settings
 builder.Services.ConfigureCors();
 
@@ -61,6 +67,7 @@ builder.Services.ConfigureServiceManager();
 
 //HttpClient
 builder.Services.AddHttpClient();
+builder.Services.AddScoped<ISendWebhookService,SendWebhookService>();
 
 //Hangfire configuration
 builder.Services.AddHangfire(x =>

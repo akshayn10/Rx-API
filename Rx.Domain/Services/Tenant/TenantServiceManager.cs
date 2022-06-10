@@ -7,6 +7,7 @@ using Rx.Domain.Interfaces.Blob;
 using Rx.Domain.Interfaces.DbContext;
 using Rx.Domain.Interfaces.Payment;
 using Rx.Domain.Interfaces.Tenant;
+using Rx.Domain.Interfaces.WebhookSendClient;
 
 namespace Rx.Domain.Services.Tenant
 {
@@ -21,16 +22,24 @@ namespace Rx.Domain.Services.Tenant
         private readonly Lazy<IAddOnService> _addOnService;
         private readonly Lazy<IAddOnUsageService> _addOnUsageService;
 
-        public TenantServiceManager(ITenantDbContext tenantDbContext,ILogger<TenantServiceManager> logger,IPaymentService paymentService ,IMapper mapper,IBackgroundJobClient backgroundJobClient,IRecurringJobManager recurringJobManager,IBlobStorage blobStorage)
+        public TenantServiceManager(ITenantDbContext tenantDbContext,
+            ILogger<TenantServiceManager> logger,
+            IPaymentService paymentService,
+            IMapper mapper,
+            IBackgroundJobClient backgroundJobClient,
+            IRecurringJobManager recurringJobManager,
+            IBlobStorage blobStorage,
+            IHttpClientFactory httpClientFactory,
+            ISendWebhookService sendWebhookService)
         {
             _organizationCustomerService = new Lazy<IOrganizationCustomerService>(() => new OrganizationCustomerService(tenantDbContext, logger, mapper,paymentService));
             _productService = new Lazy<IProductService>(() => new ProductService(tenantDbContext, logger, mapper,blobStorage));
-            _subscriptionService = new Lazy<ISubscriptionService>(() => new SubscriptionService(tenantDbContext, logger, mapper,backgroundJobClient,paymentService,recurringJobManager));
+            _subscriptionService = new Lazy<ISubscriptionService>(() => new SubscriptionService(tenantDbContext, logger, mapper,backgroundJobClient,paymentService,recurringJobManager,sendWebhookService));
             _billingService = new Lazy<IBillingService>(() => new BillingService(tenantDbContext, logger,mapper));
             _productPlanService = new Lazy<IProductPlanService>(() => new ProductPlanService(tenantDbContext, mapper, logger) );
             _transactionService = new Lazy<ITransactionService>(() => new TransactionService(tenantDbContext, mapper, logger));
             _addOnService = new Lazy<IAddOnService>(() => new AddOnService(tenantDbContext, mapper, logger));
-            _addOnUsageService = new Lazy<IAddOnUsageService>(() => new AddOnUsageService(tenantDbContext, logger,mapper,paymentService));
+            _addOnUsageService = new Lazy<IAddOnUsageService>(() => new AddOnUsageService(tenantDbContext, logger,mapper,paymentService,sendWebhookService));
         }
 
 
