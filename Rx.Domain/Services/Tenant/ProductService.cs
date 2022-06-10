@@ -125,6 +125,8 @@ namespace Rx.Domain.Services.Tenant
             {
                 return "Product not found";
             }
+            var oldFileName = product.LogoURL!.Substring(56);
+            await _blobStorage.DeleteLogo(oldFileName);
             _tenantDbContext.Products!.Remove(product);
             await _tenantDbContext.SaveChangesAsync();
             return "Product deleted";
@@ -156,7 +158,7 @@ namespace Rx.Domain.Services.Tenant
 
             //delete last logo
             var oldFileName = product.LogoURL!.Substring(56);
-            await _blobStorage.DeleteFile(oldFileName);
+            await _blobStorage.DeleteLogo(oldFileName);
             _logger.LogInformation("Old image deleted");
 
             product.Name = productForUpdateDto.Name;

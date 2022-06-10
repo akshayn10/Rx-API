@@ -50,7 +50,7 @@ namespace Rx.Domain.Services.Primary
             _httpClient = _httpClientFactory.CreateClient();
             _httpClient.DefaultRequestHeaders.Add("ApiKey", "webHookSecret");
 
-            var response = await _retryPolicy.Execute(()=> _httpClient.PostAsJsonAsync("https://baeb0b32f6296cd6566129eed5eb1a12.m.pipedream.net", newOrg));
+            var response = await _retryPolicy!.Execute(()=> _httpClient.PostAsJsonAsync("https://baeb0b32f6296cd6566129eed5eb1a12.m.pipedream.net", newOrg));
 
             _logger.LogInformation(response.ToString());
             return _mapper.Map<IEnumerable<OrganizationDto>>(organizations);
