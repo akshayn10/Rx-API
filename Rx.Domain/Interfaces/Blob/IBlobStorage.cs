@@ -2,7 +2,9 @@
 
 public interface IBlobStorage
 {
-    Task<string> UploadFile(FileStream fileStream);
+    Task<string> UploadLogo(FileStream fileStream);
+
+    Task<string> UploadProfile(FileStream stream);
     // Task<byte[]> DownloadFile(string fileName);
     Task DeleteFile(string oldFileName);
 }

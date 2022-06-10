@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Rx.Application.UseCases.Tenant.Customer;
 using Rx.Application.UseCases.Tenant.Product;
+using Rx.Domain.DTOs.Request;
 using Rx.Domain.DTOs.Tenant.OrganizationCustomer;
 using Swashbuckle.AspNetCore.Annotations;
 
@@ -21,9 +22,10 @@ namespace Rx.API.Controllers.Tenant
         
         [HttpGet]
         [SwaggerOperation(Summary = "Get all customers")]
-        public async Task<IActionResult> GetCustomers()
+        public async Task<IActionResult> GetCustomers([FromQuery] RequestParameters requestParameters)
         {
-            var customers = await _mediator.Send(new GetCustomersUseCase() );
+            _logger.LogInformation(requestParameters.SearchKey);
+            var customers = await _mediator.Send(new GetCustomersUseCase(requestParameters.SearchKey??"") );
             return Ok(customers);
         }
         
