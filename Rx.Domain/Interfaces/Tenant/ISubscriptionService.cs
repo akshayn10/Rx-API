@@ -1,4 +1,5 @@
 ﻿using Rx.Domain.DTOs.Tenant.Subscription;
+using Rx.Domain.Entities.Tenant;
 
 namespace Rx.Domain.Interfaces.Tenant
 {
@@ -12,14 +13,17 @@ namespace Rx.Domain.Interfaces.Tenant
         Task<string> CreateSubscriptionFromWebhook (Guid webhookId);
         Task<SubscriptionDto> DeactivateSubscription(Guid subscriptionId);
         Task<SubscriptionDto> DeactivateTrialAndActivateSubscription(Guid subscriptionId);
-        Task<string> ActivateSubscriptionAfterTrial(Guid subscriptionId);
-        Task<string> ActivateOneTimeSubscription(Guid subscriptionId);
+        Task<string> ActivateSubscriptionAfterTrial(Guid webhookId);
+        Task<string> ActivateOneTimeSubscription(Guid webhookId);
         Task<string> RecurringSubscription(Guid subscriptionId);
         Task<string> ActivateRecurringSubscription(Guid subscriptionId);
         Task<string> Unsubscribe(UnsubscriptionWebhookDto unsubscriptionWebhookDto);
-        Task<string> UpgradeSubscriptionUseCase(ChangeSubscriptionWebhookDto changeSubscriptionWebhookDto);
-        Task<string> DowngradeSubscriptionUseCase(ChangeSubscriptionWebhookDto changeSubscriptionWebhookDto);
-        Task<string> ActivateSubscriptionAfterChange(Guid subscriptionId);
+        Task<string> UpgradeSubscription(ChangeSubscriptionWebhook changeSubscriptionWebhook);
+        Task<string> DowngradeSubscription(ChangeSubscriptionWebhook changeSubscriptionWebhook);
+        Task<string> ActivateUpgradeSubscription(Guid webhookId);
+        Task<string> ActivateDowngradeSubscription(Guid webhookId);
+        Task<string> ActivatePeriodRecurringSubscription(Guid subscriptionId);
+        
     }
 }
  

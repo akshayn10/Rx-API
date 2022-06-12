@@ -34,6 +34,7 @@ namespace Rx.API.Controllers.Tenant
             var paymentRedirectUrl =await _mediator.Send(new ManageSubscriptionCreationWebhookUseCase(subscriptionWebhookForCreationDto));
             return Ok(paymentRedirectUrl);
         }
+        
         [HttpPost("unsubscribe")]
         [SwaggerOperation(Summary = "Unsubscribe webhook")]
         public async Task<IActionResult> UnsubscribeWebhook([FromBody] UnsubscriptionWebhookDto unsubscriptionWebhookDto)
@@ -44,6 +45,7 @@ namespace Rx.API.Controllers.Tenant
             await _mediator.Send(new UnsubscribeUseCase(unsubscriptionWebhookDto));
             return Ok();
         }
+        
         [HttpPost("upgradeSubscription")]
         [SwaggerOperation(Summary = "Upgrade Subscription webhook")]
         public async Task<IActionResult> UpgradeSubscriptionWebhook([FromBody] ChangeSubscriptionWebhookDto changeSubscriptionWebhookDto)
@@ -55,6 +57,7 @@ namespace Rx.API.Controllers.Tenant
             await _mediator.Send(new UpgradeSubscriptionUseCase(changeSubscriptionWebhookDto));
             return Ok();
         }
+        
         [HttpPost("downgradeSubscription")]
         [SwaggerOperation(Summary = "Downgrade Subscription webhook")]
         public async Task<IActionResult> DowngradeSubscriptionWebhook([FromBody] ChangeSubscriptionWebhookDto changeSubscriptionWebhookDto)

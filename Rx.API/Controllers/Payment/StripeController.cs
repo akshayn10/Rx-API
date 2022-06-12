@@ -65,9 +65,17 @@ public class StripeController:Controller
                 {
                     await _mediator.Send(new ActivateRecurringSubscriptionUseCase(Guid.Parse(stripeDescription.Id)));
                 }
-                if (stripeDescription.PaymentType == "changeSubscription")
+                if (stripeDescription.PaymentType == "activatePeriodRecurringSubscription")
                 {
-                    await _mediator.Send(new ActivateSubscriptionAfterChangeUseCase(Guid.Parse(stripeDescription.Id)));
+                    await _mediator.Send(new ActivatePeriodRecurringSubscriptionUseCase(Guid.Parse(stripeDescription.Id)));
+                }
+                if (stripeDescription.PaymentType == "upgradeSubscription")
+                {
+                    await _mediator.Send(new ActivateUpgradeSubscriptionUseCase(Guid.Parse(stripeDescription.Id)));
+                }
+                if (stripeDescription.PaymentType == "downgradeSubscription")
+                {
+                    await _mediator.Send(new ActivateDowngradeSubscriptionUseCase(Guid.Parse(stripeDescription.Id)));
                 }
             }
             return Ok();
