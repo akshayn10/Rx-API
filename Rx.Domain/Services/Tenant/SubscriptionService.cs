@@ -410,15 +410,19 @@ namespace Rx.Domain.Services.Tenant
              await _tenantDbContext.Subscriptions!.AddAsync(subscription);
              if (subscription.SubscriptionType==false)
              {
+                 // jobId = _backgroundJobClient.Schedule(() => DeactivateSubscription(subscription.SubscriptionId),
+                 //     subscription.StartDate.AddMonths((int) (plan.Duration)));
                  jobId = _backgroundJobClient.Schedule(() => DeactivateSubscription(subscription.SubscriptionId),
-                     subscription.StartDate.AddMonths((int) (plan.Duration)));
+                     subscription.StartDate.AddMinutes(1));
                  _logger.LogInformation("One TimeSubscription Activated after Upgrade " + subscription.SubscriptionId);
              }
              if (subscription.SubscriptionType)
              {
                  //Subscription Frequency is Monthly
+                 // jobId=_backgroundJobClient.Schedule(() => RecurringSubscription(subscription.SubscriptionId),
+                 //     subscription.StartDate.AddMonths((int) plan.Duration));
                  jobId=_backgroundJobClient.Schedule(() => RecurringSubscription(subscription.SubscriptionId),
-                     subscription.StartDate.AddMonths((int) plan.Duration));
+                     subscription.StartDate.AddMinutes(1));
                  _logger.LogInformation("Recurring subscription Activated after Upgrade " + subscription.SubscriptionId);
              }
              subscription.JobId = jobId;
@@ -477,15 +481,19 @@ namespace Rx.Domain.Services.Tenant
             await _tenantDbContext.Subscriptions!.AddAsync(subscription);
             if (subscription.SubscriptionType==false)
             {
+                // jobId = _backgroundJobClient.Schedule(() => DeactivateSubscription(subscription.SubscriptionId),
+                //     subscription.StartDate.AddMonths((int) (plan.Duration)));
                 jobId = _backgroundJobClient.Schedule(() => DeactivateSubscription(subscription.SubscriptionId),
-                    subscription.StartDate.AddMonths((int) (plan.Duration)));
+                    subscription.StartDate.AddMinutes(1));
                 _logger.LogInformation("One TimeSubscription Activated after Upgrade " + subscription.SubscriptionId);
             }
             if (subscription.SubscriptionType)
             {
                 //Subscription Frequency is Monthly
+                // jobId=_backgroundJobClient.Schedule(() => RecurringSubscription(subscription.SubscriptionId),
+                //     subscription.StartDate.AddMonths((int) plan.Duration));
                 jobId=_backgroundJobClient.Schedule(() => RecurringSubscription(subscription.SubscriptionId),
-                    subscription.StartDate.AddMonths((int) plan.Duration));
+                    subscription.StartDate.AddMinutes(1));
                 _logger.LogInformation("Recurring subscription Activated after Upgrade " + subscription.SubscriptionId);
             }
             subscription.JobId = jobId;
