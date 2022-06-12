@@ -14,9 +14,9 @@ namespace Rx.Domain.Services.Tenant
     {
         private readonly ITenantDbContext _tenantDbContext;
         private readonly IMapper _mapper;
-        private readonly ILogger _logger;
+        private readonly ILogger<BillingService> _logger;
 
-        public BillingService(ITenantDbContext tenantDbContext,ILogger logger, IMapper mapper)
+        public BillingService(ITenantDbContext tenantDbContext,ILogger<BillingService> logger, IMapper mapper)
         {
             _tenantDbContext = tenantDbContext;
             _logger = logger;

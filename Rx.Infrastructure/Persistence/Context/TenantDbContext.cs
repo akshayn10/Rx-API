@@ -32,7 +32,8 @@ namespace Rx.Infrastructure.Persistence.Context
         //Webhooks Storage
         public DbSet<SubscriptionWebhook>? SubscriptionWebhooks { get; set; }
         public DbSet<AddOnWebhook>? AddOnWebhooks { get; set; }
-        
+        public DbSet<ChangeSubscriptionWebhook>? ChangeSubscriptionWebhooks { get; set; }
+
         public async Task<int> SaveChangesAsync()
         {
             return await base.SaveChangesAsync();

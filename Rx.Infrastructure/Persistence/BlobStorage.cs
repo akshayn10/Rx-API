@@ -34,9 +34,14 @@ public class BlobStorage:IBlobStorage
         return blob.Uri.ToString();
     }
 
-    public async Task DeleteFile(string oldFileName)
+    public async Task DeleteLogo(string oldFileName)
     {
         var container = _blobServiceClient.GetBlobContainerClient("productlogo");
+        await container.DeleteBlobIfExistsAsync(oldFileName);
+    }
+    public async Task DeleteProfile(string oldFileName)
+    {
+        var container = _blobServiceClient.GetBlobContainerClient("profileimages");
         await container.DeleteBlobIfExistsAsync(oldFileName);
     }
 }

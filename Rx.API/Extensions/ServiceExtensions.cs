@@ -1,5 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Rx.Domain.Interfaces;
+using Rx.Domain.Interfaces.Payment;
+using Rx.Domain.Interfaces.Tenant;
+using Rx.Domain.Services.Payment;
 using Rx.Domain.Services.Primary;
 using Rx.Domain.Services.Tenant;
 
@@ -23,10 +26,24 @@ namespace Rx.API.Extensions
             {
             });
 
-        public static void ConfigureServiceManager(this IServiceCollection services)
+        public static void ConfigureServices(this IServiceCollection services,
+            ConfigurationManager configuration)
         {
             services.AddScoped<IPrimaryServiceManager, PrimaryServiceManager>();
             services.AddScoped<ITenantServiceManager, TenantServiceManager>();
+            services.AddScoped<IBillingService, BillingService>();
+            
+            //Stripe Settings
+            services.AddSingleton<IPaymentService>(x => {
+                var service = x.GetRequiredService<ILogger<PaymentService>>();
+                string stripeSecretKey = configuration.GetSection("Stripe").GetValue<string>("secretKey");
+                string stripePublicKey = configuration.GetSection("Stripe").GetValue<string>("publicKey");
+
+                if (string.IsNullOrEmpty(stripeSecretKey) || string.IsNullOrEmpty(stripePublicKey))
+                    service.LogError("Stripe keys are missing.");
+                return new PaymentService(service, stripeSecretKey);
+            });
         }
+        
     }
 }

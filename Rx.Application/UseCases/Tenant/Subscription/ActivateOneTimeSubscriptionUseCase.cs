@@ -3,7 +3,7 @@ using Rx.Domain.Interfaces;
 
 namespace Rx.Application.UseCases.Tenant.Subscription;
 
-public record ActivateOneTimeSubscriptionUseCase(Guid SubscriptionId):IRequest<string>;
+public record ActivateOneTimeSubscriptionUseCase(Guid WebhookId):IRequest<string>;
 
 public class ActivateOneTimeSubscriptionUseCaseHandler : IRequestHandler<ActivateOneTimeSubscriptionUseCase, string>
 {
@@ -15,6 +15,6 @@ public class ActivateOneTimeSubscriptionUseCaseHandler : IRequestHandler<Activat
     }
     public async Task<string> Handle(ActivateOneTimeSubscriptionUseCase request, CancellationToken cancellationToken)
     {
-        return await _tenantServiceManager.SubscriptionService.ActivateOneTimeSubscription(request.SubscriptionId);
+        return await _tenantServiceManager.SubscriptionService.ActivateOneTimeSubscription(request.WebhookId);
     }
 }

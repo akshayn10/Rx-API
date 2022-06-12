@@ -7,7 +7,7 @@ namespace Rx.Domain.Interfaces
         IOrganizationCustomerService OrganizationCustomerService { get; }
         IProductService ProductService { get; }
         ISubscriptionService SubscriptionService { get; }
-        IBillingService BillingService { get; }
+        // IBillingService BillingService { get; }
         IProductPlanService ProductPlanService { get; }
         ITransactionService TransactionService { get; }
         IAddOnService AddOnService { get; }

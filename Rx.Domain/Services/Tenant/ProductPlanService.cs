@@ -39,7 +39,27 @@ namespace Rx.Domain.Services.Tenant
         {
             var product =
                 await _tenantDbContext.Products!.FirstOrDefaultAsync(x => x.ProductId == planForCreationDto.ProductId);
-            var plan = _mapper.Map<ProductPlan>(planForCreationDto);
+            if (product == null)
+            {
+                throw new Exception("Product not found");
+            }
+
+            var planDuration = planForCreationDto.Duration.Value;
+
+            if (planForCreationDto.Duration.Period == "Year")
+            {
+                planDuration = planForCreationDto.Duration.Value * 12;
+            }
+
+            var plan = new ProductPlan()
+            {
+                Description = planForCreationDto.Description,
+                Duration = planDuration,
+                Name = planForCreationDto.Name,
+                ProductId = planForCreationDto.ProductId,
+                HaveTrial = planForCreationDto.HaveTrial,
+                Price = planForCreationDto.Price
+            };
             await _tenantDbContext.ProductPlans!.AddAsync(plan);
             await _tenantDbContext.SaveChangesAsync();
             return _mapper.Map<ProductPlanDto>(plan);
@@ -69,10 +89,15 @@ namespace Rx.Domain.Services.Tenant
             {
                 throw new NullReferenceException("Plan not found");
             }
+            var planDuration = planForUpdateDto.Duration.Value;
+            if (planForUpdateDto.Duration.Period == "Year")
+            {
+                planDuration = planForUpdateDto.Duration.Value * 12;
+            }
             plan.Name= planForUpdateDto.Name;
             plan.Description= planForUpdateDto.Description;
             plan.Price= planForUpdateDto.Price;
-            plan.Duration= planForUpdateDto.Duration;
+            plan.Duration= planDuration;
             
             await _tenantDbContext.SaveChangesAsync();
             return _mapper.Map<ProductPlanDto>(plan);

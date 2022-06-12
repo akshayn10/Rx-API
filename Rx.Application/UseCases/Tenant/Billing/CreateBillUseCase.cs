@@ -1,6 +1,7 @@
 ﻿using MediatR;
 using Rx.Domain.DTOs.Tenant.Bill;
 using Rx.Domain.Interfaces;
+using Rx.Domain.Interfaces.Tenant;
 
 namespace Rx.Application.UseCases.Tenant.Billing;
 
@@ -8,15 +9,15 @@ public record CreateBillUseCase(Guid CustomerId,BillForCreationDto BillForCreati
 
 public class CreateBillUseCaseHandler : IRequestHandler<CreateBillUseCase, BillDto>
 {
-    private readonly ITenantServiceManager _tenantServiceManager;
+    private readonly IBillingService _billingService;
 
-    public CreateBillUseCaseHandler(ITenantServiceManager tenantServiceManager)
+    public CreateBillUseCaseHandler(IBillingService billingService)
     {
-        _tenantServiceManager = tenantServiceManager;
+        _billingService = billingService;
     }
     public async Task<BillDto> Handle(CreateBillUseCase request, CancellationToken cancellationToken)
     {
-        var bill = await _tenantServiceManager.BillingService.CreateBill(request.CustomerId, request.BillForCreationDto);
+        var bill = await _billingService.CreateBill(request.CustomerId, request.BillForCreationDto);
         return bill;
     }
 }

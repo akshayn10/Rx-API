@@ -62,6 +62,7 @@ namespace Rx.Domain.Services.Tenant
             customer.PaymentMethodId = paymentMethodId;
             await _tenantDbContext.SaveChangesAsync();
             var addOnWebhook =await _tenantDbContext.SubscriptionWebhooks.Where(sw => sw.CustomerEmail == customerEmail)
+                .OrderByDescending(s=>s.RetrievedDate)
                 .FirstOrDefaultAsync();
 
             return addOnWebhook!.WebhookId;

@@ -3,7 +3,7 @@ using Rx.Domain.Interfaces;
 
 namespace Rx.Application.UseCases.Tenant.Subscription;
 
-public record CreateSubscriptionFromWebhookUseCase(Guid CustomerId):IRequest<string>;
+public record CreateSubscriptionFromWebhookUseCase(Guid WebhookId):IRequest<string>;
 
 public class CreateSubscriptionFromWebhookUseCaseHandler : IRequestHandler<CreateSubscriptionFromWebhookUseCase,string>
 {
@@ -15,6 +15,6 @@ public class CreateSubscriptionFromWebhookUseCaseHandler : IRequestHandler<Creat
     }
     public Task<string> Handle(CreateSubscriptionFromWebhookUseCase request, CancellationToken cancellationToken)
     {
-        return _tenantServiceManager.SubscriptionService.CreateSubscriptionFromWebhook(request.CustomerId);
+        return _tenantServiceManager.SubscriptionService.CreateSubscriptionFromWebhook(request.WebhookId);
     }
 }

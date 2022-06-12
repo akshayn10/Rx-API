@@ -9,11 +9,11 @@ using Rx.Domain.Interfaces.WebhookSendClient;
 using Rx.Domain.Services.Payment;
 using Rx.Domain.Services.WebhookSendClient;
 using Rx.Infrastructure;
-using Rx.Infrastructure.Persistence;
 using Rx.Infrastructure.Persistence.Context;
 using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
+
 
 //Logger configuration
 var logger = new LoggerConfiguration()
@@ -26,8 +26,13 @@ var logger = new LoggerConfiguration()
 builder.Logging.ClearProviders();
 builder.Logging.AddSerilog(logger);
 
+
 // Add services to the container.
+
+//Razor Pages
 builder.Services.AddControllersWithViews();
+
+//Newtonsoft 
 builder.Services.AddMvc().AddNewtonsoftJson();
 
 //Database Settings
@@ -39,16 +44,7 @@ builder.Services.AddScoped<ITenantDbContext,TenantDbContext>();
 builder.Services.AddPrimaryDb(builder.Configuration);
 builder.Services.AddTenantDb(builder.Configuration);
 
-//Stripe Settings
-builder.Services.AddSingleton<IPaymentService>(x => {
-    var service = x.GetRequiredService<ILogger<PaymentService>>();
-    string stripeSecretKey = builder.Configuration.GetSection("Stripe").GetValue<string>("secretKey");
-    string stripePublicKey = builder.Configuration.GetSection("Stripe").GetValue<string>("publicKey");
 
-    if (string.IsNullOrEmpty(stripeSecretKey) || string.IsNullOrEmpty(stripePublicKey))
-        service.LogError("Stripe keys are missing.");
-    return new PaymentService(service, stripeSecretKey);
-});
 
 //Azure Blob storage
 builder.Services.AddBlobStorage(builder.Configuration);
@@ -63,7 +59,7 @@ builder.Services.ConfigureCors();
 builder.Services.ConfigureIISIntegration();
 
 //Service Managers
-builder.Services.ConfigureServiceManager();
+builder.Services.ConfigureServices(builder.Configuration);
 
 //HttpClient
 builder.Services.AddHttpClient();
