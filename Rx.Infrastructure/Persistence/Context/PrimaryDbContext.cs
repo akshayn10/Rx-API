@@ -20,8 +20,6 @@ namespace Rx.Infrastructure.Persistence.Context
         }
         
         public DbSet<Organization>? Organizations { get; set; }
-        public DbSet<OrganizationUser>? OrganizationUsers { get; set; }
-
         public async Task<int> SaveChangesAsync()
         {
             return await base.SaveChangesAsync();

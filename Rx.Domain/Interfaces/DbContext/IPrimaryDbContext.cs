@@ -7,7 +7,6 @@ namespace Rx.Domain.Interfaces.DbContext
    
     {
             DbSet<Organization>? Organizations { get; set; }
-            DbSet<OrganizationUser> OrganizationUsers { get; set; }
             Task<int> SaveChangesAsync();
     }
 }
