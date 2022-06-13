@@ -1,5 +1,7 @@
 ﻿using MediatR;
+using Rx.Domain.DTOs.Tenant.Transaction;
 using Rx.Domain.Interfaces;
+using Rx.Domain.Interfaces.DbContext;
 
 namespace Rx.Application.UseCases.Tenant.Webhook;
 
@@ -12,6 +14,7 @@ public class ActivateAddOnUsageAfterPaymentUseCaseHandler:IRequestHandler<Activa
     public ActivateAddOnUsageAfterPaymentUseCaseHandler(ITenantServiceManager tenantServiceManager)
     {
         _tenantServiceManager = tenantServiceManager;
+
     }
     public async Task<string> Handle(ActivateAddOnUsageAfterPaymentUseCase request, CancellationToken cancellationToken)
     {

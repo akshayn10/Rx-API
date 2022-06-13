@@ -27,6 +27,7 @@ public class GetBillsByCustomerIdUseCaseHandler : IRequestHandler<GetBillByCusto
         var subscriptionsForCustomer =await _tenantDbContext.Subscriptions!.Where(s => s.OrganizationCustomerId == request.CustomerId).Include(a=>a.AddOnUsages)
             .Select(s=>
                 new SubscriptionForBill(
+                    s.SubscriptionId.ToString(),
                     s.CreatedDate.ToString(),
                     s.ProductPlan.Product.Name,
                     s.ProductPlan.Name,
