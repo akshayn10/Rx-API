@@ -12,6 +12,7 @@ public interface IUserService
     Task ForgotPassword(ForgotPasswordRequest model, string origin);
     Task<ResponseMessage<string>> ResetPassword(ResetPasswordRequest model);
     Task<string> AddRoleAsync(AddRoleModel model);
-    Task<AuthenticationResponse> RefreshTokenAsync(string jwtToken);
+    Task<AuthenticationResponse> RefreshTokenAsync(string token);
     Task<ApplicationUser> GetById(string id);
+    bool RevokeToken(string token);
 }

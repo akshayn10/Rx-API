@@ -1,6 +1,7 @@
 using Hangfire;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using Rx.API.Extensions;
 using Rx.Application;
@@ -102,26 +103,27 @@ builder.Services.AddScoped<RoleManager<IdentityRole>>();
 
 var app = builder.Build();
 
-try
-{
-    using (var scope = app.Services.CreateScope())
-    {
-        var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
-        var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
-        await DefaultRoles.SeedAsync(userManager,roleManager);
-        await DefaultAdmin.SeedAsync(userManager,roleManager);
-        await DefaultOwner.SeedAsync(userManager,roleManager);
-        await DefaultFinanceUser.SeedAsync(userManager,roleManager);
-    }
-}
-catch (Exception ex)
-{
-    Log.Warning(ex, "An error occurred seeding the DB");
-}
-finally
-{
-    Log.CloseAndFlush();
-}
+// Initial Users seed
+ // try
+ // {
+ //     using (var scope = app.Services.CreateScope())
+ //     {
+ //         var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
+ //         var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+ //         await DefaultRoles.SeedAsync(userManager,roleManager);
+ //         await DefaultAdmin.SeedAsync(userManager,roleManager);
+ //         await DefaultOwner.SeedAsync(userManager,roleManager);
+ //         await DefaultFinanceUser.SeedAsync(userManager,roleManager);
+ //     }
+ // }
+ // catch (Exception ex)
+ // {
+ //     Log.Warning(ex, "An error occurred seeding the DB");
+ // }
+ // finally
+ // {
+ //     Log.CloseAndFlush();
+ // }
 
 
 // Configure the HTTP request pipeline.

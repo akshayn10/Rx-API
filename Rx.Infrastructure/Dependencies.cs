@@ -1,5 +1,4 @@
 ﻿using System.Text;
-using Azure;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
@@ -82,6 +81,8 @@ namespace Rx.Infrastructure
             #region Services
             services.AddTransient<IUserService, UserService>();
             #endregion
+
+            // services.AddScoped<IIdentityContext,IdentityContext>();
             services.Configure<JwtSecurityTokenSettings>(configuration.GetSection("JwtSecurityTokenSettings"));
             services.AddAuthentication(options =>
             {

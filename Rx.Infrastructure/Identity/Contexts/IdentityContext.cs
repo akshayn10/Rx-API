@@ -1,11 +1,13 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using Rx.Domain.DTOs.User;
 using Rx.Domain.Entities.Primary;
+using Rx.Domain.Interfaces.DbContext;
 
 namespace Rx.Infrastructure.Identity.Contexts;
 
-public class IdentityContext:IdentityDbContext<ApplicationUser>
+public class IdentityContext:IdentityDbContext<ApplicationUser>,IIdentityContext
 {
     public IdentityContext(DbContextOptions<IdentityContext> options) : base(options)
     {
