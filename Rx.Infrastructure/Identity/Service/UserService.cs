@@ -331,7 +331,6 @@ public class UserService:IUserService
         authenticationResponse.RefreshToken = newRefreshToken.Token;
         authenticationResponse.RefreshTokenExpiration = newRefreshToken.Expires;
         return authenticationResponse;
-        throw new NotImplementedException();
     }
     
     public bool RevokeToken(string token)
@@ -355,8 +354,7 @@ public class UserService:IUserService
         throw new NotImplementedException();
 
     }
-
-
+    
     public async Task<ApplicationUser> GetById(string id)
     {
         var user =await _userManager.FindByIdAsync(id);

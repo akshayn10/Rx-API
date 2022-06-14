@@ -20,7 +20,17 @@ public class UserController:ControllerBase
     public async Task<IActionResult> AuthenticateAsync(AuthenticationRequest request)
     {
         var response = await _mediator.Send(new LoginUseCase(request));
+        SetRefreshTokenInCookie(response.Data.RefreshToken);
         return Ok(response);
+    }
+    private void SetRefreshTokenInCookie(string refreshToken)
+    {
+        var cookieOptions = new CookieOptions
+        {
+            HttpOnly = true,
+            Expires = DateTime.UtcNow.AddDays(10),
+        };
+        Response.Cookies.Append("refreshToken", refreshToken, cookieOptions);
     }
     
     [HttpPost("register")]
@@ -51,6 +61,32 @@ public class UserController:ControllerBase
     {
         var response = await _mediator.Send(new ResetPasswordUseCase(model));
         return Ok(response);
+    }
+    [HttpPost("refresh-token")]
+    public async Task<IActionResult> RefreshToken()
+    {
+        var refreshToken = Request.Cookies["refreshToken"];
+        var response = await _mediator.Send(new RefreshTokenUseCase(refreshToken));
+        if (!string.IsNullOrEmpty(response.RefreshToken))
+            SetRefreshTokenInCookie(response.RefreshToken);
+        return Ok(response);
+    }
+    
+    [HttpPost("revoke-token")]
+    public async Task<IActionResult> RevokeToken([FromBody] RevokeTokenRequest model)
+    {
+        // accept token from request body or cookie
+        var token = model.Token ?? Request.Cookies["refreshToken"];
+
+        if (string.IsNullOrEmpty(token))
+            return BadRequest(new { message = "Token is required" });
+
+        var response =await _mediator.Send(new RevokeTokenUseCase(token));
+
+        if (response == null)
+            return NotFound(new { message = "Token not found" });
+
+        return Ok(new { message = "Token revoked" });
     }
     
     [HttpGet("{id}")]

@@ -74,7 +74,7 @@ namespace Rx.Infrastructure
                 o.Password.RequireLowercase = true;
                 o.Password.RequireUppercase = true;
                 o.Password.RequireNonAlphanumeric = false;
-                o.Password.RequiredLength = 6;
+                o.Password.RequiredLength = 8;
 
             }
                 ).AddEntityFrameworkStores<IdentityContext>().AddDefaultTokenProviders();
