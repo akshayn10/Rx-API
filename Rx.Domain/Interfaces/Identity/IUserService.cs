@@ -15,4 +15,5 @@ public interface IUserService
     Task<AuthenticationResponse> RefreshTokenAsync(string token);
     Task<ApplicationUser> GetById(string id);
     bool RevokeToken(string token);
+    Task<string> AddUserAsync(AddUserRequest request,string origin);
 }

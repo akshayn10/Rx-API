@@ -71,7 +71,29 @@ public class UserController:ControllerBase
             SetRefreshTokenInCookie(response.RefreshToken);
         return Ok(response);
     }
-    
+    [HttpPost("logout")]
+    public async Task<IActionResult> Logout([FromBody] RevokeTokenRequest request)
+    {
+        var token = request.Token ?? Request.Cookies["refreshToken"];
+        if (string.IsNullOrEmpty(token))
+            return BadRequest(new { message = "Token is required" });
+        var response = await _mediator.Send(new RevokeTokenUseCase(token));
+        return Ok("Logout success");
+    }
+    [HttpPost("change-password")]
+    public async Task<IActionResult> ChangePassword(ChangePasswordRequest request)
+    {
+        var response = await _mediator.Send(new ChangePasswordUseCase(request));
+        return Ok(response);
+    }
+    [HttpPost("add-user")]
+    public async Task<IActionResult> AddUser(AddUserRequest request)
+    {
+        var origin = Request.Headers["origin"];
+        var response = await _mediator.Send(new AddUserUseCase(request,origin));
+        return Ok(response);
+    }
+
     [HttpPost("revoke-token")]
     public async Task<IActionResult> RevokeToken([FromBody] RevokeTokenRequest model)
     {

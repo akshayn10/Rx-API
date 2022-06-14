@@ -22,6 +22,7 @@ using Rx.Domain.Interfaces.Identity;
 using Rx.Domain.Settings;
 using Rx.Domain.Wrappers;
 using Rx.Infrastructure.Identity.Contexts;
+using System;
 
 namespace Rx.Infrastructure.Identity.Service;
 
@@ -210,6 +211,54 @@ public class UserService:IUserService
             throw new ApiException($"Email {request.Email } is already registered.");
         }
     }
+    public async Task<string> AddUserAsync(AddUserRequest request,string origin)
+    {
+        var oneTimePassword = string.Concat("Rx1", Guid.NewGuid().ToString("N").Substring(0, 9));
+        var user = new ApplicationUser
+        {
+            Email = request.Email,
+            FullName = request.Username,
+            UserName = request.Username,
+            EmailConfirmed = true,
+        };
+        var userWithSameUserEmail = await _userManager.FindByEmailAsync(request.Email);
+        if (userWithSameUserEmail == null)
+        {
+            var result = await _userManager.CreateAsync(user, oneTimePassword);
+            if (result.Succeeded)
+            {
+                if (request.Role == "Admin")
+                {
+                    await _userManager.AddToRolesAsync(user,
+                        new[] {Roles.Admin.ToString(), Roles.FinanceUser.ToString()});
+                }
+                else if (request.Role == "FinanceUser")
+                {
+                    await _userManager.AddToRolesAsync(user,
+                        new[] {Roles.FinanceUser.ToString()});
+                }
+
+                var emailRequest = new EmailRequest()
+                {
+                    To = user.Email,
+                    Subject = $"You have been added to the system as {request.Role}",
+                    Body = $"Please Login to the system using Onetime password : {oneTimePassword} \n Login Page: {origin}/auth/login"
+
+                };
+                await _emailService.SendAsync(emailRequest);
+                return "User Added Successfully";
+            }
+            else
+            {
+                throw new ApiException($"{result.Errors}");
+            }
+        }
+        else
+        {
+            throw new ApiException($"Email {request.Email } is already registered.");
+        }
+    }
+
     private async Task<string> VerificationUri(ApplicationUser user, string origin)
     {
         var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
@@ -351,10 +400,10 @@ public class UserService:IUserService
         _identityContext.SaveChanges();
         
         return true;
-        throw new NotImplementedException();
 
     }
-    
+
+
     public async Task<ApplicationUser> GetById(string id)
     {
         var user =await _userManager.FindByIdAsync(id);
