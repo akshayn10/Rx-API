@@ -1,4 +1,5 @@
 ﻿using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Rx.Application.UseCases.Tenant.Billing;
 using Rx.Domain.DTOs.Tenant.Bill;
@@ -6,6 +7,7 @@ using Swashbuckle.AspNetCore.Annotations;
 
 namespace Rx.API.Controllers.Tenant;
 
+[Authorize(Roles = "Owner")]
 [ApiController]
 [Route("api/bill")]
 public class BillController:ControllerBase

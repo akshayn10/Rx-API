@@ -73,7 +73,7 @@ namespace Rx.Infrastructure
                 o.Password.RequireDigit = true;
                 o.Password.RequireLowercase = true;
                 o.Password.RequireUppercase = true;
-                o.Password.RequireNonAlphanumeric = true;
+                o.Password.RequireNonAlphanumeric = false;
                 o.Password.RequiredLength = 6;
 
             }

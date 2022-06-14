@@ -90,12 +90,39 @@ builder.Services.AddControllers();
 //Swagger
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(
-    x =>
+    c =>
     {
-        x.SwaggerDoc("v1", new OpenApiInfo { Title = "Rx API", Version = "v1" });
-            x.EnableAnnotations();
+        c.SwaggerDoc("v1", new OpenApiInfo { Title = "Rx API", Version = "v1" });
+        c.EnableAnnotations();
+        c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+        {
+            Name = "Bearer",
+            In = ParameterLocation.Header,
+            Type = SecuritySchemeType.ApiKey,
+            Scheme = "Bearer",
+            BearerFormat = "JWT",
+            Description = "Input your Bearer token in this format - Bearer {your token here} to access this API",
+        });
+        c.AddSecurityRequirement(new OpenApiSecurityRequirement
+        {
+            {
+                new OpenApiSecurityScheme
+                {
+                    Reference = new OpenApiReference
+                    {
+                        Type = ReferenceType.SecurityScheme,
+                        Id = "Bearer",
+                    },
+                    Scheme = "Bearer",
+                    Name = "Bearer",
+                    In = ParameterLocation.Header,
+                },
+                new List<string>()
+            }
+        });
     }
     );
+
 
 builder.Services.AddScoped<UserManager<ApplicationUser>>();
 builder.Services.AddScoped<RoleManager<IdentityRole>>();
@@ -139,8 +166,9 @@ app.UseHttpsRedirection();
 
 app.UseCors("MyCorsPolicy");
 
+app.UseAuthentication();
 app.UseAuthorization();
-app.UseAuthorization();
+
 
 app.UseHangfireDashboard();
 

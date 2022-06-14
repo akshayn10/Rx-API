@@ -33,6 +33,22 @@ public class BlobStorage:IBlobStorage
         await blob.UploadAsync(stream);
         return blob.Uri.ToString();
     }
+    public async Task<string> UploadOrganizationLogo(FileStream stream)
+    {
+        var path = stream.Name;
+        var extension = Path.GetExtension(path);
+        var container = _blobServiceClient.GetBlobContainerClient("organizationlogo");
+        var blob = container.GetBlobClient("org_logo_"+Guid.NewGuid().ToString("N") + extension);
+        stream.Position = 0;
+        await blob.UploadAsync(stream);
+        return blob.Uri.ToString();
+    }
+
+    public async Task DeleteOrganizationLogo(string oldFileName)
+    {
+        var container = _blobServiceClient.GetBlobContainerClient("organizationlogo");
+        await container.DeleteBlobIfExistsAsync(oldFileName);
+    }
 
     public async Task DeleteLogo(string oldFileName)
     {

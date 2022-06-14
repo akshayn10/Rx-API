@@ -1,7 +1,6 @@
-﻿
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 
-namespace Rx.Domain.DTOs.User;
+namespace Rx.Domain.Entities.Primary;
 
 
 
@@ -14,4 +13,5 @@ public class RefreshToken
     public DateTime Created { get; set; }
     public DateTime? Revoked { get; set; }
     public bool IsActive => Revoked == null && !IsExpired;
+
 }

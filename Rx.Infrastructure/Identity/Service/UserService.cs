@@ -5,6 +5,7 @@ using System.Text;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.AspNetCore.WebUtilities;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Rx.Domain.Interfaces.UtcDateTime;
@@ -55,7 +56,7 @@ public class UserService:IUserService
         var user = await _userManager.FindByEmailAsync(request.Email);
         if (user == null)
         {
-            throw new ApiException($"No Accounts Registered with {request.Email}.");
+            throw new ApiException($"No User Registered with {request.Email}.");
         }
         var result = await _signInManager.PasswordSignInAsync(user.UserName, request.Password, false, lockoutOnFailure: false);
         if (!result.Succeeded)
@@ -64,19 +65,30 @@ public class UserService:IUserService
         }
         if (!user.EmailConfirmed)
         {
-            throw new ApiException($"Account Not Confirmed for '{request.Email}'.");
+            throw new ApiException($"User Not Confirmed for '{request.Email}'.");
         }
-        JwtSecurityToken jwtSecurityToken = await GenerateJwtToken(user);
-        AuthenticationResponse response = new AuthenticationResponse();
-        response.Id = user.Id;
-        response.JWToken = new JwtSecurityTokenHandler().WriteToken(jwtSecurityToken);
-        response.Email = user.Email;
-        response.UserName = user.UserName;
+        
+        //Generate JWT Token
+        var jwtSecurityToken = await GenerateJwtToken(user);
+        
+        var response = new AuthenticationResponse
+        {
+            Id = user.Id,
+            JWToken = new JwtSecurityTokenHandler().WriteToken(jwtSecurityToken),
+            Email = user.Email,
+            UserName = user.UserName
+        };
         var rolesList = await _userManager.GetRolesAsync(user).ConfigureAwait(false);
         response.Roles = rolesList.ToList();
         response.IsVerified = user.EmailConfirmed;
+        response.IsAuthenticated = true;
         var refreshToken = GenerateRefreshToken();
         response.RefreshToken = refreshToken.Token;
+        
+        user.RefreshTokens.Add(refreshToken);
+        _identityContext.Update(user);
+        await _identityContext.SaveChangesAsync();
+        
         return new ResponseMessage<AuthenticationResponse>(response, $"Authenticated {user.UserName}");
     }
     private RefreshToken GenerateRefreshToken()
@@ -151,12 +163,12 @@ public class UserService:IUserService
                 {
                     To = user.Email,
                     Subject = "Registration Confirmation",
-                    Body = $"Please confirm your account by visiting this URL {verificationUri}"
+                    Body = $"Please confirm your user by visiting this URL {verificationUri}"
 
                 };
                 await _emailService.SendAsync(emailRequest);
                 return new ResponseMessage<string>(user.Id,
-                    message: $"User Registered. Please confirm your account by visiting this URL {verificationUri}");
+                    message: $"User Registered. Please confirm your user by visiting this URL {verificationUri}");
             }
             else
             {
@@ -186,7 +198,7 @@ public class UserService:IUserService
         var result = await _userManager.ConfirmEmailAsync(user, code);
         if(result.Succeeded)
         {
-            return new ResponseMessage<string>(user.Id, message: $"Account Confirmed for {user.Email}. You can now use the /api/Account/authenticate endpoint.");
+            return new ResponseMessage<string>(user.Id, message: $"user Confirmed for {user.Email}. You can now use the /api/user/authenticate endpoint.");
         }
         else
         {
@@ -200,7 +212,7 @@ public class UserService:IUserService
         if (user == null) return;
 
         var code = await _userManager.GeneratePasswordResetTokenAsync(user);
-        var route = "api/account/reset-password/";
+        var route = "api/user/reset-password/";
         var endPointUri = new Uri(string.Concat($"{origin}/", route));
         var emailRequest = new EmailRequest()
         {
@@ -213,9 +225,9 @@ public class UserService:IUserService
 
     public async Task<ResponseMessage<string>> ResetPassword(ResetPasswordRequest model)
     {
-        var account = await _userManager.FindByEmailAsync(model.Email);
-        if (account == null) throw new ApiException($"No Accounts Registered with {model.Email}.");
-        var result = await _userManager.ResetPasswordAsync(account, model.Token, model.Password);
+        var user = await _userManager.FindByEmailAsync(model.Email);
+        if (user == null) throw new ApiException($"No user Registered with {model.Email}.");
+        var result = await _userManager.ResetPasswordAsync(user, model.Token, model.Password);
         if(result.Succeeded)
         {
             return new ResponseMessage<string>(model.Email, message: $"Password Reset Successful.");
@@ -231,7 +243,7 @@ public class UserService:IUserService
         var user = await _userManager.FindByEmailAsync(model.Email);
         if (user == null)
         {
-            return $"No Accounts Registered with {model.Email}.";
+            return $"No User Registered with {model.Email}.";
         }
         if (await _userManager.CheckPasswordAsync(user, model.Password))
         {

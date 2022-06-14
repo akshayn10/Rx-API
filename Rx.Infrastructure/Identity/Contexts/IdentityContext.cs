@@ -12,7 +12,7 @@ public class IdentityContext:IdentityDbContext<ApplicationUser>,IIdentityContext
     public IdentityContext(DbContextOptions<IdentityContext> options) : base(options)
     {
     }
-    protected override void OnModelCreating(ModelBuilder builder)
+    protected override void OnModelCreating(ModelBuilder builder) 
     {
         base.OnModelCreating(builder);
         builder.HasDefaultSchema("Identity");

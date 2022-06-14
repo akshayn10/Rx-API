@@ -278,7 +278,7 @@ namespace Rx.Infrastructure.Migrations.Identity
 
             modelBuilder.Entity("Rx.Domain.Entities.Primary.ApplicationUser", b =>
                 {
-                    b.OwnsMany("Rx.Domain.DTOs.User.RefreshToken", "RefreshTokens", b1 =>
+                    b.OwnsMany("Rx.Domain.Entities.Primary.ApplicationUser.RefreshTokens#Rx.Domain.DTOs.User.RefreshToken", "RefreshTokens", b1 =>
                         {
                             b1.Property<string>("ApplicationUserId")
                                 .HasColumnType("nvarchar(450)");
