@@ -1,24 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Http;
 
 namespace Rx.Domain.DTOs.User;
 
-public class RegisterRequest
-{
-    [Required]
-    public string FullName { get; set; }
 
-    [Required]
-    [EmailAddress]
-    public string Email { get; set; }
-    [Required]
-    [MinLength(6)]
-    public string UserName { get; set; }
-
-    [Required]
-    [MinLength(6)]
-    public string Password { get; set; }
-
-    [Required]
-    [Compare("Password")]
-    public string ConfirmPassword { get; set; }
-}
+public record RegisterRequest(string FullName, string Email, IFormFile? ProfileImage, string UserName, string Password, string ConfirmPassword);

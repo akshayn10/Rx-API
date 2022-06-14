@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Rx.Domain.Interfaces.UtcDateTime;
@@ -14,6 +15,7 @@ using Rx.Domain.DTOs.User;
 using Rx.Domain.Entities.Primary;
 using Rx.Domain.Enums;
 using Rx.Domain.Exceptions;
+using Rx.Domain.Interfaces.Blob;
 using Rx.Domain.Interfaces.DbContext;
 using Rx.Domain.Interfaces.Email;
 using Rx.Domain.Interfaces.Identity;
@@ -32,6 +34,8 @@ public class UserService:IUserService
     private readonly SignInManager<ApplicationUser> _signInManager;
     private readonly IEmailService _emailService;
     private readonly IdentityContext _identityContext;
+    private readonly ILogger<IUserService> _logger;
+    private readonly IBlobStorage _blobStorage;
 
     public UserService(
         UserManager<ApplicationUser> userManager,
@@ -40,7 +44,9 @@ public class UserService:IUserService
         IDateTimeService dateTimeService,
         SignInManager<ApplicationUser> signInManager,
         IEmailService emailService,
-        IdentityContext identityContext
+        IdentityContext identityContext,
+        ILogger<IUserService> logger,
+        IBlobStorage blobStorage
         )
     {
         _userManager = userManager;
@@ -50,6 +56,8 @@ public class UserService:IUserService
         _signInManager = signInManager;
         _emailService = emailService;
         _identityContext = identityContext;
+        _logger = logger;
+        _blobStorage = blobStorage;
     }
     public async Task<ResponseMessage<AuthenticationResponse>> AuthenticateAsync(AuthenticationRequest request)
     {
@@ -144,11 +152,33 @@ public class UserService:IUserService
     }
     public async Task<ResponseMessage<string>> RegisterAsync(RegisterRequest request, string origin)
     {
-          var user = new ApplicationUser
+        string? profileUrl = null;
+        if (request.ProfileImage != null)
+        {
+            var fileName = string.Empty;
+            _logger.LogInformation("Upload Started");
+            var profileImage = request.ProfileImage;
+            if (profileImage.Length > 0)
+            {
+                await using var fileStream = new FileStream(profileImage.FileName, FileMode.Create);
+                _logger.LogInformation("file found");
+                await profileImage.CopyToAsync(fileStream);
+                fileName = fileStream.Name;
+            }
+
+            var stream = File.OpenRead(profileImage.FileName);
+            profileUrl = await _blobStorage.UploadProfile(stream);
+            _logger.LogInformation("Upload Completed");
+            stream.Close();
+            File.Delete(fileName);
+        }
+
+        var user = new ApplicationUser
                     {
                         Email = request.Email,
                         FullName = request.FullName,
-                        UserName = request.UserName
+                        UserName = request.UserName,
+                        ProfileUrl = profileUrl
                     };
         var userWithSameUserEmail = await _userManager.FindByEmailAsync(request.Email);
         if (userWithSameUserEmail == null)

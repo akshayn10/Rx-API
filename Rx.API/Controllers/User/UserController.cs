@@ -24,7 +24,7 @@ public class UserController:ControllerBase
     }
     
     [HttpPost("register")]
-    public async Task<IActionResult> RegisterAsync(RegisterRequest request)
+    public async Task<IActionResult> RegisterAsync([FromForm] RegisterRequest request)
     {
         var origin = Request.Headers["origin"];
         var response = await _mediator.Send(new RegisterUseCase(request,origin));
