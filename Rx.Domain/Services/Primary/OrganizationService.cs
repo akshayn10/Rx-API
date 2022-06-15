@@ -43,6 +43,11 @@ namespace Rx.Domain.Services.Primary
                 .Retry(2);
         }
 
+        public OrganizationService(IPrimaryDbContext primaryDbContext, ILogger<PrimaryServiceManager> logger, IMapper mapper)
+        {
+            throw new NotImplementedException();
+        }
+
         public async Task<IEnumerable<OrganizationDto>> GetOrganizationsAsync(bool trackChanges)
         {
             Debug.Assert(_primaryContext.Organizations != null, "_primaryContext.Organizations != null");

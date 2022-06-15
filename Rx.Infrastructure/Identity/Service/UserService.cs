@@ -23,6 +23,7 @@ using Rx.Domain.Settings;
 using Rx.Domain.Wrappers;
 using Rx.Infrastructure.Identity.Contexts;
 using System;
+using Hangfire;
 using Rx.Domain.Entities.Identity;
 
 namespace Rx.Infrastructure.Identity.Service;
@@ -38,6 +39,7 @@ public class UserService:IUserService
     private readonly IdentityContext _identityContext;
     private readonly ILogger<IUserService> _logger;
     private readonly IBlobStorage _blobStorage;
+    private readonly IBackgroundJobClient _backgroundJobClient;
 
     public UserService(
         UserManager<ApplicationUser> userManager,
@@ -48,7 +50,8 @@ public class UserService:IUserService
         IEmailService emailService,
         IdentityContext identityContext,
         ILogger<IUserService> logger,
-        IBlobStorage blobStorage
+        IBlobStorage blobStorage,
+        IBackgroundJobClient backgroundJobClient
         )
     {
         _userManager = userManager;
@@ -60,6 +63,7 @@ public class UserService:IUserService
         _identityContext = identityContext;
         _logger = logger;
         _blobStorage = blobStorage;
+        _backgroundJobClient = backgroundJobClient;
     }
     public async Task<ResponseMessage<AuthenticationResponse>> AuthenticateAsync(AuthenticationRequest request)
     {
@@ -101,6 +105,35 @@ public class UserService:IUserService
         
         return new ResponseMessage<AuthenticationResponse>(response, $"Authenticated {user.UserName}");
     }
+    public async Task<ResponseMessage<string>> ChangePasswordAsync(ChangePasswordRequest request)
+    {
+        var user = await _userManager.FindByEmailAsync(request.Email);
+        if (user == null)
+        {
+            throw new ApiException($"No User Registered with {request.Email}.");
+        }
+        var result = await _userManager.ChangePasswordAsync(user, request.OldPassword, request.NewPassword);
+        if(result.Succeeded)
+        {
+            var emailRequest = new EmailRequest()
+            {
+                To = user.Email,
+                Subject = "Password Change Successful",
+                Body = $"Password Changed Successfully for {user.UserName} at {_dateTimeService.NowUtc}",
+
+            };
+            _backgroundJobClient.Enqueue(()=>_emailService.SendAsync(emailRequest));
+            // await _emailService.SendAsync(emailRequest);
+            return new ResponseMessage<string>(request.Email, message: $"Password Reset Successful.");
+        }
+        else
+        {
+            throw new ApiException($"Error occured while password reset.");
+        }
+        
+    }
+
+    
     private RefreshToken GenerateRefreshToken()
     {
         return new RefreshToken
@@ -198,7 +231,8 @@ public class UserService:IUserService
                     Body = $"Please confirm your user by visiting this URL {verificationUri}"
 
                 };
-                await _emailService.SendAsync(emailRequest);
+                _backgroundJobClient.Enqueue(()=>_emailService.SendAsync(emailRequest));
+                // await _emailService.SendAsync(emailRequest);
                 return new ResponseMessage<string>(user.Id,
                     message: $"User Registered. Please confirm your user by visiting this URL {verificationUri}");
             }
@@ -212,7 +246,7 @@ public class UserService:IUserService
             throw new ApiException($"Email {request.Email } is already registered.");
         }
     }
-    public async Task<string> AddUserAsync(AddUserRequest request,string origin)
+    public async Task<ResponseMessage<string>> AddUserAsync(AddUserRequest request,string origin)
     {
         var oneTimePassword = string.Concat("Rx1", Guid.NewGuid().ToString("N").Substring(0, 9));
         var user = new ApplicationUser
@@ -246,8 +280,10 @@ public class UserService:IUserService
                     Body = $"Please Login to the system using Onetime password : {oneTimePassword} \n Login Page: {origin}/auth/login"
 
                 };
-                await _emailService.SendAsync(emailRequest);
-                return "User Added Successfully";
+                _backgroundJobClient.Enqueue(()=>_emailService.SendAsync(emailRequest));
+                // await _emailService.SendAsync(emailRequest);
+                return new ResponseMessage<string>(request.Email,
+                    message: $"User Added. Please Login to the system using Onetime password : {oneTimePassword} \n Login Page: {origin}/auth/login");
             }
             else
             {
@@ -259,6 +295,7 @@ public class UserService:IUserService
             throw new ApiException($"Email {request.Email } is already registered.");
         }
     }
+
 
     private async Task<string> VerificationUri(ApplicationUser user, string origin)
     {
@@ -300,7 +337,8 @@ public class UserService:IUserService
             To = model.Email,
             Subject = "Reset Password",
         };
-        await _emailService.SendAsync(emailRequest);
+        _backgroundJobClient.Enqueue(()=>_emailService.SendAsync(emailRequest));
+        // await _emailService.SendAsync(emailRequest);
     }
 
     public async Task<ResponseMessage<string>> ResetPassword(ResetPasswordRequest model)
@@ -310,6 +348,15 @@ public class UserService:IUserService
         var result = await _userManager.ResetPasswordAsync(user, model.Token, model.Password);
         if(result.Succeeded)
         {
+            var emailRequest = new EmailRequest()
+            {
+                To = user.Email,
+                Subject = "Password Reset Successful",
+                Body = $"Password Reset Successful for {user.UserName} at {_dateTimeService.NowUtc}",
+
+            };
+            _backgroundJobClient.Enqueue(()=>_emailService.SendAsync(emailRequest));
+            // await _emailService.SendAsync(emailRequest);
             return new ResponseMessage<string>(model.Email, message: $"Password Reset Successful.");
         }
         else

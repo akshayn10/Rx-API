@@ -35,11 +35,12 @@ public class EmailService:IEmailService
             await smtp.SendAsync(email);
             await smtp.DisconnectAsync(true);
 
+        
+            
         }
         catch (System.Exception ex)
         {
             throw new Exception(ex.Message);
         }
-        
     }
 }

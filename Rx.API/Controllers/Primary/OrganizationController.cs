@@ -12,20 +12,18 @@ using Swashbuckle.AspNetCore.Annotations;
 
 namespace Rx.API.Controllers.Primary
 {
-    [Route("api/organization")]
+    [Route("api/org")]
     [ApiController]
     public class OrganizationController : ControllerBase
     {
         private readonly ILogger<OrganizationController> _logger;
         private readonly IMediator _mediator;
-        private readonly IEmailService _emailService;
 
 
-        public OrganizationController(ILogger<OrganizationController> logger,IMediator mediator,IEmailService emailService)
+        public OrganizationController(ILogger<OrganizationController> logger,IMediator mediator)
         {
             _logger = logger;
             _mediator = mediator;
-            _emailService = emailService;
         }
         [HttpGet]
         [SwaggerOperation(Summary = "Get all Organizations")]
@@ -51,12 +49,6 @@ namespace Rx.API.Controllers.Primary
             return CreatedAtRoute("CreateOrganization", new { id = createdOrganization.Id }, createdOrganization);
         }
 
-        [HttpPost("mail")]
-        public async Task<IActionResult> SendMail([FromBody] EmailRequest emailRequest)
-        {
-            await _emailService.SendAsync(emailRequest);
-            return Ok();
-        }
     }
 }       
      
