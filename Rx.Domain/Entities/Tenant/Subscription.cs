@@ -32,7 +32,6 @@
         public ProductPlan? ProductPlan { get; set; }
         public ICollection<PaymentTransaction>? PaymentTransactions { get; set; }
 
-
         
     }
 }

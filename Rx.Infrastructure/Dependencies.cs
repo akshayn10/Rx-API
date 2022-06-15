@@ -8,6 +8,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
+using Rx.Domain.Entities.Identity;
 using Rx.Domain.Interfaces.UtcDateTime;
 using Rx.Domain.Entities.Primary;
 using Rx.Domain.Interfaces.Blob;

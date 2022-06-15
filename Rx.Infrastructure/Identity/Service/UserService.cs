@@ -23,6 +23,7 @@ using Rx.Domain.Settings;
 using Rx.Domain.Wrappers;
 using Rx.Infrastructure.Identity.Contexts;
 using System;
+using Rx.Domain.Entities.Identity;
 
 namespace Rx.Infrastructure.Identity.Service;
 

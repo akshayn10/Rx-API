@@ -11,7 +11,7 @@ public class PaymentTransaction
         public decimal TransactionAmount { get; set; }
         public string? TransactionDescription { get; set; }
         public string? TransactionStatus { get; set; }
-
+        
         [ForeignKey(nameof(Subscription))]
         public Guid SubscriptionId { get; set; }
         public Subscription? Subscription { get; set; }

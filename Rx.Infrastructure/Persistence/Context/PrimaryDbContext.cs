@@ -20,6 +20,11 @@ namespace Rx.Infrastructure.Persistence.Context
         }
         
         public DbSet<Organization>? Organizations { get; set; }
+        public DbSet<OrganizationAddress>? OrganizationAddresses { get; set; }
+        public DbSet<SystemSubscription>? SystemSubscriptions { get; set; }
+        public DbSet<SystemSubscriptionPlan> SystemSubscriptionPlans { get; set; }
+        public DbSet<PaymentTransaction> PaymentTransactions { get; set; }
+        public DbSet<Bill> Bills { get; set; }
         public async Task<int> SaveChangesAsync()
         {
             return await base.SaveChangesAsync();

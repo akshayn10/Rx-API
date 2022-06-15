@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using Rx.API.Extensions;
 using Rx.Application;
+using Rx.Domain.Entities.Identity;
 using Rx.Domain.Entities.Primary;
 using Rx.Domain.Interfaces.DbContext;
 using Rx.Domain.Interfaces.Payment;

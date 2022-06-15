@@ -1,5 +1,5 @@
 ﻿using Rx.Domain.DTOs.User;
-using Rx.Domain.Entities.Primary;
+using Rx.Domain.Entities.Identity;
 using Rx.Domain.Wrappers;
 
 namespace Rx.Domain.Interfaces.Identity;
