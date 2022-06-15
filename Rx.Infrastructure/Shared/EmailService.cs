@@ -23,6 +23,7 @@ public class EmailService:IEmailService
             // create message
             var email = new MimeMessage();
             email.Sender = new MailboxAddress(_mailSettings.DisplayName, _mailSettings.EmailFrom);
+            email.From.Add(new MailboxAddress(_mailSettings.DisplayName, _mailSettings.EmailFrom));
             email.To.Add(MailboxAddress.Parse(request.To));
             email.Subject = request.Subject;
             var builder = new BodyBuilder();
