@@ -2,6 +2,8 @@
 using Hangfire;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
+using Rx.Domain.DTOs.Payment;
 using Rx.Domain.DTOs.Tenant.OrganizationCustomer;
 using Rx.Domain.DTOs.Tenant.Subscription;
 using Rx.Domain.Entities.Tenant;
@@ -68,7 +70,6 @@ namespace Rx.Domain.Services.Tenant
             {
                 throw new NullReferenceException("Customer not found for the email");
             }
-            customer.PaymentGatewayId = customerId;
             customer.Last4 = last4;
             customer.PaymentMethodId = paymentMethodId;
             await _tenantDbContext.SaveChangesAsync();
@@ -84,6 +85,17 @@ namespace Rx.Domain.Services.Tenant
 
             return addOnWebhook!.WebhookId;
         }
+        public async Task AddPaymentGatewayIdToCustomer(Guid customerId, string paymentGatewayId)
+        {
+            var customer = await _tenantDbContext.OrganizationCustomers!.FindAsync(customerId);
+            if (customer == null)
+            {
+                throw new NullReferenceException("Customer not found for the id");
+            }
+            customer.PaymentGatewayId = paymentGatewayId;
+            await _tenantDbContext.SaveChangesAsync();
+        }
+
         
         public async Task<string> CreateCustomerFromWebhook(Guid webhookId)
         {
@@ -97,9 +109,12 @@ namespace Rx.Domain.Services.Tenant
                 var customer = _mapper.Map<OrganizationCustomer>(customerForCreationDto);
                 await _tenantDbContext.OrganizationCustomers!.AddAsync(customer);
                 await _tenantDbContext.SaveChangesAsync();
-                await _paymentService.CreateCustomer(customer.Name!, customer.Email!,customer.CustomerId.ToString());
+                var stripeDescription = new StripeDescription("customer", customer.CustomerId.ToString());
+                var stripeDescriptionJson = JsonConvert.SerializeObject(stripeDescription);
+                await _paymentService.CreateCustomer(customer.Name!, customer.Email!,customer.CustomerId.ToString(),stripeDescriptionJson);
                 return "https://localhost:44352/api/Payment?customerEmail="+customer.Email;;
         }
+
 
         public async Task<CustomerStatsDto> GetCustomerStats()
         {

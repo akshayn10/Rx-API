@@ -33,13 +33,29 @@ public class StripeController:Controller
             var stripeEvent = EventUtility.ConstructEvent(json,
                 Request.Headers["Stripe-Signature"], endpointSecret);
 
+            if (stripeEvent.Type == Events.CustomerCreated)
+            {
+                var customerCreated = stripeEvent.Data.Object as Customer;
+                var stripeDescription = JsonConvert.DeserializeObject<StripeDescription>(customerCreated!.Description);
+                if (stripeDescription.PaymentType == "customer")
+                {
+                    await _mediator.Send(new AddPaymentGatewayIdToCustomerUseCase(Guid.Parse(stripeDescription.Id),customerCreated.Id));
+                }
+
+                if (customerCreated.Description == "owner")
+                {
+                    await _mediator.Send(new AddPaymentGatewayIdForOrganizationUseCase(Guid.Parse(stripeDescription.Id),customerCreated.Id));
+                }
+
+            }
+
             if (stripeEvent.Type == Events.PaymentMethodAttached)
             {
+                
                 // Handle the event
                 _logger.LogInformation("PaymentMethodAttached Webhook Received");
                 var paymentMethod = stripeEvent.Data.Object as PaymentMethod;
-                var webhookId=await _mediator.Send(new AddPaymentMethodForCustomerUseCase(paymentMethod!.CustomerId,paymentMethod.Card.Last4,paymentMethod.Id));
-                await _mediator.Send(new CreateSubscriptionFromWebhookUseCase(webhookId));
+                await _mediator.Send(new AddPaymentMethodUseCase(paymentMethod!.CustomerId,paymentMethod.Card.Last4,paymentMethod.Id));
             }
 
             if (stripeEvent.Type==Events.ChargeSucceeded)

@@ -32,8 +32,7 @@ namespace Rx.API.Controllers.Primary
             _logger.LogInformation("Executing");
             var organizations = await _mediator.Send(new RetrieveOrganizationUseCase());
             return Ok(organizations);
-
-
+            
         }
 
         [HttpPost(Name = "CreateOrganization")]
@@ -48,7 +47,6 @@ namespace Rx.API.Controllers.Primary
             var createdOrganization =await _mediator.Send(new CreateOrganizationUseCase(organizationForCreationDto));
             return CreatedAtRoute("CreateOrganization", new { id = createdOrganization.Id }, createdOrganization);
         }
-
     }
 }       
      

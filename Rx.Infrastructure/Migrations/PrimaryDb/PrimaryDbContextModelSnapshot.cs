@@ -70,6 +70,12 @@ namespace Rx.Infrastructure.Migrations.PrimaryDb
                         .HasMaxLength(60)
                         .HasColumnType("nvarchar(60)");
 
+                    b.Property<string>("PaymentGatewayId")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("PaymentMethodId")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<Guid>("TenantId")
                         .HasColumnType("uniqueidentifier");
 

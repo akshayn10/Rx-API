@@ -3,26 +3,21 @@ using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.AspNetCore.WebUtilities;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Rx.Domain.Interfaces.UtcDateTime;
 using Rx.Domain.DTOs.Email;
 using Rx.Domain.DTOs.User;
-using Rx.Domain.Entities.Primary;
 using Rx.Domain.Enums;
 using Rx.Domain.Exceptions;
 using Rx.Domain.Interfaces.Blob;
-using Rx.Domain.Interfaces.DbContext;
 using Rx.Domain.Interfaces.Email;
 using Rx.Domain.Interfaces.Identity;
 using Rx.Domain.Settings;
 using Rx.Domain.Wrappers;
 using Rx.Infrastructure.Identity.Contexts;
-using System;
 using Hangfire;
 using Rx.Domain.Entities.Identity;
 
@@ -133,7 +128,7 @@ public class UserService:IUserService
         
     }
 
-    
+
     private RefreshToken GenerateRefreshToken()
     {
         return new RefreshToken

@@ -20,7 +20,8 @@ namespace Rx.Domain.Entities.Primary
         public string? Description { get; set; }
 
         public string? LogoURL { get; set; }
-        
+        public string? PaymentGatewayId { get; set; }
+        public string? PaymentMethodId { get; set; }
         public string? AccountOwnerId { get; set; }
         
         public virtual OrganizationAddress? OrganizationAddress { get; set; }

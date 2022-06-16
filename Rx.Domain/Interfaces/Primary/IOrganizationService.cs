@@ -7,5 +7,8 @@ namespace Rx.Domain.Interfaces.Primary
     {
         Task<IEnumerable<OrganizationDto>> GetOrganizationsAsync(bool trackChanges);
         Task<OrganizationDto> CreateOrganizationAsync(OrganizationForCreationDto organizationForCreationDto);
+        Task AddPaymentGatewayIdForOrganization(Guid organizationId, string paymentGatewayId);
+        Task AddPaymentMethodIdForOrganization(Guid organizationId, string paymentMethodId);
+
     }
 }
