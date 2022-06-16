@@ -21,8 +21,12 @@ namespace Rx.Domain.Entities.Primary
         public string? JobId { get; set; }
         [Required(ErrorMessage = "Created Date is required")]
         public DateTime CreatedDate { get; set; }
+        [ForeignKey(nameof(Organization))]
+        public Guid OrganizationId { get; set; }
+        public Organization? Organization { get; set; }
+        
         [ForeignKey(nameof(SystemSubscriptionPlan))]
-        public Guid ProductPlanId { get; set; }
+        public Guid SystemSubscriptionPlanId { get; set; }
         public SystemSubscriptionPlan? SystemSubscriptionPlan { get; set; }
         public ICollection<PaymentTransaction>? PaymentTransactions { get; set; }
     }

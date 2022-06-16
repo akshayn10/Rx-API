@@ -12,6 +12,7 @@ namespace Rx.Domain.Interfaces.DbContext
             DbSet<SystemSubscriptionPlan> SystemSubscriptionPlans { get; set; }
             DbSet<PaymentTransaction> PaymentTransactions { get; set; }
             DbSet<Bill> Bills { get; set; }
+            DbSet<MarketplaceProducts> MarketplaceProducts { get; set; }
             Task<int> SaveChangesAsync();
     }
 }

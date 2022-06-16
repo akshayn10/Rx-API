@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using Rx.Application.UseCases.Payment;
+using Rx.Application.UseCases.Primary.SystemSubscription;
 using Rx.Application.UseCases.Tenant.Subscription;
 using Rx.Application.UseCases.Tenant.Webhook;
 using Rx.Domain.DTOs.Payment;
@@ -92,6 +93,20 @@ public class StripeController:Controller
                 if (stripeDescription.PaymentType == "downgradeSubscription")
                 {
                     await _mediator.Send(new ActivateDowngradeSubscriptionUseCase(Guid.Parse(stripeDescription.Id)));
+                }
+
+                if (stripeDescription.PaymentType == "organization-onetime")
+                {
+                    await _mediator.Send(new ActivateOrganizationOneTimeSubscriptionUseCase(Guid.Parse(stripeDescription.Id)));
+                }
+                if(stripeDescription.PaymentType=="organization-recurring")
+                {
+                    await _mediator.Send(new ActivateOrganizationRecurringSubscriptionUseCase(Guid.Parse(stripeDescription.Id)));
+                }
+
+                if (stripeDescription.PaymentType == "organization-recurring-period")
+                {
+                    await _mediator.Send(new ActivateOrganizationPeriodRecurringSubscriptionUseCase(Guid.Parse(stripeDescription.Id)));
                 }
             }
 

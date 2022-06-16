@@ -16,14 +16,12 @@ namespace Rx.Domain.Interfaces.Tenant
         Task<string> ActivateSubscriptionAfterTrial(Guid webhookId);
         Task<string> ActivateOneTimeSubscription(Guid webhookId);
         Task<string> RecurringSubscription(Guid subscriptionId);
-        Task<string> ActivateRecurringSubscription(Guid subscriptionId);
+        Task<string> ActivateRecurringSubscription(Guid webhookId);
         Task<string> Unsubscribe(UnsubscriptionWebhookDto unsubscriptionWebhookDto);
         Task<string> UpgradeSubscription(ChangeSubscriptionWebhook changeSubscriptionWebhook);
         Task<string> DowngradeSubscription(ChangeSubscriptionWebhook changeSubscriptionWebhook);
         Task<string> ActivateUpgradeSubscription(Guid webhookId);
         Task<string> ActivateDowngradeSubscription(Guid webhookId);
         Task<string> ActivatePeriodRecurringSubscription(Guid subscriptionId);
-        
     }
 }
- 

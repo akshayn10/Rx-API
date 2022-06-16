@@ -2,24 +2,21 @@
 using Rx.Domain.DTOs.Primary.Organization;
 using Rx.Domain.Interfaces;
 
-namespace Rx.Application.UseCases.Primary.Organization
+namespace Rx.Application.UseCases.Primary.Organization;
+
+public record CreateOrganizationUseCase(CreateOrganizationRequestDto CreateOrganizationRequestDto):IRequest<Guid>;
+
+public class CreateOrganizationUseCaseHandler : IRequestHandler<CreateOrganizationUseCase, Guid>
 {
-    public record CreateOrganizationUseCase
-        (OrganizationForCreationDto organizationForCreationDto) : IRequest<OrganizationDto>;
+    private readonly IPrimaryServiceManager _primaryServiceManager;
 
-    public class CreateOrganizationUseCaseHandler : IRequestHandler<CreateOrganizationUseCase, OrganizationDto>
+    public CreateOrganizationUseCaseHandler(IPrimaryServiceManager primaryServiceManager)
     {
-        private readonly IPrimaryServiceManager _primaryServiceManager;
-
-        public CreateOrganizationUseCaseHandler(IPrimaryServiceManager primaryServiceManager)
-        {
-            _primaryServiceManager = primaryServiceManager;
-            
-        }
-        public async Task<OrganizationDto> Handle(CreateOrganizationUseCase request, CancellationToken cancellationToken)
-        {
-            var createdOrganizationDto = await _primaryServiceManager.OrganizationService.CreateOrganizationAsync(request.organizationForCreationDto);
-            return createdOrganizationDto;
-        }
+        _primaryServiceManager = primaryServiceManager;
+    }
+    public async Task<Guid> Handle(CreateOrganizationUseCase request, CancellationToken cancellationToken)
+    {
+        return await _primaryServiceManager.OrganizationService.CreateOrganizationAsync(request
+            .CreateOrganizationRequestDto);
     }
 }

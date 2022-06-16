@@ -1,9 +1,11 @@
 ﻿using AutoMapper;
+using Hangfire;
 using Microsoft.Extensions.Logging;
 using Rx.Domain.Interfaces;
 using Rx.Domain.Interfaces.Blob;
 using Rx.Domain.Interfaces.DbContext;
 using Rx.Domain.Interfaces.Email;
+using Rx.Domain.Interfaces.Payment;
 using Rx.Domain.Interfaces.Primary;
 
 
@@ -18,10 +20,12 @@ namespace Rx.Domain.Services.Primary
         private readonly Lazy<ITransactionService> _transactionService;
         private readonly Lazy<IBillService> _billService;
 
-        public PrimaryServiceManager(IPrimaryDbContext primaryDbContext,ILogger<PrimaryServiceManager> logger ,IMapper mapper,IEmailService emailService,IBlobStorage blobStorage)
+        public PrimaryServiceManager(IPrimaryDbContext primaryDbContext,ILogger<PrimaryServiceManager> logger ,
+            IMapper mapper,IEmailService emailService,IBlobStorage blobStorage,IPaymentService paymentService,IBackgroundJobClient backgroundJobClient)
         {
-            _organizationService = new Lazy<IOrganizationService>(() => new OrganizationService(primaryDbContext, logger, mapper));
-            _systemSubscriptionService = new Lazy<ISystemSubscriptionService>(() => new SystemSubscriptionService(primaryDbContext, logger, mapper));
+            _organizationService = new Lazy<IOrganizationService>(() => new OrganizationService(primaryDbContext, logger, mapper,blobStorage,emailService));
+            _systemSubscriptionService = new Lazy<ISystemSubscriptionService>(() => new SystemSubscriptionService(primaryDbContext,
+                logger, mapper,emailService,paymentService,backgroundJobClient));
             _systemSubscriptionPlanService = new Lazy<ISystemSubscriptionPlanService>(() => new SystemSubscriptionPlanService(primaryDbContext, logger, mapper));
             _transactionService = new Lazy<ITransactionService>(() => new TransactionService(primaryDbContext, logger, mapper));
             _billService = new Lazy<IBillService>(() => new BillService(primaryDbContext, logger, mapper));

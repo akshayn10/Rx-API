@@ -35,17 +35,30 @@ namespace Rx.API.Controllers.Primary
             
         }
 
-        [HttpPost(Name = "CreateOrganization")]
+        [HttpPost("test")]
         [SwaggerOperation(Summary = "Create a new Organization")]
-        public async Task<IActionResult> CreateOrganization([FromBody] OrganizationForCreationDto organizationForCreationDto)
+        public async Task<IActionResult> CreateOrganizationTest([FromBody] OrganizationForCreationDto organizationForCreationDto)
         {
             if (organizationForCreationDto is null)
             {
                 return BadRequest("OrganizationForCreationDto is null");
             }
 
-            var createdOrganization =await _mediator.Send(new CreateOrganizationUseCase(organizationForCreationDto));
+            var createdOrganization =await _mediator.Send(new CreateOrganizationTestUseCase(organizationForCreationDto));
             return CreatedAtRoute("CreateOrganization", new { id = createdOrganization.Id }, createdOrganization);
+        }
+        
+        [HttpPost]
+        [SwaggerOperation(Summary = "Create a new Organization")]
+        public async Task<IActionResult> CreateOrganization([FromForm] CreateOrganizationRequestDto createOrganizationRequestDto)
+        {
+            if(createOrganizationRequestDto is null)
+            {
+                return BadRequest("CreateOrganizationRequestDto is null");
+            }
+
+            var createdOrganizationId =await _mediator.Send(new CreateOrganizationUseCase(createOrganizationRequestDto));
+            return CreatedAtRoute("CreateOrganization", new { id = createdOrganizationId }, createdOrganizationId);
         }
     }
 }       
