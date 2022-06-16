@@ -34,9 +34,6 @@ public class EmailService:IEmailService
             await smtp.AuthenticateAsync(_mailSettings.SmtpUser, _mailSettings.SmtpPass);
             await smtp.SendAsync(email);
             await smtp.DisconnectAsync(true);
-
-        
-            
         }
         catch (System.Exception ex)
         {

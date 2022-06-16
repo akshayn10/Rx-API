@@ -32,11 +32,11 @@ public class StripeController:Controller
         {
             var stripeEvent = EventUtility.ConstructEvent(json,
                 Request.Headers["Stripe-Signature"], endpointSecret);
-            
+
             if (stripeEvent.Type == Events.PaymentMethodAttached)
             {
                 // Handle the event
-                _logger.LogInformation("PaymentMethodAttached Webhook Recieved");
+                _logger.LogInformation("PaymentMethodAttached Webhook Received");
                 var paymentMethod = stripeEvent.Data.Object as PaymentMethod;
                 var webhookId=await _mediator.Send(new AddPaymentMethodForCustomerUseCase(paymentMethod!.CustomerId,paymentMethod.Card.Last4,paymentMethod.Id));
                 await _mediator.Send(new CreateSubscriptionFromWebhookUseCase(webhookId));
@@ -77,6 +77,11 @@ public class StripeController:Controller
                 {
                     await _mediator.Send(new ActivateDowngradeSubscriptionUseCase(Guid.Parse(stripeDescription.Id)));
                 }
+            }
+
+            if (stripeEvent.Type == Events.ChargeFailed)
+            {
+                
             }
             return Ok();
         }

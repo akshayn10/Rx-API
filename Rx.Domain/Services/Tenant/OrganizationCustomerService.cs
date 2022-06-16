@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Hangfire;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Rx.Domain.DTOs.Tenant.OrganizationCustomer;
@@ -18,13 +19,23 @@ namespace Rx.Domain.Services.Tenant
         private readonly ILogger _logger;
         private readonly IMapper _mapper;
         private readonly IPaymentService _paymentService;
+        private readonly IBillingService _billingService;
+        private readonly IRecurringJobManager _recurringJobManager;
 
-        public OrganizationCustomerService(ITenantDbContext tenantDbContext,ILogger logger, IMapper mapper,IPaymentService paymentService)
+        public OrganizationCustomerService(ITenantDbContext tenantDbContext,
+            ILogger logger,
+            IMapper mapper,
+            IPaymentService paymentService,
+            IBillingService billingService,
+            IRecurringJobManager recurringJobManager
+            )
         {
             _tenantDbContext = tenantDbContext;
             _logger = logger;
             _mapper = mapper;
             _paymentService = paymentService;
+            _billingService = billingService;
+            _recurringJobManager = recurringJobManager;
         }
 
         public async Task<IEnumerable<OrganizationCustomerDto>> GetCustomers()
@@ -64,6 +75,12 @@ namespace Rx.Domain.Services.Tenant
             var addOnWebhook =await _tenantDbContext.SubscriptionWebhooks.Where(sw => sw.CustomerEmail == customerEmail)
                 .OrderByDescending(s=>s.RetrievedDate)
                 .FirstOrDefaultAsync();
+            
+            
+            //Create a recurring job to start Bill Generation
+            var billJobId = "bill_" + customer.CustomerId.ToString();
+            _recurringJobManager.AddOrUpdate(billJobId,() => _billingService.GenerateBill(customer.CustomerId),
+                Cron.Monthly(DateTime.Now.Day));
 
             return addOnWebhook!.WebhookId;
         }
