@@ -17,7 +17,6 @@ public class CreateBillUseCaseHandler : IRequestHandler<CreateBillUseCase, BillD
     }
     public async Task<BillDto> Handle(CreateBillUseCase request, CancellationToken cancellationToken)
     {
-        var bill = await _billingService.CreateBill(request.CustomerId, request.BillForCreationDto);
-        return bill;
+        throw new NotImplementedException();
     }
 }

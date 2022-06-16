@@ -8,6 +8,7 @@ using Polly.Retry;
 using Rx.Domain.DTOs.Payment;
 using Rx.Domain.DTOs.Tenant.AddOnUsage;
 using Rx.Domain.DTOs.Tenant.Subscription;
+using Rx.Domain.DTOs.Tenant.Transaction;
 using Rx.Domain.Entities.Tenant;
 using Rx.Domain.Interfaces;
 using Rx.Domain.Interfaces.DbContext;
@@ -92,6 +93,20 @@ public class AddOnUsageService: IAddOnUsageService
     public async Task<string> ActivateAddOnUsageAfterPayment(string webhookId,long amount)
     {
         var webhook = await _tenantDbContext.AddOnWebhooks.FindAsync(Guid.Parse(webhookId));
+        if(webhook==null)
+        {
+            throw new NullReferenceException("Webhook not found");
+        }
+
+        var addOn =await _tenantDbContext.AddOns!.FindAsync(webhook.AddOnId);
+        
+        //store Transaction
+        var transactionDto = new TransactionForCreationDto(DateTime.Now, Convert.ToDecimal(amount), addOn.Name,"Succeeded",webhook.SubscriptionId);
+        var transaction = _mapper.Map<PaymentTransaction>(transactionDto);
+        await _tenantDbContext.PaymentTransactions.AddAsync(transaction);
+        await _tenantDbContext.SaveChangesAsync();
+        
+
         var addOnUsageDto = new AddOnUsageForCreationDto(
             Unit:webhook!.Unit,
             AddOnId:webhook.AddOnId,

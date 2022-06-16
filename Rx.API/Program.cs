@@ -1,14 +1,19 @@
 using Hangfire;
 using MediatR;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using Rx.API.Extensions;
 using Rx.Application;
+using Rx.Domain.Entities.Identity;
+using Rx.Domain.Entities.Primary;
 using Rx.Domain.Interfaces.DbContext;
 using Rx.Domain.Interfaces.Payment;
 using Rx.Domain.Interfaces.WebhookSendClient;
 using Rx.Domain.Services.Payment;
 using Rx.Domain.Services.WebhookSendClient;
 using Rx.Infrastructure;
+using Rx.Infrastructure.Identity.Seeds;
 using Rx.Infrastructure.Persistence.Context;
 using Serilog;
 
@@ -52,6 +57,9 @@ builder.Services.AddBlobStorage(builder.Configuration);
 //Add Shared infrastructure
 builder.Services.AddSharedInfrastructure(builder.Configuration);
 
+//Add IdentityInfrastructure
+builder.Services.AddIdentityInfrastructure(builder.Configuration);
+
 //Cors Settings
 builder.Services.ConfigureCors();
 
@@ -82,16 +90,37 @@ builder.Services.AddControllers();
 
 //Swagger
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen(
-    x =>
-    {
-        x.SwaggerDoc("v1", new OpenApiInfo { Title = "Rx API", Version = "v1" });
-            x.EnableAnnotations();
-    }
-    );
+builder.Services.AddSwaggerExtension();
+
+
+builder.Services.AddScoped<UserManager<ApplicationUser>>();
+builder.Services.AddScoped<RoleManager<IdentityRole>>();
 
 
 var app = builder.Build();
+
+// Initial Users seed
+ // try
+ // {
+ //     using (var scope = app.Services.CreateScope())
+ //     {
+ //         var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
+ //         var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+ //         await DefaultRoles.SeedAsync(userManager,roleManager);
+ //         await DefaultAdmin.SeedAsync(userManager,roleManager);
+ //         await DefaultOwner.SeedAsync(userManager,roleManager);
+ //         await DefaultFinanceUser.SeedAsync(userManager,roleManager);
+ //     }
+ // }
+ // catch (Exception ex)
+ // {
+ //     Log.Warning(ex, "An error occurred seeding the DB");
+ // }
+ // finally
+ // {
+ //     Log.CloseAndFlush();
+ // }
+
 
 // Configure the HTTP request pipeline.
 
@@ -106,7 +135,9 @@ app.UseHttpsRedirection();
 
 app.UseCors("MyCorsPolicy");
 
+app.UseAuthentication();
 app.UseAuthorization();
+
 
 app.UseHangfireDashboard();
 

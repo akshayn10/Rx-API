@@ -9,4 +9,7 @@ public interface IBlobStorage
     Task DeleteLogo(string oldFileName);
     Task DeleteProfile(string oldFileName);
 
+    Task<string> UploadOrganizationLogo(FileStream stream);
+    Task DeleteOrganizationLogo(string oldFileName);
+
 }

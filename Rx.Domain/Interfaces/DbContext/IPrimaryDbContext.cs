@@ -7,7 +7,12 @@ namespace Rx.Domain.Interfaces.DbContext
    
     {
             DbSet<Organization>? Organizations { get; set; }
-            DbSet<OrganizationUser> OrganizationUsers { get; set; }
+            DbSet<OrganizationAddress>? OrganizationAddresses { get; set; }
+            DbSet<SystemSubscription>? SystemSubscriptions { get; set; }
+            DbSet<SystemSubscriptionPlan> SystemSubscriptionPlans { get; set; }
+            DbSet<PaymentTransaction> PaymentTransactions { get; set; }
+            DbSet<Bill> Bills { get; set; }
+            DbSet<MarketplaceProducts> MarketplaceProducts { get; set; }
             Task<int> SaveChangesAsync();
     }
 }

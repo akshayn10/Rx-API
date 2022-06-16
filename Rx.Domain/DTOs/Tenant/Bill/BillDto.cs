@@ -1,4 +1,4 @@
 ﻿namespace Rx.Domain.DTOs.Tenant.Bill;
 
-public record BillDto(Guid BillId,DateTime GeneratedDate,decimal TotalAmount,Guid CustomerId);
+public record BillDto(string BillId,string GeneratedDate,decimal TotalAmount,string CustomerName);
 

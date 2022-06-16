@@ -5,6 +5,7 @@ using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Rx.Domain.DTOs.Payment;
 using Rx.Domain.DTOs.Tenant.Subscription;
+using Rx.Domain.DTOs.Tenant.Transaction;
 using Rx.Domain.Entities.Tenant;
 using Rx.Domain.Interfaces.DbContext;
 using Rx.Domain.Interfaces.Payment;
@@ -140,6 +141,11 @@ namespace Rx.Domain.Services.Tenant
             {
                 throw new NullReferenceException("Plan not found");
             }
+            var transactionDto = new TransactionForCreationDto(DateTime.Now, Convert.ToDecimal(plan.Price), "" ,"Succeeded",subscriptionId);
+            var transaction = _mapper.Map<PaymentTransaction>(transactionDto);
+            await _tenantDbContext.PaymentTransactions.AddAsync(transaction);
+            await _tenantDbContext.SaveChangesAsync();
+
 
             if (subscription.SubscriptionType==false)
             {
@@ -179,6 +185,7 @@ namespace Rx.Domain.Services.Tenant
             {
                 throw new NullReferenceException("Plan not found at activation");
             }
+
             var customer = await _tenantDbContext.OrganizationCustomers!.FirstOrDefaultAsync(c=>c.Email == webhook.CustomerEmail);
             if(customer is null)
             {
@@ -200,6 +207,11 @@ namespace Rx.Domain.Services.Tenant
             await _tenantDbContext.Subscriptions!.AddAsync(subscription);
             var jobId = _backgroundJobClient.Schedule(()=>DeactivateSubscription(subscription.SubscriptionId), subscription.StartDate.AddMinutes(1));
             subscription.JobId = jobId;
+            await _tenantDbContext.SaveChangesAsync();
+            
+            var transactionDto = new TransactionForCreationDto(DateTime.Now, Convert.ToDecimal(plan.Price), "" ,"Succeeded",subscription.SubscriptionId);
+            var transaction = _mapper.Map<PaymentTransaction>(transactionDto);
+            await _tenantDbContext.PaymentTransactions.AddAsync(transaction);
             await _tenantDbContext.SaveChangesAsync();
 
             var backendSubscriptionResponse = new BackendSubscriptionResponse(
@@ -271,6 +283,12 @@ namespace Rx.Domain.Services.Tenant
             await _tenantDbContext.Subscriptions!.AddAsync(subscription);
             var jobId = _backgroundJobClient.Schedule(()=>RecurringSubscription(subscription.SubscriptionId), subscription.StartDate.AddMonths((int) plan.Duration!));
             subscription.JobId = jobId;
+            await _tenantDbContext.SaveChangesAsync();
+            
+            //Store Transaction
+            var transactionDto = new TransactionForCreationDto(DateTime.Now, Convert.ToDecimal(plan.Price), "" ,"Succeeded",subscription.SubscriptionId);
+            var transaction = _mapper.Map<PaymentTransaction>(transactionDto);
+            await _tenantDbContext.PaymentTransactions.AddAsync(transaction);
             await _tenantDbContext.SaveChangesAsync();
 
             var backendSubscriptionResponse = new BackendSubscriptionResponse(
@@ -427,6 +445,12 @@ namespace Rx.Domain.Services.Tenant
              }
              subscription.JobId = jobId;
              await _tenantDbContext.SaveChangesAsync();
+             
+             //Store Transaction
+             var transactionDto = new TransactionForCreationDto(DateTime.Now, Convert.ToDecimal(plan.Price), "" ,"Succeeded",subscription.SubscriptionId);
+             var transaction = _mapper.Map<PaymentTransaction>(transactionDto);
+             await _tenantDbContext.PaymentTransactions.AddAsync(transaction);
+             await _tenantDbContext.SaveChangesAsync();
 
              
              // Update SubscriptionStats
@@ -498,6 +522,12 @@ namespace Rx.Domain.Services.Tenant
             }
             subscription.JobId = jobId;
             await _tenantDbContext.SaveChangesAsync();
+            
+            //Store Transaction
+            var transactionDto = new TransactionForCreationDto(DateTime.Now, Convert.ToDecimal(plan.Price), "" ,"Succeeded",subscription.SubscriptionId);
+            var transaction = _mapper.Map<PaymentTransaction>(transactionDto);
+            await _tenantDbContext.PaymentTransactions.AddAsync(transaction);
+            await _tenantDbContext.SaveChangesAsync();
 
             // Update SubscriptionStats
             var subStat = new SubscriptionStat()
@@ -528,11 +558,22 @@ namespace Rx.Domain.Services.Tenant
             {
                 throw new NullReferenceException("Subscription not found");
             }
+            var plan = await _tenantDbContext.ProductPlans!.FindAsync(subscription.ProductPlanId);
+            if(plan is null)
+            {
+                throw new NullReferenceException("Plan not found");
+            }
+            
             subscription.StartDate = DateTime.Now;
             var jobId = _backgroundJobClient.Schedule(() => RecurringSubscription(subscriptionId),
                 subscription.StartDate.AddMinutes(1));
             subscription.JobId = jobId;
             subscription.IsActive = true;
+            await _tenantDbContext.SaveChangesAsync();
+            //Store Transaction
+            var transactionDto = new TransactionForCreationDto(DateTime.Now, Convert.ToDecimal(plan.Price), "" ,"Succeeded",subscription.SubscriptionId);
+            var transaction = _mapper.Map<PaymentTransaction>(transactionDto);
+            await _tenantDbContext.PaymentTransactions.AddAsync(transaction);
             await _tenantDbContext.SaveChangesAsync();
             
             var backendSubscriptionResponse = new BackendSubscriptionResponse(

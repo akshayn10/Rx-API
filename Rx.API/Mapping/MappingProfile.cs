@@ -24,6 +24,7 @@ namespace Rx.API.Mapping
             //Organization
             CreateMap<Organization, OrganizationDto>();
             CreateMap<OrganizationForCreationDto,Organization>();
+            CreateMap<CreateOrganizationRequestDto, Organization>();
             //OrganizationCustomer
             CreateMap<OrganizationCustomer, OrganizationCustomerDto>();
             CreateMap<OrganizationCustomerForCreationDto,OrganizationCustomer>();

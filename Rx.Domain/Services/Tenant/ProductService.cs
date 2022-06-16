@@ -57,24 +57,27 @@ namespace Rx.Domain.Services.Tenant
         }
         public async Task<ProductDto> AddProduct(ProductForCreationDto productForCreationDto)
         {
+            string? logoUrl = null;
             _logger.LogInformation(productForCreationDto.ToString());
-            var fileName=string.Empty;
-            _logger.LogInformation("Upload Started");
-            var logoImage = productForCreationDto.LogoImage;
-            if (logoImage.Length > 0)
+            if (productForCreationDto.LogoImage != null)
             {
-                await using var fileStream = new FileStream(logoImage.FileName, FileMode.Create);
-                _logger.LogInformation("file found");
-                await logoImage.CopyToAsync(fileStream);
-                fileName = fileStream.Name;
-            }
-            var stream = File.OpenRead(logoImage.FileName);
-            var url =await _blobStorage.UploadLogo(stream);
-            var x =await _blobStorage.UploadProfile(stream);
+                var fileName = string.Empty;
+                _logger.LogInformation("Upload Started");
+                var logoImage = productForCreationDto.LogoImage;
+                if (logoImage.Length > 0)
+                {
+                    await using var fileStream = new FileStream(logoImage.FileName, FileMode.Create);
+                    _logger.LogInformation("file found");
+                    await logoImage.CopyToAsync(fileStream);
+                    fileName = fileStream.Name;
+                }
 
-            _logger.LogInformation("Upload Completed");
-            stream.Close();
-            File.Delete(fileName);
+                var stream = File.OpenRead(logoImage.FileName);
+                logoUrl = await _blobStorage.UploadLogo(stream);
+                _logger.LogInformation("Upload Completed");
+                stream.Close();
+                File.Delete(fileName);
+            }
 
             const string webhookSubscriptionSecretPrefix = "whs_";
             var product = new Product
@@ -83,7 +86,7 @@ namespace Rx.Domain.Services.Tenant
                 Description = productForCreationDto.Description,
                 WebhookURL = productForCreationDto.WebhookURL,
                 WebhookSecret = webhookSubscriptionSecretPrefix + Guid.NewGuid().ToString("N"),
-                LogoURL = url,
+                LogoURL = logoUrl,
                 FreeTrialDays = productForCreationDto.FreeTrialDays,
                 RedirectURL = productForCreationDto.RedirectUrl
 
