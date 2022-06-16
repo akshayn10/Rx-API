@@ -33,8 +33,16 @@ public class AddOnPricePerPlanController:ControllerBase
         var addOnPricePerPlan = await _mediator.Send(new GetAddOnPricePerPlanByIdUseCase( Guid.Parse(pricePerPlanId)));
         return Ok(addOnPricePerPlan);
     }
-
-    [HttpPost]
+    
+    [HttpGet("addOnPlan/{productId}")]
+    [SwaggerOperation(Summary = "Get all addOns")]
+    public async Task<IActionResult> GetAddOnPerProduct(string productId)
+    {
+        var addOnPerProduct = await _mediator.Send(new GetAddOnPerProductUseCase(Guid.Parse(productId)));
+        return Ok(addOnPerProduct);
+    }
+    
+    [HttpPost("{addOnId}/{planId}")]
     [SwaggerOperation(summary: "Add Addon Price per Plan")]
     public async Task<IActionResult> AddAddOnPrice(string planId, string addOnId,
         [FromBody] AddOnPricePerPlanForCreationDto addOnPricePerPlanForCreationDto)
@@ -48,4 +56,13 @@ public class AddOnPricePerPlanController:ControllerBase
             createdAddOnPricePerPlan);
     }
     
+  [HttpDelete("{addOnId}")]
+    [SwaggerOperation(summary: "Delete Addon")]
+  
+  public async Task<IActionResult> DeleteAddOnPrice(Guid addOnId)
+        {
+            await _mediator.Send(new DeleteAddOnPricePerPlanUseCase( addOnId));
+            return NoContent();
+        }
+
 }

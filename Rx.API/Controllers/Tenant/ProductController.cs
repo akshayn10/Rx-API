@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Rx.Application.UseCases.Tenant.Product;
 using Rx.Domain.DTOs.Tenant.Product;
 using Swashbuckle.AspNetCore.Annotations;
+using Rx.Domain.DTOs.Request;
 
 namespace Rx.API.Controllers.Tenant
 {
@@ -20,9 +21,9 @@ namespace Rx.API.Controllers.Tenant
 
         [HttpGet]
         [SwaggerOperation(Summary = "Get all products")]
-        public async Task<IActionResult> GetProducts()
+        public async Task<IActionResult> GetProducts([FromQuery] RequestParameters requestParameters)
         {
-            var products = await _mediator.Send(new GetProductVmsUseCase());
+            var products = await _mediator.Send(new GetProductVmsUseCase(requestParameters.SearchKey??""));
             return Ok(products);
         }
 

@@ -7,18 +7,18 @@ using Rx.Domain.Interfaces.DbContext;
 
 namespace Rx.Application.UseCases.Tenant.Product;
 
-public record GetProductVmsUseCase():IRequest<IEnumerable<ProductVm>>;
+public record GetProductVmsUseCase(string SearchKey):IRequest<IEnumerable<ProductVm>>;
 
 public class GetProductVmsUseCaseHandler : IRequestHandler<GetProductVmsUseCase,IEnumerable<ProductVm>>
 
 {
     private readonly ITenantDbContext _tenantDbContext;
-    private readonly IMapper _mapper;
+    
 
     public GetProductVmsUseCaseHandler(ITenantDbContext tenantDbContext,IMapper mapper)
     {
         _tenantDbContext = tenantDbContext;
-        _mapper = mapper;
+        
     }
     public async Task<IEnumerable<ProductVm>> Handle(GetProductVmsUseCase request, CancellationToken cancellationToken)
     {
@@ -41,6 +41,6 @@ public class GetProductVmsUseCaseHandler : IRequestHandler<GetProductVmsUseCase,
                     ProductId: p.ProductId.ToString(), Name: p.Name, RedirectURL: p.RedirectURL, LogoURL: p.LogoURL,
                     PlanCount: pc?.Count??0, AddOnCount: ac?.Count??0,WebhookSecret:p.WebhookSecret
                 ));
-        return productVms;
+        return productVms.Where(p=>p.Name.ToLower().Split(' ').Any(a=>a.StartsWith(request.SearchKey.ToLower())));
     }
 }
