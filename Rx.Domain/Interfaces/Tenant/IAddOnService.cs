@@ -14,5 +14,8 @@ namespace Rx.Domain.Interfaces.Tenant
         Task<AddOnPricePerPlanDto> CreateAddOnPricePerPlan(Guid addOnId,Guid planId, AddOnPricePerPlanForCreationDto addOnPricePerPlanForCreationDto);
         
         Task<string> DeleteAddOn(Guid addOnId);
+        Task<AddOnDto> UpdateAddOn(Guid addOnId,Guid productId, AddOnForUpdateDto addOnForUpdateDto);
+        Task<AddOnPricePerPlanDto> UpdateAddOnPrice(Guid addOnId, AddOnPriceForUpdateDto addOnPriceForUpdateDto);
+        
     }
 }

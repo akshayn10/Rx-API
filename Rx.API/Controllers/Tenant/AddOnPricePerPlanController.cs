@@ -64,5 +64,21 @@ public class AddOnPricePerPlanController:ControllerBase
             await _mediator.Send(new DeleteAddOnPricePerPlanUseCase( addOnId));
             return NoContent();
         }
+  
+    [HttpPut("{addOnId}")]
+    [SwaggerOperation(summary: "Update AddonPrice")]
+    
+    public async Task<IActionResult> UpdateAddOnPrice(Guid addOnId, [FromBody] AddOnPriceForUpdateDto addOnPriceForUpdateDto)
+    {
+        if(addOnPriceForUpdateDto == null)
+        {
+            return BadRequest("Body is empty");
+        }
+        
+        var updatedAddOnPrice = await _mediator.Send(new EditAddOnPriceUseCase(addOnId,addOnPriceForUpdateDto ));
+        return Ok(updatedAddOnPrice);
+        
+    }
+    
 
 }
