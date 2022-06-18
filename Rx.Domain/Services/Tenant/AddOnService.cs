@@ -49,37 +49,59 @@ namespace Rx.Domain.Services.Tenant
 
         public async Task<string> DeleteAddOn(Guid addOnId)
         {
-            var addOnPrice = await _tenantDbContext.AddOnPricePerPlans!.FirstOrDefaultAsync(
-                x => x.AddOnId == addOnId);
+           
             var addOn = await _tenantDbContext.AddOns!.FirstOrDefaultAsync(x => x.AddOnId == addOnId);
-            if (addOnPrice == null)
-            {
-                throw new Exception("AddOnPrice not found");
-            }
-
             if (addOn == null)
             {
                 throw new Exception("AddOn not found");
             }
-
-            _tenantDbContext.AddOnPricePerPlans!.Remove(addOnPrice);
             _tenantDbContext.AddOns!.Remove(addOn);
             await _tenantDbContext.SaveChangesAsync();
             return "AddOn deleted";
         }
-
-        public async Task<AddOnPricePerPlanDto> UpdateAddOn(Guid addOnId, AddOnForUpdateDto addOnForUpdateDto)
+        
+        public async Task<string> DeleteAddOnPrice(Guid addOnPricePerPlanId) 
         {
-            var addOn = await _tenantDbContext.AddOnPricePerPlans!.FirstOrDefaultAsync(x => x.AddOnId == addOnId);
+            var addOnPrice = await _tenantDbContext.AddOnPricePerPlans!.FirstOrDefaultAsync(x => x.AddOnPricePerPlanId==addOnPricePerPlanId);
+            if (addOnPrice == null)
+            {
+                throw new Exception("AddOnPrice not found");
+            }
+            _tenantDbContext.AddOnPricePerPlans!.Remove(addOnPrice);
+            await _tenantDbContext.SaveChangesAsync();
+            return "AddOnPrice deleted";
+        }
+        
+
+        public async Task<AddOnDto> UpdateAddOn(Guid addOnId,Guid productId, AddOnForUpdateDto addOnForUpdateDto)
+        {
+            var addOn = await _tenantDbContext.AddOns!.FirstOrDefaultAsync(x => x.AddOnId == addOnId && x.ProductId == productId);
             if (addOn == null)
             {
                 throw new NullReferenceException("AddOn not found");
             }
+            
+            addOn.Name = addOnForUpdateDto.Name;
+            addOn.UnitOfMeasure = addOnForUpdateDto.UnitOfMeasure;
+            
+            await _tenantDbContext.SaveChangesAsync();
+            return _mapper.Map<AddOnDto>(addOn);
 
-            addOn.Price = addOnForUpdateDto.Price;
+        }
+        
+
+        public async Task<AddOnPricePerPlanDto> UpdateAddOnPrice(Guid addOnPricePerPlanId, AddOnPriceForUpdateDto addOnPriceForUpdateDto)
+        {
+            var addOnPrice = await _tenantDbContext.AddOnPricePerPlans!.FirstOrDefaultAsync(x => x.AddOnPricePerPlanId == addOnPricePerPlanId);
+            if (addOnPrice == null)
+            {
+                throw new NullReferenceException("AddOnPrice not found");
+            }
+
+            addOnPrice.Price = addOnPriceForUpdateDto.Price;
 
             await _tenantDbContext.SaveChangesAsync();
-            return _mapper.Map<AddOnPricePerPlanDto>(addOn);
+            return _mapper.Map<AddOnPricePerPlanDto>(addOnPrice);
         }
     }
 }
