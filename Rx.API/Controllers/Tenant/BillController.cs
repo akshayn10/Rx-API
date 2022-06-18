@@ -7,7 +7,7 @@ using Swashbuckle.AspNetCore.Annotations;
 
 namespace Rx.API.Controllers.Tenant;
 
-// [Authorize(Roles = "Owner")]
+[Authorize(Roles = "Owner")]
 [ApiController]
 [Route("api/bill")]
 public class BillController:ControllerBase
