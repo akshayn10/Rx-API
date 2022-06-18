@@ -46,7 +46,9 @@ public class GetAddOnPerProductUseCaseHandler : IRequestHandler<GetAddOnPerProdu
                UnitOfMeasure: a.AddOn.UnitOfMeasure,
                Price: a.Price,
                PlanName:a.ProductPlan.Name,
-               AddOnId:a.AddOn.AddOnId
+               AddOnId:a.AddOn.AddOnId,
+               AddOnPricePerPlanId:a.AddOnPricePerPlanId,
+               ProductPlanId:a.ProductPlan.PlanId
                
            ));
     }

@@ -4,7 +4,7 @@ using Rx.Domain.Interfaces;
 
 namespace Rx.Application.UseCases.Tenant.AddOn;
 
-public record EditAddOnPriceUseCase(Guid AddOnId, AddOnPriceForUpdateDto AddOnPriceForUpdateDto):IRequest<AddOnPricePerPlanDto>;
+public record EditAddOnPriceUseCase(Guid addOnPricePerPlanId, AddOnPriceForUpdateDto AddOnPriceForUpdateDto):IRequest<AddOnPricePerPlanDto>;
 
 public class EditAddOnPriceUseCaseHandler : IRequestHandler<EditAddOnPriceUseCase, AddOnPricePerPlanDto>
 {
@@ -17,7 +17,7 @@ public class EditAddOnPriceUseCaseHandler : IRequestHandler<EditAddOnPriceUseCas
    
    public Task<AddOnPricePerPlanDto> Handle(EditAddOnPriceUseCase request, CancellationToken cancellationToken)
    {
-      return _tenantServiceManager.AddOnService.UpdateAddOnPrice(request.AddOnId, request.AddOnPriceForUpdateDto);
+      return _tenantServiceManager.AddOnService.UpdateAddOnPrice(request.addOnPricePerPlanId, request.AddOnPriceForUpdateDto);
    }
    
 }

@@ -67,5 +67,14 @@ public class AddOnController : ControllerBase
         var updatedAddOn = await _mediator.Send(new EditAddOnUseCase(addOnId,productId, addOnForUpdateDto));
         return Ok(updatedAddOn);
     }
+    
+    [HttpDelete("{addOnId}")]
+    [SwaggerOperation(summary: "Delete Addon")]
+  
+    public async Task<IActionResult> DeleteAddOn(Guid addOnId)
+    {
+        await _mediator.Send(new DeleteAddOnUseCase( addOnId));
+        return NoContent();
+    }
 
 }

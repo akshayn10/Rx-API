@@ -1,10 +1,10 @@
 ﻿using MediatR;
-using Rx.Application.UseCases.Tenant.ProductPlan;
+using Rx.Application.UseCases.Tenant.AddOn;
 using Rx.Domain.Interfaces;
 
 namespace Rx.Application.UseCases.Tenant.AddOn;
 
-public record DeleteAddOnPricePerPlanUseCase(Guid addOnId) : IRequest<string>;
+public record DeleteAddOnPricePerPlanUseCase(Guid addOnPricePerPlanId) : IRequest<string>;
 
     public class DeleteAddOnPricePerPlanUseCaseHandler : IRequestHandler<DeleteAddOnPricePerPlanUseCase, string>
     {
@@ -17,7 +17,7 @@ public record DeleteAddOnPricePerPlanUseCase(Guid addOnId) : IRequest<string>;
         
         public async Task<string> Handle(DeleteAddOnPricePerPlanUseCase request, CancellationToken cancellationToken)
         {
-            return await _tenantServiceManager.AddOnService.DeleteAddOn(request.addOnId);
+            return await _tenantServiceManager.AddOnService.DeleteAddOnPrice(request.addOnPricePerPlanId);
 
             }
             

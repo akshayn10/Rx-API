@@ -49,24 +49,29 @@ namespace Rx.Domain.Services.Tenant
 
         public async Task<string> DeleteAddOn(Guid addOnId)
         {
-            var addOnPrice = await _tenantDbContext.AddOnPricePerPlans!.FirstOrDefaultAsync(
-                x => x.AddOnId == addOnId);
+           
             var addOn = await _tenantDbContext.AddOns!.FirstOrDefaultAsync(x => x.AddOnId == addOnId);
-            if (addOnPrice == null)
-            {
-                throw new Exception("AddOnPrice not found");
-            }
-
             if (addOn == null)
             {
                 throw new Exception("AddOn not found");
             }
-
-            _tenantDbContext.AddOnPricePerPlans!.Remove(addOnPrice);
             _tenantDbContext.AddOns!.Remove(addOn);
             await _tenantDbContext.SaveChangesAsync();
             return "AddOn deleted";
         }
+        
+        public async Task<string> DeleteAddOnPrice(Guid addOnPricePerPlanId) 
+        {
+            var addOnPrice = await _tenantDbContext.AddOnPricePerPlans!.FirstOrDefaultAsync(x => x.AddOnPricePerPlanId==addOnPricePerPlanId);
+            if (addOnPrice == null)
+            {
+                throw new Exception("AddOnPrice not found");
+            }
+            _tenantDbContext.AddOnPricePerPlans!.Remove(addOnPrice);
+            await _tenantDbContext.SaveChangesAsync();
+            return "AddOnPrice deleted";
+        }
+        
 
         public async Task<AddOnDto> UpdateAddOn(Guid addOnId,Guid productId, AddOnForUpdateDto addOnForUpdateDto)
         {
@@ -83,10 +88,11 @@ namespace Rx.Domain.Services.Tenant
             return _mapper.Map<AddOnDto>(addOn);
 
         }
+        
 
-        public async Task<AddOnPricePerPlanDto> UpdateAddOnPrice(Guid addOnId, AddOnPriceForUpdateDto addOnPriceForUpdateDto)
+        public async Task<AddOnPricePerPlanDto> UpdateAddOnPrice(Guid addOnPricePerPlanId, AddOnPriceForUpdateDto addOnPriceForUpdateDto)
         {
-            var addOnPrice = await _tenantDbContext.AddOnPricePerPlans!.FirstOrDefaultAsync(x => x.AddOnId == addOnId);
+            var addOnPrice = await _tenantDbContext.AddOnPricePerPlans!.FirstOrDefaultAsync(x => x.AddOnPricePerPlanId == addOnPricePerPlanId);
             if (addOnPrice == null)
             {
                 throw new NullReferenceException("AddOnPrice not found");
