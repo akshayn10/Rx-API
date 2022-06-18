@@ -25,7 +25,7 @@ namespace Rx.Domain.Entities.Primary
         public string? PaymentMethodId { get; set; }
         public string? AccountOwnerId { get; set; }
         
-        public virtual OrganizationAddress? OrganizationAddress { get; set; }
+        public  ICollection<OrganizationAddress>? OrganizationAddresses { get; set; }
         
         public ICollection<SystemSubscription>? SystemSubscriptions { get; set; }
 

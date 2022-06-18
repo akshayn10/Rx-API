@@ -17,4 +17,5 @@ public interface IUserService
     bool RevokeToken(string token);
     Task<ResponseMessage<string>> AddUserAsync(AddUserRequest request,string origin);
     Task<ResponseMessage<string>> ChangePasswordAsync(ChangePasswordRequest request);
+    Task<string> UpdateUserAsync(string userId, Guid organizationId);
 }

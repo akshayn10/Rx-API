@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.EntityFrameworkCore;
 
 namespace Rx.Domain.Entities.Primary
 {
@@ -15,6 +16,6 @@ namespace Rx.Domain.Entities.Primary
         
         [ForeignKey(nameof(Organization))]
         public Guid OrganizationId { get; set; }
-        public virtual Organization? Organization { get; set; }
+        public Organization? Organization { get; set; }
     }
 }

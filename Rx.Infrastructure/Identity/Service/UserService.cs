@@ -87,7 +87,8 @@ public class UserService:IUserService
             JwtToken = new JwtSecurityTokenHandler().WriteToken(jwtSecurityToken),
             Email = user.Email,
             UserName = user.UserName,
-            ProfileUrl = user.ProfileUrl
+            ProfileUrl = user.ProfileUrl,
+            OrganizationId = user.OrganizationId!=null ? user.OrganizationId.ToString() : null
         };
         var rolesList = await _userManager.GetRolesAsync(user).ConfigureAwait(false);
         response.Roles = rolesList.ToList();
@@ -129,7 +130,20 @@ public class UserService:IUserService
         }
         
     }
-    
+
+    public async Task<string> UpdateUserAsync(string userId, Guid organizationId)
+    {
+        var user = await _userManager.FindByIdAsync(userId);
+        if (user == null)
+        {
+            throw new ApiException($"No User Registered with {userId}.");
+        }
+        user.OrganizationId = organizationId;
+        _identityContext.Update(user);
+        await _identityContext.SaveChangesAsync();
+        return "User Updated Successfully";
+    }
+
     private RefreshToken GenerateRefreshToken()
     {
         return new RefreshToken

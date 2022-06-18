@@ -5,6 +5,7 @@ using Rx.Domain.Interfaces;
 using Rx.Domain.Interfaces.Blob;
 using Rx.Domain.Interfaces.DbContext;
 using Rx.Domain.Interfaces.Email;
+using Rx.Domain.Interfaces.Identity;
 using Rx.Domain.Interfaces.Payment;
 using Rx.Domain.Interfaces.Primary;
 
@@ -21,9 +22,9 @@ namespace Rx.Domain.Services.Primary
         private readonly Lazy<IBillService> _billService;
 
         public PrimaryServiceManager(IPrimaryDbContext primaryDbContext,ILogger<PrimaryServiceManager> logger ,
-            IMapper mapper,IEmailService emailService,IBlobStorage blobStorage,IPaymentService paymentService,IBackgroundJobClient backgroundJobClient)
+            IMapper mapper,IEmailService emailService,IBlobStorage blobStorage,IPaymentService paymentService,IBackgroundJobClient backgroundJobClient,IUserService userService)
         {
-            _organizationService = new Lazy<IOrganizationService>(() => new OrganizationService(primaryDbContext, logger, mapper,blobStorage,emailService));
+            _organizationService = new Lazy<IOrganizationService>(() => new OrganizationService(primaryDbContext, logger, mapper,blobStorage,emailService,userService));
             _systemSubscriptionService = new Lazy<ISystemSubscriptionService>(() => new SystemSubscriptionService(primaryDbContext,
                 logger, mapper,emailService,paymentService,backgroundJobClient));
             _systemSubscriptionPlanService = new Lazy<ISystemSubscriptionPlanService>(() => new SystemSubscriptionPlanService(primaryDbContext, logger, mapper));

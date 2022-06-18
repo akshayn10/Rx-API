@@ -13,6 +13,7 @@ public class AuthenticationResponse
     public bool IsVerified { get; set; }
     public string JwtToken { get; set; }
     public string? ProfileUrl { get; set; }
+    public string? OrganizationId { get; set; }
     [JsonIgnore]
     public string RefreshToken { get; set; }
     public DateTime RefreshTokenExpiration { get; set; }

@@ -12,7 +12,7 @@ using Swashbuckle.AspNetCore.Annotations;
 
 namespace Rx.API.Controllers.Primary
 {
-    [Route("api/org")]
+    [Route("api/organization")]
     [ApiController]
     public class OrganizationController : ControllerBase
     {
@@ -58,7 +58,7 @@ namespace Rx.API.Controllers.Primary
             }
 
             var createdOrganizationId =await _mediator.Send(new CreateOrganizationUseCase(createOrganizationRequestDto));
-            return CreatedAtRoute("CreateOrganization", new { id = createdOrganizationId }, createdOrganizationId);
+            return Ok("Organization created with id: " + createdOrganizationId);
         }
     }
 }       

@@ -7,6 +7,7 @@ using Rx.Domain.Entities.Primary;
 using Rx.Domain.Interfaces.Blob;
 using Rx.Domain.Interfaces.DbContext;
 using Rx.Domain.Interfaces.Email;
+using Rx.Domain.Interfaces.Identity;
 using Rx.Domain.Interfaces.Primary;
 
 
@@ -19,14 +20,22 @@ namespace Rx.Domain.Services.Primary
         private readonly IMapper _mapper;
         private readonly IBlobStorage _blobStorage;
         private readonly IEmailService _emailService;
-        
-        public OrganizationService(IPrimaryDbContext primaryDbContext, ILogger<PrimaryServiceManager> logger, IMapper mapper,IBlobStorage blobStorage,IEmailService emailService)
+        private readonly IUserService _userService;
+
+        public OrganizationService(IPrimaryDbContext primaryDbContext,
+            ILogger<PrimaryServiceManager> logger,
+            IMapper mapper,
+            IBlobStorage blobStorage,
+            IEmailService emailService,
+            IUserService userService
+            )
         {
             _primaryDbContext = primaryDbContext;
             _logger = logger;
             _mapper = mapper;
             _blobStorage = blobStorage;
             _emailService = emailService;
+            _userService = userService;
         }
         public async Task<Guid> CreateOrganizationAsync(CreateOrganizationRequestDto createOrganizationRequestDto)
         {
@@ -56,10 +65,26 @@ namespace Rx.Domain.Services.Primary
                 LogoURL = logoUrl,
                 AccountOwnerId = createOrganizationRequestDto.AccountOwnerId,
                 Description = createOrganizationRequestDto.Description,
-                OrganizationAddress = createOrganizationRequestDto.OrganizationAddress,
+                Email = createOrganizationRequestDto.Email
             };
             await _primaryDbContext.Organizations!.AddAsync(organizationEntity);
             await _primaryDbContext.SaveChangesAsync();
+            //Add Address
+            var organizationAddress = new OrganizationAddress
+            {
+                AddressLine1 = createOrganizationRequestDto.OrganizationAddress.AddressLine1,
+                AddressLine2 = createOrganizationRequestDto.OrganizationAddress.AddressLine2,
+                City = createOrganizationRequestDto.OrganizationAddress.City,
+                State = createOrganizationRequestDto.OrganizationAddress.State,
+                Country = createOrganizationRequestDto.OrganizationAddress.Country,
+                OrganizationId = organizationEntity.Id,
+            };
+            await _primaryDbContext.OrganizationAddresses!.AddAsync(organizationAddress);
+            await _primaryDbContext.SaveChangesAsync();
+            
+            //Update OrganizationId in User
+            await _userService.UpdateUserAsync(createOrganizationRequestDto.AccountOwnerId!, organizationEntity.Id);
+            
             return organizationEntity.Id;
         }
 
