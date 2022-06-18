@@ -77,15 +77,17 @@ public class UserService:IUserService
             throw new ApiException($"User Not Confirmed for '{request.Email}'.");
         }
         
+        
         //Generate JWT Token
         var jwtSecurityToken = await GenerateJwtToken(user);
         
         var response = new AuthenticationResponse
         {
             Id = user.Id,
-            JWToken = new JwtSecurityTokenHandler().WriteToken(jwtSecurityToken),
+            JwtToken = new JwtSecurityTokenHandler().WriteToken(jwtSecurityToken),
             Email = user.Email,
-            UserName = user.UserName
+            UserName = user.UserName,
+            ProfileUrl = user.ProfileUrl
         };
         var rolesList = await _userManager.GetRolesAsync(user).ConfigureAwait(false);
         response.Roles = rolesList.ToList();
@@ -401,26 +403,25 @@ public class UserService:IUserService
             return authenticationResponse;
         }
         
-        //Revoke Current Refresh Token
-        refreshToken.Revoked = DateTime.UtcNow;
-        
-        //Generate new Refresh Token and save to Database
-        var newRefreshToken = GenerateRefreshToken();
-        user.RefreshTokens.Add(newRefreshToken);
-        _identityContext.Update(user);
-        await _identityContext.SaveChangesAsync();
-        
+        // //Revoke Current Refresh Token
+        // refreshToken.Revoked = DateTime.UtcNow;
+        //
+        // //Generate new Refresh Token and save to Database
+        // var newRefreshToken = GenerateRefreshToken();
+        // user.RefreshTokens.Add(newRefreshToken);
+        // _identityContext.Update(user);
+        // await _identityContext.SaveChangesAsync();
         
         //Generates new jwt
         authenticationResponse.IsAuthenticated = true;
         JwtSecurityToken jwtSecurityToken = await GenerateJwtToken(user);
-        authenticationResponse.JWToken = new JwtSecurityTokenHandler().WriteToken(jwtSecurityToken);
+        authenticationResponse.JwtToken = new JwtSecurityTokenHandler().WriteToken(jwtSecurityToken);
         authenticationResponse.Email = user.Email;
         authenticationResponse.UserName = user.UserName;
         var rolesList = await _userManager.GetRolesAsync(user).ConfigureAwait(false);
         authenticationResponse.Roles = rolesList.ToList();
-        authenticationResponse.RefreshToken = newRefreshToken.Token;
-        authenticationResponse.RefreshTokenExpiration = newRefreshToken.Expires;
+        authenticationResponse.RefreshToken = token;
+        authenticationResponse.RefreshTokenExpiration = refreshToken.Expires;
         return authenticationResponse;
     }
     
