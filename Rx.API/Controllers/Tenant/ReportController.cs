@@ -21,5 +21,4 @@ public class ReportController:ControllerBase
         var res = await _mediator.Send(new GetSubscriptionStatUseCase());
         return Ok(res);
     }
-
 }
