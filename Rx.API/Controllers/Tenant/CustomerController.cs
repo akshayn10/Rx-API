@@ -57,10 +57,9 @@ namespace Rx.API.Controllers.Tenant
             return CreatedAtAction(nameof(GetCustomerById), new {id = createdCustomer.CustomerId}, createdCustomer);
         }
 
-        [HttpGet]
-        [SwaggerOperation(Summary = "Get Customer Stats for Dashboard")]
-        [Route("stats")]
-        public async Task<IActionResult> GetCustomersDetails()
+        [HttpGet("stats")]
+        [SwaggerOperation(Summary = "Get Customer Stats")]
+        public async Task<IActionResult> GetCustomerStats()
         {
             var stats = await _mediator.Send(new GetCustomerStatsUseCase() );
             return Ok(stats);

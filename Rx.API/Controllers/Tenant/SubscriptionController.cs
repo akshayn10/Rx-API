@@ -84,5 +84,12 @@ namespace Rx.API.Controllers.Tenant
             var subscription = await _mediator.Send(new GetSubscriptionByIdForCustomerUseCase(customerId));
             return Ok(subscription);
         }
+        [HttpGet("sub-stats")]
+        [SwaggerOperation(Summary = "Get subscription stats")]
+        public async Task<IActionResult> GetSubscriptionStats()
+        {
+            var stats = await _mediator.Send(new GetSubscriptionStatsUseCase());
+            return Ok(stats);
+        }
     }
 }
