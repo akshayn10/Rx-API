@@ -39,5 +39,11 @@ public class DashboardController:ControllerBase
         var result = await _mediator.Send(new GetDashboardStatUseCase());
         return Ok(result);
     }
+    [HttpGet("tableStats")]
+    public async Task<IActionResult> GetTableStats()
+    {
+        var result = await _mediator.Send(new GetTableStatUseCase());
+        return Ok(result);
+    }
 
 }
