@@ -9,5 +9,6 @@ namespace Rx.Domain.Interfaces
         ISystemSubscriptionService SystemSubscriptionService { get; }
         ISystemSubscriptionPlanService SystemSubscriptionPlanService { get; }
         ITransactionService TransactionService { get; }
+        IMarketplaceService MarketplaceService { get; }
     }
 }

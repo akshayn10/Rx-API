@@ -18,6 +18,7 @@ namespace Rx.Domain.Entities.Tenant
         public string? WebhookSecret { get; set; }
         public string? LogoURL { get; set; }
         public int FreeTrialDays { get; set; }
+        public bool? IsAddedToMarketplace { get; set; }
         public ICollection<ProductPlan>? ProductPlans { get; set; }
         public ICollection<AddOn>? AddOns { get; set; }
         public ICollection<SubscriptionStat>? SubscriptionStats { get; set; }

@@ -265,6 +265,7 @@ public class UserService:IUserService
             FullName = request.Username,
             UserName = request.Username,
             EmailConfirmed = true,
+            OrganizationId = Guid.Parse(request.OrganizationId) 
         };
         var userWithSameUserEmail = await _userManager.FindByEmailAsync(request.Email);
         if (userWithSameUserEmail == null)
@@ -428,6 +429,10 @@ public class UserService:IUserService
         
         //Generates new jwt
         authenticationResponse.IsAuthenticated = true;
+        authenticationResponse.IsVerified = true;
+        authenticationResponse.Id = user.Id;
+        authenticationResponse.ProfileUrl = user.ProfileUrl;
+        authenticationResponse.OrganizationId = user.OrganizationId.ToString();
         JwtSecurityToken jwtSecurityToken = await GenerateJwtToken(user);
         authenticationResponse.JwtToken = new JwtSecurityTokenHandler().WriteToken(jwtSecurityToken);
         authenticationResponse.Email = user.Email;

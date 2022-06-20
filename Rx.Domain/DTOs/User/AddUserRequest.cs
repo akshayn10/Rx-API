@@ -2,4 +2,4 @@
 
 namespace Rx.Domain.DTOs.User;
 
-public record AddUserRequest(string Username,string Email,string Role);
+public record AddUserRequest(string Username,string Email,string Role,string OrganizationId);

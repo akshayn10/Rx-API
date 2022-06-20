@@ -10,6 +10,7 @@ public class MarketplaceProducts
     public string? Description { get; set; }
     public string? Name { get; set; }
     public string? LogoUrl { get; set; }
-    public bool HaveTrial { get; set; }
+    public bool? HaveTrial { get; set; }
     public string? ProviderName { get; set; }
+    public string? RedirectUrl { get; set; }
 }

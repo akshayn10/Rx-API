@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Rx.Domain.DTOs.Marketplace;
 using Rx.Domain.DTOs.Primary.Organization;
 using Rx.Domain.DTOs.Tenant.AddOn;
 using Rx.Domain.DTOs.Tenant.AddOnPricePerPlan;
@@ -57,6 +58,11 @@ namespace Rx.API.Mapping
             CreateMap<SubscriptionWebhookForCreationDto, SubscriptionWebhook>();
             //AddOnWebhook
             CreateMap<AddOnWebhookDto, AddOnWebhook>();
+            
+            //Marketplace
+            CreateMap<MarketplaceProducts, MarketplaceProductDto>();
+            CreateMap<MarketplaceProductDto,MarketplaceProducts>();
+
 
 
         }

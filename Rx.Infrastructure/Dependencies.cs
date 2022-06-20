@@ -83,7 +83,6 @@ namespace Rx.Infrastructure
             services.AddTransient<IUserService, UserService>();
             #endregion
 
-            // services.AddScoped<IIdentityContext,IdentityContext>();
             services.Configure<JwtSecurityTokenSettings>(configuration.GetSection("JwtSecurityTokenSettings"));
             services.AddAuthentication(options =>
             {
@@ -104,40 +103,6 @@ namespace Rx.Infrastructure
                         ValidIssuer = configuration["JwtSecurityTokenSettings:Issuer"],
                         ValidAudience = configuration["JwtSecurityTokenSettings:Audience"],
                         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["JwtSecurityTokenSettings:Key"]))
-                    };
-                    o.Events = new JwtBearerEvents()
-                    {
-                        // OnAuthenticationFailed = c =>
-                        // {
-                        //     c.NoResult();
-                        //     c.Response.StatusCode = 500;
-                        //     c.Response.ContentType = "text/plain";
-                        //     return c.Response.WriteAsync(c.Exception.ToString());
-                        // },
-                        OnAuthenticationFailed = c =>
-                        {
-                            c.NoResult();
-                            c.Response.StatusCode = 401;
-                            c.Response.ContentType = "text/plain";
-                            c.Response.ContentType = "application/json";
-                            var result = JsonConvert.SerializeObject(new ResponseMessage<string>("You are not Authorized"));
-                            return c.Response.WriteAsync(result);
-                        },
-                        OnChallenge = context =>
-                        {
-                            context.HandleResponse();
-                            context.Response.StatusCode = 401;
-                            context.Response.ContentType = "application/json";
-                            var result = JsonConvert.SerializeObject(new ResponseMessage<string>("You are not Authorized"));
-                            return context.Response.WriteAsync(result);
-                        },
-                        OnForbidden = context =>
-                        {
-                            context.Response.StatusCode = 403;
-                            context.Response.ContentType = "application/json";
-                            var result = JsonConvert.SerializeObject(new ResponseMessage<string>("You are not authorized to access this resource"));
-                            return context.Response.WriteAsync(result);
-                        },
                     };
                 });
         }

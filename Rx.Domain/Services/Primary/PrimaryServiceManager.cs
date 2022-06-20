@@ -20,8 +20,9 @@ namespace Rx.Domain.Services.Primary
         private readonly Lazy<ISystemSubscriptionPlanService> _systemSubscriptionPlanService;
         private readonly Lazy<ITransactionService> _transactionService;
         private readonly Lazy<IBillService> _billService;
+        private readonly Lazy<IMarketplaceService> _marketplaceService;
 
-        public PrimaryServiceManager(IPrimaryDbContext primaryDbContext,ILogger<PrimaryServiceManager> logger ,
+        public PrimaryServiceManager(IPrimaryDbContext primaryDbContext,ILogger<PrimaryServiceManager> logger ,ITenantDbContext tenantDbContext,
             IMapper mapper,IEmailService emailService,IBlobStorage blobStorage,IPaymentService paymentService,IBackgroundJobClient backgroundJobClient,IUserService userService)
         {
             _organizationService = new Lazy<IOrganizationService>(() => new OrganizationService(primaryDbContext, logger, mapper,blobStorage,emailService,userService));
@@ -30,6 +31,7 @@ namespace Rx.Domain.Services.Primary
             _systemSubscriptionPlanService = new Lazy<ISystemSubscriptionPlanService>(() => new SystemSubscriptionPlanService(primaryDbContext, logger, mapper));
             _transactionService = new Lazy<ITransactionService>(() => new TransactionService(primaryDbContext, logger, mapper));
             _billService = new Lazy<IBillService>(() => new BillService(primaryDbContext, logger, mapper));
+            _marketplaceService = new Lazy<IMarketplaceService>(() => new MarketplaceService(primaryDbContext, logger, mapper,tenantDbContext));
         }
 
         public IOrganizationService OrganizationService => _organizationService.Value;
@@ -37,5 +39,6 @@ namespace Rx.Domain.Services.Primary
         public ISystemSubscriptionPlanService SystemSubscriptionPlanService => _systemSubscriptionPlanService.Value;
         public ITransactionService TransactionService => _transactionService.Value;
         public IBillService BillService => _billService.Value;
+        public IMarketplaceService MarketplaceService => _marketplaceService.Value;
     }
 }

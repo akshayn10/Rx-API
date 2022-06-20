@@ -63,9 +63,10 @@ public class UserController:ControllerBase
         return Ok(response);
     }
     [HttpPost("refresh-token")]
-    public async Task<IActionResult> RefreshToken()
+    public async Task<IActionResult> RefreshToken([FromBody] RefreshTokenReq req)
     {
-        var refreshToken = Request.Cookies["refreshToken"];
+        var refreshToken =req.Token?? Request.Cookies["refreshToken"];
+        
         var response = await _mediator.Send(new RefreshTokenUseCase(refreshToken));
         if (!string.IsNullOrEmpty(response.RefreshToken))
             SetRefreshTokenInCookie(response.RefreshToken);
@@ -112,7 +113,7 @@ public class UserController:ControllerBase
     }
     
     [HttpGet("{id}")]
-    public async Task<IActionResult> GetUserById(string id)
+    public async Task<IActionResult> GetUserById([FromBody] string id)
     {
         var response = await _mediator.Send(new GetUserByIdUseCase(id));
         return Ok(response);
