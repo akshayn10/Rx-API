@@ -63,7 +63,7 @@ public class PaymentService:IPaymentService
             return customer.Email;
         }
         
-        public async Task<bool> CreateCustomer(string name, string email, string systemId)
+        public async Task<bool> CreateCustomer(string name, string email, string systemId,string description)
         {
             this._logger.LogInformation("Creating Customer in Stripe");
             try
@@ -75,7 +75,8 @@ public class PaymentService:IPaymentService
                     Metadata = new Dictionary<string, string>()
                     {
                         { "ID", systemId}
-                    }
+                    },
+                    Description = description
                 };
                 var service = new CustomerService();
                 Customer c = await service.CreateAsync(options);

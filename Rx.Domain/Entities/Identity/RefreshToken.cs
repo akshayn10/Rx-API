@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 
-namespace Rx.Domain.Entities.Primary;
+namespace Rx.Domain.Entities.Identity;
 
 
 

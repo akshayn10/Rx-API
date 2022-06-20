@@ -28,7 +28,7 @@ public class UserController:ControllerBase
         var cookieOptions = new CookieOptions
         {
             HttpOnly = true,
-            Expires = DateTime.UtcNow.AddDays(10),
+            Expires = DateTime.UtcNow.AddDays(7),
         };
         Response.Cookies.Append("refreshToken", refreshToken, cookieOptions);
     }
@@ -63,15 +63,38 @@ public class UserController:ControllerBase
         return Ok(response);
     }
     [HttpPost("refresh-token")]
-    public async Task<IActionResult> RefreshToken()
+    public async Task<IActionResult> RefreshToken([FromBody] RefreshTokenReq req)
     {
-        var refreshToken = Request.Cookies["refreshToken"];
+        var refreshToken =req.Token?? Request.Cookies["refreshToken"];
+        
         var response = await _mediator.Send(new RefreshTokenUseCase(refreshToken));
         if (!string.IsNullOrEmpty(response.RefreshToken))
             SetRefreshTokenInCookie(response.RefreshToken);
         return Ok(response);
     }
-    
+    [HttpPost("logout")]
+    public async Task<IActionResult> Logout([FromBody] RevokeTokenRequest request)
+    {
+        var token = request.Token ?? Request.Cookies["refreshToken"];
+        if (string.IsNullOrEmpty(token))
+            return BadRequest(new { message = "Token is required" });
+        var response = await _mediator.Send(new RevokeTokenUseCase(token));
+        return Ok("Logout success");
+    }
+    [HttpPost("change-password")]
+    public async Task<IActionResult> ChangePassword(ChangePasswordRequest request)
+    {
+        var response = await _mediator.Send(new ChangePasswordUseCase(request));
+        return Ok(response);
+    }
+    [HttpPost("add-user")]
+    public async Task<IActionResult> AddUser(AddUserRequest request)
+    {
+        var origin = Request.Headers["origin"];
+        var response = await _mediator.Send(new AddUserUseCase(request,origin));
+        return Ok(response);
+    }
+
     [HttpPost("revoke-token")]
     public async Task<IActionResult> RevokeToken([FromBody] RevokeTokenRequest model)
     {
@@ -90,7 +113,7 @@ public class UserController:ControllerBase
     }
     
     [HttpGet("{id}")]
-    public async Task<IActionResult> GetUserById(string id)
+    public async Task<IActionResult> GetUserById([FromBody] string id)
     {
         var response = await _mediator.Send(new GetUserByIdUseCase(id));
         return Ok(response);

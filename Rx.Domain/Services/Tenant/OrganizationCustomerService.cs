@@ -1,6 +1,9 @@
 ﻿using AutoMapper;
+using Hangfire;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
+using Rx.Domain.DTOs.Payment;
 using Rx.Domain.DTOs.Tenant.OrganizationCustomer;
 using Rx.Domain.DTOs.Tenant.Subscription;
 using Rx.Domain.Entities.Tenant;
@@ -18,13 +21,23 @@ namespace Rx.Domain.Services.Tenant
         private readonly ILogger _logger;
         private readonly IMapper _mapper;
         private readonly IPaymentService _paymentService;
+        private readonly IBillingService _billingService;
+        private readonly IRecurringJobManager _recurringJobManager;
 
-        public OrganizationCustomerService(ITenantDbContext tenantDbContext,ILogger logger, IMapper mapper,IPaymentService paymentService)
+        public OrganizationCustomerService(ITenantDbContext tenantDbContext,
+            ILogger logger,
+            IMapper mapper,
+            IPaymentService paymentService,
+            IBillingService billingService,
+            IRecurringJobManager recurringJobManager
+            )
         {
             _tenantDbContext = tenantDbContext;
             _logger = logger;
             _mapper = mapper;
             _paymentService = paymentService;
+            _billingService = billingService;
+            _recurringJobManager = recurringJobManager;
         }
 
         public async Task<IEnumerable<OrganizationCustomerDto>> GetCustomers()
@@ -57,16 +70,32 @@ namespace Rx.Domain.Services.Tenant
             {
                 throw new NullReferenceException("Customer not found for the email");
             }
-            customer.PaymentGatewayId = customerId;
             customer.Last4 = last4;
             customer.PaymentMethodId = paymentMethodId;
             await _tenantDbContext.SaveChangesAsync();
             var addOnWebhook =await _tenantDbContext.SubscriptionWebhooks.Where(sw => sw.CustomerEmail == customerEmail)
                 .OrderByDescending(s=>s.RetrievedDate)
                 .FirstOrDefaultAsync();
+            
+            
+            //Create a recurring job to start Bill Generation
+            var billJobId = "bill_" + customer.CustomerId.ToString();
+            _recurringJobManager.AddOrUpdate(billJobId,() => _billingService.GenerateBill(customer.CustomerId),
+                Cron.Monthly(DateTime.Now.Day));
 
             return addOnWebhook!.WebhookId;
         }
+        public async Task AddPaymentGatewayIdToCustomer(Guid customerId, string paymentGatewayId)
+        {
+            var customer = await _tenantDbContext.OrganizationCustomers!.FindAsync(customerId);
+            if (customer == null)
+            {
+                throw new NullReferenceException("Customer not found for the id");
+            }
+            customer.PaymentGatewayId = paymentGatewayId;
+            await _tenantDbContext.SaveChangesAsync();
+        }
+
         
         public async Task<string> CreateCustomerFromWebhook(Guid webhookId)
         {
@@ -80,9 +109,12 @@ namespace Rx.Domain.Services.Tenant
                 var customer = _mapper.Map<OrganizationCustomer>(customerForCreationDto);
                 await _tenantDbContext.OrganizationCustomers!.AddAsync(customer);
                 await _tenantDbContext.SaveChangesAsync();
-                await _paymentService.CreateCustomer(customer.Name!, customer.Email!,customer.CustomerId.ToString());
+                var stripeDescription = new StripeDescription("customer", customer.CustomerId.ToString());
+                var stripeDescriptionJson = JsonConvert.SerializeObject(stripeDescription);
+                await _paymentService.CreateCustomer(customer.Name!, customer.Email!,customer.CustomerId.ToString(),stripeDescriptionJson);
                 return "https://localhost:44352/api/Payment?customerEmail="+customer.Email;;
         }
+
 
         public async Task<CustomerStatsDto> GetCustomerStats()
         {

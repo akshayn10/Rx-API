@@ -14,7 +14,8 @@ public class Bill
         [Required(ErrorMessage = "Total Amount is required")]
         [Column(TypeName = "decimal(18,4)")]
         public decimal TotalAmount { get; set; }
-
+        
+        public string? BillDetails { get; set; }
         
         [ForeignKey(nameof(OrganizationCustomer))]
         public Guid CustomerId { get; set; }

@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Identity;
+using Rx.Domain.Entities.Identity;
 using Rx.Domain.Entities.Primary;
 using Rx.Domain.Enums;
 

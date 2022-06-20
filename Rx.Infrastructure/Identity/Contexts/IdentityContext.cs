@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Rx.Domain.DTOs.User;
-using Rx.Domain.Entities.Primary;
+using Rx.Domain.Entities.Identity;
 using Rx.Domain.Interfaces.DbContext;
 
 namespace Rx.Infrastructure.Identity.Contexts;

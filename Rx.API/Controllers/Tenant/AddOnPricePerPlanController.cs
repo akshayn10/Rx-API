@@ -33,8 +33,16 @@ public class AddOnPricePerPlanController:ControllerBase
         var addOnPricePerPlan = await _mediator.Send(new GetAddOnPricePerPlanByIdUseCase( Guid.Parse(pricePerPlanId)));
         return Ok(addOnPricePerPlan);
     }
-
-    [HttpPost]
+    
+    [HttpGet("addOnPlan/{productId}")]
+    [SwaggerOperation(Summary = "Get all addOns")]
+    public async Task<IActionResult> GetAddOnPerProduct(string productId)
+    {
+        var addOnPerProduct = await _mediator.Send(new GetAddOnPerProductUseCase(Guid.Parse(productId)));
+        return Ok(addOnPerProduct);
+    }
+    
+    [HttpPost("{addOnId}/{planId}")]
     [SwaggerOperation(summary: "Add Addon Price per Plan")]
     public async Task<IActionResult> AddAddOnPrice(string planId, string addOnId,
         [FromBody] AddOnPricePerPlanForCreationDto addOnPricePerPlanForCreationDto)
@@ -48,4 +56,29 @@ public class AddOnPricePerPlanController:ControllerBase
             createdAddOnPricePerPlan);
     }
     
+  [HttpDelete("{addOnPricePerPlanId}")]
+    [SwaggerOperation(summary: "Delete Addon Price")]
+  
+  public async Task<IActionResult> DeleteAddOnPrice(Guid addOnPricePerPlanId)
+        {
+            await _mediator.Send(new DeleteAddOnPricePerPlanUseCase( addOnPricePerPlanId));
+            return NoContent();
+        }
+  
+    [HttpPut("{addOnPricePerPlanId}")]
+    [SwaggerOperation(summary: "Update AddonPrice")]
+    
+    public async Task<IActionResult> UpdateAddOnPrice(string addOnPricePerPlanId, [FromBody] AddOnPriceForUpdateDto addOnPriceForUpdateDto)
+    {
+        if(addOnPriceForUpdateDto == null)
+        {
+            return BadRequest("Body is empty");
+        }
+        
+        var updatedAddOnPrice = await _mediator.Send(new EditAddOnPriceUseCase(Guid.Parse(addOnPricePerPlanId),addOnPriceForUpdateDto ));
+        return Ok(updatedAddOnPrice);
+        
+    }
+    
+
 }

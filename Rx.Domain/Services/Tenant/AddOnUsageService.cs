@@ -99,6 +99,7 @@ public class AddOnUsageService: IAddOnUsageService
         }
 
         var addOn =await _tenantDbContext.AddOns!.FindAsync(webhook.AddOnId);
+        
         //store Transaction
         var transactionDto = new TransactionForCreationDto(DateTime.Now, Convert.ToDecimal(amount), addOn.Name,"Succeeded",webhook.SubscriptionId);
         var transaction = _mapper.Map<PaymentTransaction>(transactionDto);

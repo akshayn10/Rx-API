@@ -3,25 +3,23 @@ using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.AspNetCore.WebUtilities;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Rx.Domain.Interfaces.UtcDateTime;
 using Rx.Domain.DTOs.Email;
 using Rx.Domain.DTOs.User;
-using Rx.Domain.Entities.Primary;
 using Rx.Domain.Enums;
 using Rx.Domain.Exceptions;
 using Rx.Domain.Interfaces.Blob;
-using Rx.Domain.Interfaces.DbContext;
 using Rx.Domain.Interfaces.Email;
 using Rx.Domain.Interfaces.Identity;
 using Rx.Domain.Settings;
 using Rx.Domain.Wrappers;
 using Rx.Infrastructure.Identity.Contexts;
+using Hangfire;
+using Rx.Domain.Entities.Identity;
 
 namespace Rx.Infrastructure.Identity.Service;
 
@@ -36,6 +34,7 @@ public class UserService:IUserService
     private readonly IdentityContext _identityContext;
     private readonly ILogger<IUserService> _logger;
     private readonly IBlobStorage _blobStorage;
+    private readonly IBackgroundJobClient _backgroundJobClient;
 
     public UserService(
         UserManager<ApplicationUser> userManager,
@@ -46,7 +45,8 @@ public class UserService:IUserService
         IEmailService emailService,
         IdentityContext identityContext,
         ILogger<IUserService> logger,
-        IBlobStorage blobStorage
+        IBlobStorage blobStorage,
+        IBackgroundJobClient backgroundJobClient
         )
     {
         _userManager = userManager;
@@ -58,6 +58,7 @@ public class UserService:IUserService
         _identityContext = identityContext;
         _logger = logger;
         _blobStorage = blobStorage;
+        _backgroundJobClient = backgroundJobClient;
     }
     public async Task<ResponseMessage<AuthenticationResponse>> AuthenticateAsync(AuthenticationRequest request)
     {
@@ -76,15 +77,18 @@ public class UserService:IUserService
             throw new ApiException($"User Not Confirmed for '{request.Email}'.");
         }
         
+        
         //Generate JWT Token
         var jwtSecurityToken = await GenerateJwtToken(user);
         
         var response = new AuthenticationResponse
         {
             Id = user.Id,
-            JWToken = new JwtSecurityTokenHandler().WriteToken(jwtSecurityToken),
+            JwtToken = new JwtSecurityTokenHandler().WriteToken(jwtSecurityToken),
             Email = user.Email,
-            UserName = user.UserName
+            UserName = user.UserName,
+            ProfileUrl = user.ProfileUrl,
+            OrganizationId = user.OrganizationId!=null ? user.OrganizationId.ToString() : null
         };
         var rolesList = await _userManager.GetRolesAsync(user).ConfigureAwait(false);
         response.Roles = rolesList.ToList();
@@ -99,6 +103,47 @@ public class UserService:IUserService
         
         return new ResponseMessage<AuthenticationResponse>(response, $"Authenticated {user.UserName}");
     }
+    public async Task<ResponseMessage<string>> ChangePasswordAsync(ChangePasswordRequest request)
+    {
+        var user = await _userManager.FindByEmailAsync(request.Email);
+        if (user == null)
+        {
+            throw new ApiException($"No User Registered with {request.Email}.");
+        }
+        var result = await _userManager.ChangePasswordAsync(user, request.OldPassword, request.NewPassword);
+        if(result.Succeeded)
+        {
+            var emailRequest = new EmailRequest()
+            {
+                To = user.Email,
+                Subject = "Password Change Successful",
+                Body = $"Password Changed Successfully for {user.UserName} at {_dateTimeService.NowUtc}",
+
+            };
+            _backgroundJobClient.Enqueue(()=>_emailService.SendAsync(emailRequest));
+            // await _emailService.SendAsync(emailRequest);
+            return new ResponseMessage<string>(request.Email, message: $"Password Reset Successful.");
+        }
+        else
+        {
+            throw new ApiException($"Error occured while password reset.");
+        }
+        
+    }
+
+    public async Task<string> UpdateUserAsync(string userId, Guid organizationId)
+    {
+        var user = await _userManager.FindByIdAsync(userId);
+        if (user == null)
+        {
+            throw new ApiException($"No User Registered with {userId}.");
+        }
+        user.OrganizationId = organizationId;
+        _identityContext.Update(user);
+        await _identityContext.SaveChangesAsync();
+        return "User Updated Successfully";
+    }
+
     private RefreshToken GenerateRefreshToken()
     {
         return new RefreshToken
@@ -196,7 +241,8 @@ public class UserService:IUserService
                     Body = $"Please confirm your user by visiting this URL {verificationUri}"
 
                 };
-                await _emailService.SendAsync(emailRequest);
+                _backgroundJobClient.Enqueue(()=>_emailService.SendAsync(emailRequest));
+                // await _emailService.SendAsync(emailRequest);
                 return new ResponseMessage<string>(user.Id,
                     message: $"User Registered. Please confirm your user by visiting this URL {verificationUri}");
             }
@@ -210,6 +256,58 @@ public class UserService:IUserService
             throw new ApiException($"Email {request.Email } is already registered.");
         }
     }
+    public async Task<ResponseMessage<string>> AddUserAsync(AddUserRequest request,string origin)
+    {
+        var oneTimePassword = string.Concat("Rx1", Guid.NewGuid().ToString("N").Substring(0, 9));
+        var user = new ApplicationUser
+        {
+            Email = request.Email,
+            FullName = request.Username,
+            UserName = request.Username,
+            EmailConfirmed = true,
+            OrganizationId = Guid.Parse(request.OrganizationId) 
+        };
+        var userWithSameUserEmail = await _userManager.FindByEmailAsync(request.Email);
+        if (userWithSameUserEmail == null)
+        {
+            var result = await _userManager.CreateAsync(user, oneTimePassword);
+            if (result.Succeeded)
+            {
+                if (request.Role == "Admin")
+                {
+                    await _userManager.AddToRolesAsync(user,
+                        new[] {Roles.Admin.ToString(), Roles.FinanceUser.ToString()});
+                }
+                else if (request.Role == "FinanceUser")
+                {
+                    await _userManager.AddToRolesAsync(user,
+                        new[] {Roles.FinanceUser.ToString()});
+                }
+
+                var emailRequest = new EmailRequest()
+                {
+                    To = user.Email,
+                    Subject = $"You have been added to the system as {request.Role}",
+                    Body = $"Please Login to the system using Onetime password : {oneTimePassword} \n Login Page: {origin}/auth/login"
+
+                };
+                _backgroundJobClient.Enqueue(()=>_emailService.SendAsync(emailRequest));
+                // await _emailService.SendAsync(emailRequest);
+                return new ResponseMessage<string>(request.Email,
+                    message: $"User Added. Please Login to the system using Onetime password : {oneTimePassword} \n Login Page: {origin}/auth/login");
+            }
+            else
+            {
+                throw new ApiException($"{result.Errors}");
+            }
+        }
+        else
+        {
+            throw new ApiException($"Email {request.Email } is already registered.");
+        }
+    }
+
+
     private async Task<string> VerificationUri(ApplicationUser user, string origin)
     {
         var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
@@ -250,7 +348,8 @@ public class UserService:IUserService
             To = model.Email,
             Subject = "Reset Password",
         };
-        await _emailService.SendAsync(emailRequest);
+        _backgroundJobClient.Enqueue(()=>_emailService.SendAsync(emailRequest));
+        // await _emailService.SendAsync(emailRequest);
     }
 
     public async Task<ResponseMessage<string>> ResetPassword(ResetPasswordRequest model)
@@ -260,6 +359,15 @@ public class UserService:IUserService
         var result = await _userManager.ResetPasswordAsync(user, model.Token, model.Password);
         if(result.Succeeded)
         {
+            var emailRequest = new EmailRequest()
+            {
+                To = user.Email,
+                Subject = "Password Reset Successful",
+                Body = $"Password Reset Successful for {user.UserName} at {_dateTimeService.NowUtc}",
+
+            };
+            _backgroundJobClient.Enqueue(()=>_emailService.SendAsync(emailRequest));
+            // await _emailService.SendAsync(emailRequest);
             return new ResponseMessage<string>(model.Email, message: $"Password Reset Successful.");
         }
         else
@@ -310,26 +418,29 @@ public class UserService:IUserService
             return authenticationResponse;
         }
         
-        //Revoke Current Refresh Token
-        refreshToken.Revoked = DateTime.UtcNow;
-        
-        //Generate new Refresh Token and save to Database
-        var newRefreshToken = GenerateRefreshToken();
-        user.RefreshTokens.Add(newRefreshToken);
-        _identityContext.Update(user);
-        await _identityContext.SaveChangesAsync();
-        
+        // //Revoke Current Refresh Token
+        // refreshToken.Revoked = DateTime.UtcNow;
+        //
+        // //Generate new Refresh Token and save to Database
+        // var newRefreshToken = GenerateRefreshToken();
+        // user.RefreshTokens.Add(newRefreshToken);
+        // _identityContext.Update(user);
+        // await _identityContext.SaveChangesAsync();
         
         //Generates new jwt
         authenticationResponse.IsAuthenticated = true;
+        authenticationResponse.IsVerified = true;
+        authenticationResponse.Id = user.Id;
+        authenticationResponse.ProfileUrl = user.ProfileUrl;
+        authenticationResponse.OrganizationId = user.OrganizationId.ToString();
         JwtSecurityToken jwtSecurityToken = await GenerateJwtToken(user);
-        authenticationResponse.JWToken = new JwtSecurityTokenHandler().WriteToken(jwtSecurityToken);
+        authenticationResponse.JwtToken = new JwtSecurityTokenHandler().WriteToken(jwtSecurityToken);
         authenticationResponse.Email = user.Email;
         authenticationResponse.UserName = user.UserName;
         var rolesList = await _userManager.GetRolesAsync(user).ConfigureAwait(false);
         authenticationResponse.Roles = rolesList.ToList();
-        authenticationResponse.RefreshToken = newRefreshToken.Token;
-        authenticationResponse.RefreshTokenExpiration = newRefreshToken.Expires;
+        authenticationResponse.RefreshToken = token;
+        authenticationResponse.RefreshTokenExpiration = refreshToken.Expires;
         return authenticationResponse;
     }
     
@@ -351,10 +462,10 @@ public class UserService:IUserService
         _identityContext.SaveChanges();
         
         return true;
-        throw new NotImplementedException();
 
     }
-    
+
+
     public async Task<ApplicationUser> GetById(string id)
     {
         var user =await _userManager.FindByIdAsync(id);

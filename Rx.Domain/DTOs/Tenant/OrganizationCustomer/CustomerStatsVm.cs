@@ -2,5 +2,5 @@
 
 public record CustomerStatsVm(int TotalCustomers,
     int ActiveCustomers,
-    int InactiveCustomers,
-    int NewCustomerCountForMonth);
+    int InactiveCustomers
+    );

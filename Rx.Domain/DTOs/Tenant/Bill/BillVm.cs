@@ -1,3 +1,3 @@
 ﻿namespace Rx.Domain.DTOs.Tenant.Bill;
 
-public record BillVm(string billId,string? customerName,string? Email,string? GeneratedDate,decimal totalAmount);
+public record BillVm(string BillId,string? CustomerName,string? Email,string? GeneratedDate,decimal TotalAmount,List<SubscriptionForBill> SubscriptionsForBill);

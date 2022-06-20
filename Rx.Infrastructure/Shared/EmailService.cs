@@ -23,6 +23,7 @@ public class EmailService:IEmailService
             // create message
             var email = new MimeMessage();
             email.Sender = new MailboxAddress(_mailSettings.DisplayName, _mailSettings.EmailFrom);
+            email.From.Add(new MailboxAddress(_mailSettings.DisplayName, _mailSettings.EmailFrom));
             email.To.Add(MailboxAddress.Parse(request.To));
             email.Subject = request.Subject;
             var builder = new BodyBuilder();
@@ -33,12 +34,10 @@ public class EmailService:IEmailService
             await smtp.AuthenticateAsync(_mailSettings.SmtpUser, _mailSettings.SmtpPass);
             await smtp.SendAsync(email);
             await smtp.DisconnectAsync(true);
-
         }
         catch (System.Exception ex)
         {
             throw new Exception(ex.Message);
         }
-        
     }
 }

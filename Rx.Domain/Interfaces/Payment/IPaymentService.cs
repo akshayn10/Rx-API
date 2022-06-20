@@ -4,7 +4,7 @@ namespace Rx.Domain.Interfaces.Payment;
 
 public interface IPaymentService
 {
-    Task<bool> CreateCustomer(string name, string email, string systemId);
+    Task<bool> CreateCustomer(string name, string email, string systemId,string descrription);
     Task<List<PaymentModel.CustomerModel>> GetCustomers(int take);
     Task<PaymentModel.CustomerModel> GetCustomerByEmail(string email, params PaymentModel.PaymentModelInclude[] include);
     

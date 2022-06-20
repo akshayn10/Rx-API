@@ -18,14 +18,12 @@ namespace Rx.API.Controllers.Primary
     {
         private readonly ILogger<OrganizationController> _logger;
         private readonly IMediator _mediator;
-        private readonly IEmailService _emailService;
 
 
-        public OrganizationController(ILogger<OrganizationController> logger,IMediator mediator,IEmailService emailService)
+        public OrganizationController(ILogger<OrganizationController> logger,IMediator mediator)
         {
             _logger = logger;
             _mediator = mediator;
-            _emailService = emailService;
         }
         [HttpGet]
         [SwaggerOperation(Summary = "Get all Organizations")]
@@ -34,28 +32,33 @@ namespace Rx.API.Controllers.Primary
             _logger.LogInformation("Executing");
             var organizations = await _mediator.Send(new RetrieveOrganizationUseCase());
             return Ok(organizations);
-
-
+            
         }
 
-        [HttpPost(Name = "CreateOrganization")]
+        [HttpPost("test")]
         [SwaggerOperation(Summary = "Create a new Organization")]
-        public async Task<IActionResult> CreateOrganization([FromBody] OrganizationForCreationDto organizationForCreationDto)
+        public async Task<IActionResult> CreateOrganizationTest([FromBody] OrganizationForCreationDto organizationForCreationDto)
         {
             if (organizationForCreationDto is null)
             {
                 return BadRequest("OrganizationForCreationDto is null");
             }
 
-            var createdOrganization =await _mediator.Send(new CreateOrganizationUseCase(organizationForCreationDto));
+            var createdOrganization =await _mediator.Send(new CreateOrganizationTestUseCase(organizationForCreationDto));
             return CreatedAtRoute("CreateOrganization", new { id = createdOrganization.Id }, createdOrganization);
         }
-
-        [HttpPost("mail")]
-        public async Task<IActionResult> SendMail([FromBody] EmailRequest emailRequest)
+        
+        [HttpPost]
+        [SwaggerOperation(Summary = "Create a new Organization")]
+        public async Task<IActionResult> CreateOrganization([FromForm] CreateOrganizationRequestDto createOrganizationRequestDto)
         {
-            await _emailService.SendAsync(emailRequest);
-            return Ok();
+            if(createOrganizationRequestDto is null)
+            {
+                return BadRequest("CreateOrganizationRequestDto is null");
+            }
+
+            var createdOrganizationId =await _mediator.Send(new CreateOrganizationUseCase(createOrganizationRequestDto));
+            return Ok("Organization created with id: " + createdOrganizationId);
         }
     }
 }       

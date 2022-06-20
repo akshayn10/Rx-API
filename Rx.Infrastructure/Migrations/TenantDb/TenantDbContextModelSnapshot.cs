@@ -137,6 +137,9 @@ namespace Rx.Infrastructure.Migrations.TenantDb
                         .HasColumnType("uniqueidentifier")
                         .HasColumnName("BillId");
 
+                    b.Property<string>("BillDetails")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<Guid>("CustomerId")
                         .HasColumnType("uniqueidentifier");
 
@@ -228,19 +231,10 @@ namespace Rx.Infrastructure.Migrations.TenantDb
                     b.Property<decimal>("TransactionAmount")
                         .HasColumnType("decimal(18,4)");
 
-                    b.Property<string>("TransactionCurrency")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<DateTime>("TransactionDate")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("TransactionDescription")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("TransactionPaymentGatewayResponse")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("TransactionPaymentReferenceId")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("TransactionStatus")
@@ -265,6 +259,9 @@ namespace Rx.Infrastructure.Migrations.TenantDb
 
                     b.Property<int>("FreeTrialDays")
                         .HasColumnType("int");
+
+                    b.Property<bool?>("IsAddedToMarketplace")
+                        .HasColumnType("bit");
 
                     b.Property<string>("LogoURL")
                         .HasColumnType("nvarchar(max)");
