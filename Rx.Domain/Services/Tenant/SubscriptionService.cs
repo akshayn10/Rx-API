@@ -157,7 +157,6 @@ namespace Rx.Domain.Services.Tenant
             {
                 jobId = _backgroundJobClient.Schedule(() => RecurringSubscription(subscription.SubscriptionId), subscription.StartDate.AddMinutes(1));
                 _logger.LogInformation("Recurring Activated after Trial for " + subscription.SubscriptionId);
-
             }
             subscription.EndDate=DateTime.Now.AddMonths((int) plan.Duration!);
             subscription.IsActive = true;

@@ -16,10 +16,16 @@ public class MarketplaceController:ControllerBase
     {
         _mediator = mediator;
     }
-    [HttpGet("products")]
+    [HttpGet]
     public async Task<IActionResult> GetAllProducts([FromQuery] RequestParameters requestParameters)
     {
         var result = await _mediator.Send(new GetMarketplaceProductsUseCase(requestParameters.SearchKey??""));
+        return Ok(result);
+    }
+    [HttpGet("{id}")]
+    public async Task<IActionResult> GetProductById(string id)
+    {
+        var result = await _mediator.Send(new GetMarketplaceProductByIdUseCase(Guid.Parse(id)));
         return Ok(result);
     }
     [HttpPost]

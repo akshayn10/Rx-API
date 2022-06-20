@@ -13,4 +13,5 @@ public class MarketplaceProducts
     public bool? HaveTrial { get; set; }
     public string? ProviderName { get; set; }
     public string? RedirectUrl { get; set; }
+    
 }

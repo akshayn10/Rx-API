@@ -6,5 +6,6 @@ public record MarketplaceProductDto(
     string? Name,
     string? LogoUrl,
     bool? HaveTrial,
-    string? ProviderName
+    string? ProviderName,
+    string? RedirectUrl
 );

@@ -144,6 +144,41 @@ public class UserService:IUserService
         return "User Updated Successfully";
     }
 
+    public async Task<string> EditUserDetails(Guid userId, UpdateUserRequest updateUserRequest)
+    {
+        var user =await _identityContext.Users.FindAsync(userId);
+        if (user == null)
+        {
+            throw new NullReferenceException($"No User Registered with {userId}.");
+        }
+        string? profileUrl = null;
+        if (updateUserRequest.ProfileImage != null)
+        {
+            var fileName = string.Empty;
+            _logger.LogInformation("Upload Started");
+            var profileImage = updateUserRequest.ProfileImage;
+            if (profileImage.Length > 0)
+            {
+                await using var fileStream = new FileStream(profileImage.FileName, FileMode.Create);
+                _logger.LogInformation("file found");
+                await profileImage.CopyToAsync(fileStream);
+                fileName = fileStream.Name;
+            }
+
+            var stream = File.OpenRead(profileImage.FileName);
+            profileUrl = await _blobStorage.UploadProfile(stream);
+            _logger.LogInformation("Upload Completed");
+            stream.Close();
+            File.Delete(fileName);
+        }
+        user.FullName = updateUserRequest.FullName;
+        user.Email = updateUserRequest.Email;
+        user.UserName = updateUserRequest.UserName;
+        user.ProfileUrl = profileUrl;
+        await _identityContext.SaveChangesAsync();
+        return "User Updated Successfully";
+    }
+
     private RefreshToken GenerateRefreshToken()
     {
         return new RefreshToken

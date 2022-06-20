@@ -94,7 +94,6 @@ public class StripeController:Controller
                 {
                     await _mediator.Send(new ActivateDowngradeSubscriptionUseCase(Guid.Parse(stripeDescription.Id)));
                 }
-
                 if (stripeDescription.PaymentType == "organization-onetime")
                 {
                     await _mediator.Send(new ActivateOrganizationOneTimeSubscriptionUseCase(Guid.Parse(stripeDescription.Id)));

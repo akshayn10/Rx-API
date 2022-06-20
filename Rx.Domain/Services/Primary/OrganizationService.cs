@@ -88,6 +88,53 @@ namespace Rx.Domain.Services.Primary
             return organizationEntity.Id;
         }
 
+        public async Task<OrganizationDto> EditOrganization(Guid organizationId, EditOrganizationRequestDto editOrganizationRequestDto)
+        {
+            string? logoUrl = null;
+            if (editOrganizationRequestDto.LogoImage != null)
+            {
+                var fileName = string.Empty;
+                _logger.LogInformation("Upload Started");
+                var logoImage = editOrganizationRequestDto.LogoImage;
+                if (logoImage.Length > 0)
+                {
+                    await using var fileStream = new FileStream(logoImage.FileName, FileMode.Create);
+                    _logger.LogInformation("file found");
+                    await logoImage.CopyToAsync(fileStream);
+                    fileName = fileStream.Name;
+                }
+                var stream = File.OpenRead(logoImage.FileName);
+                logoUrl = await _blobStorage.UploadOrganizationLogo(stream);
+                _logger.LogInformation("Upload Completed");
+                stream.Close();
+                File.Delete(fileName);
+            }
+            var organization = await _primaryDbContext.Organizations!.FindAsync(organizationId);
+            if (organization == null)
+            {
+                throw new NullReferenceException("Organization not found");
+            }
+            organization.Name = editOrganizationRequestDto.Name;
+            organization.Description = editOrganizationRequestDto.Description;
+            organization.Email = editOrganizationRequestDto.Email;
+            organization.LogoURL = logoUrl;
+            await _primaryDbContext.SaveChangesAsync();
+            //Update Address
+            var organizationAddress = await _primaryDbContext.OrganizationAddresses!.FindAsync(organizationId);
+            if (organizationAddress == null)
+            {
+                throw new NullReferenceException("Organization Address not found");
+            }
+            organizationAddress.AddressLine1 = editOrganizationRequestDto.OrganizationAddress.AddressLine1;
+            organizationAddress.AddressLine2 = editOrganizationRequestDto.OrganizationAddress.AddressLine2;
+            organizationAddress.City = editOrganizationRequestDto.OrganizationAddress.City;
+            organizationAddress.State = editOrganizationRequestDto.OrganizationAddress.State;
+            organizationAddress.Country = editOrganizationRequestDto.OrganizationAddress.Country;
+            await _primaryDbContext.SaveChangesAsync();
+            
+            return _mapper.Map<OrganizationDto>(organization);
+        }
+
         public async Task<IEnumerable<OrganizationDto>> GetOrganizationsAsync(bool trackChanges)
         {
             var organizations = await _primaryDbContext.Organizations!.ToListAsync();

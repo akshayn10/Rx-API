@@ -24,13 +24,19 @@ public class MarketplaceService :IMarketplaceService
 
     public async Task<string> CreateMarketplaceProduct(CreateMarketplaceProductDto createMarketplaceProductDto)
     {
+        var organization =await _primaryDbContext.Organizations!.FindAsync(Guid.Parse(createMarketplaceProductDto.OrganizationId!));
+        if (organization == null)
+        {
+            throw new Exception("Organization not found");
+        }
+        
         var product = new MarketplaceProducts
         {
             Name = createMarketplaceProductDto.Name,
             Description = createMarketplaceProductDto.Description,
             HaveTrial = createMarketplaceProductDto.TrialDays > 0,
             LogoUrl = createMarketplaceProductDto.LogoUrl,
-            ProviderName = createMarketplaceProductDto.ProviderName,
+            ProviderName = organization.Name,
             RedirectUrl = createMarketplaceProductDto.RedirectUrl
         };
         await _primaryDbContext.MarketplaceProducts.AddAsync(product);

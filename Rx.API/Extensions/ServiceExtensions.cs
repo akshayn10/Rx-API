@@ -19,7 +19,7 @@ namespace Rx.API.Extensions
                     builder.AllowAnyOrigin()
                         .AllowAnyMethod()
                         .AllowAnyHeader()
-                        .WithOrigins("http://localhost:4200")
+                        .WithOrigins("http://localhost:4200", "https://rxfront.azurewebsites.net")
                 );
             });
 

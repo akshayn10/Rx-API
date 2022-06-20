@@ -27,9 +27,8 @@ namespace Rx.API.Controllers.Tenant
             return Ok(products);
         }
 
-        [HttpGet]
+        [HttpGet("{id:guid}")]
         [SwaggerOperation(Summary = "Get product by id")]
-        [Route("{id:guid}")]
         public async Task<IActionResult> GetProductById(Guid id)
         {
             var product = await _mediator.Send(new GetProductByIdUseCase(id));

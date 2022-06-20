@@ -10,8 +10,8 @@ namespace Rx.Domain.Interfaces.Primary
         Task AddPaymentGatewayIdForOrganization(Guid organizationId, string paymentGatewayId);
         Task AddPaymentMethodIdForOrganization(Guid organizationId, string paymentMethodId);
         Task<Guid> CreateOrganizationAsync(CreateOrganizationRequestDto createOrganizationRequestDto);
-        
 
 
+        Task<OrganizationDto> EditOrganization(Guid organizationId, EditOrganizationRequestDto editOrganizationRequestDto);
     }
 }
