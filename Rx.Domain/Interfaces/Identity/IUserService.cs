@@ -19,4 +19,5 @@ public interface IUserService
     Task<ResponseMessage<string>> ChangePasswordAsync(ChangePasswordRequest request);
     Task<string> UpdateUserAsync(string userId, Guid organizationId);
     Task<string> EditUserDetails(Guid userId, UpdateUserRequest updateUserRequest);
+    Task<IEnumerable<UserVm>> GetUsersForOrganization(Guid organizationId);
 }

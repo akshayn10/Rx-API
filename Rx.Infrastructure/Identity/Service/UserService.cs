@@ -19,6 +19,7 @@ using Rx.Domain.Settings;
 using Rx.Domain.Wrappers;
 using Rx.Infrastructure.Identity.Contexts;
 using Hangfire;
+using Microsoft.EntityFrameworkCore;
 using Rx.Domain.Entities.Identity;
 
 namespace Rx.Infrastructure.Identity.Service;
@@ -177,6 +178,41 @@ public class UserService:IUserService
         user.ProfileUrl = profileUrl;
         await _identityContext.SaveChangesAsync();
         return "User Updated Successfully";
+    }
+
+    public async Task<IEnumerable<UserVm>> GetUsersForOrganization(Guid organizationId)
+    {
+        var users = await _identityContext.Users.Where(x => x.OrganizationId == organizationId).ToListAsync();
+
+
+        var userVms = new List<UserVm>();
+        foreach (ApplicationUser user in users)
+        {
+            var roles = await _userManager.GetRolesAsync(user);
+            string role;
+            if(roles.Contains("Owner"))
+            {
+                role = "Owner";
+            }
+            else if(roles.Contains("Admin"))
+            {
+                role = "Admin";
+            }
+            else 
+            {
+                role = "Finance User";
+            }
+            var appuser = new UserVm(
+                Username:user.UserName,
+                Email:user.Email,
+                Role:role,
+                ProfileUrl:user.ProfileUrl
+            );
+            userVms.Add(appuser);
+        }
+
+        return userVms;
+
     }
 
     private RefreshToken GenerateRefreshToken()

@@ -125,4 +125,11 @@ public class UserController:ControllerBase
         var response = await _mediator.Send(new UpdateUserUseCase(Guid.Parse(id), request));
         return Ok(response);
     }
+    [HttpGet("organization-users/{id}")]
+    public async Task<IActionResult> GetOrganizationUsers(string id)
+    {
+        var response = await _mediator.Send(new GetOrganizationUsersUseCase(Guid.Parse(id)));
+        return Ok(response);
+    }
+    
 }

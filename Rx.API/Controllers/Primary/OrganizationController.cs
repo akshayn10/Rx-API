@@ -32,6 +32,14 @@ namespace Rx.API.Controllers.Primary
             return Ok(organizations);
 
         }
+        [HttpGet("{id}")]
+        [SwaggerOperation(Summary = "Get Organization by Id")]
+        public async Task<IActionResult> GetOrganization(string id)
+        {
+            var organization = await _mediator.Send(new GetOrganizationByIdUseCase(Guid.Parse(id)));
+            return Ok(organization);
+
+        }
 
         [HttpPost("test")]
         [SwaggerOperation(Summary = "Create a new Organization")]
