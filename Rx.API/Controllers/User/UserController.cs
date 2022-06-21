@@ -113,16 +113,16 @@ public class UserController:ControllerBase
     }
     
     [HttpGet("{id}")]
-    public async Task<IActionResult> GetUserById([FromBody] string id)
+    public async Task<IActionResult> GetUserById(string id)
     {
         var response = await _mediator.Send(new GetUserByIdUseCase(id));
         return Ok(response);
     }
     
     [HttpPut("{id}")]
-    public async Task<IActionResult> UpdateUser(string id,[FromBody] UpdateUserRequest request)
+    public async Task<IActionResult> UpdateUser(string id,[FromForm] UpdateUserRequest request)
     {
-        var response = await _mediator.Send(new UpdateUserUseCase(Guid.Parse(id), request));
+        var response = await _mediator.Send(new UpdateUserUseCase(id, request));
         return Ok(response);
     }
     [HttpGet("organization-users/{id}")]
