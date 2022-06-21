@@ -19,7 +19,7 @@ public class GetAllSubscriptionPlanUseCaseHandler : IRequestHandler<GetAllSubscr
     }
     public async Task<IEnumerable<SystemSubscriptionPlanDto>> Handle(GetAllSubscriptionPlanUseCase request, CancellationToken cancellationToken)
     {
-        var plans=  await _primaryDbContext.SystemSubscriptionPlans.Select(s=>
+        var plans=  await _primaryDbContext.SystemSubscriptionPlans.OrderBy(p=>p.Price).Select(s=>
                 new SystemSubscriptionPlanDto(
                     s.PlanId.ToString(),
                     s.Name!,

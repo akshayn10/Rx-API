@@ -1,12 +1,8 @@
 ﻿using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 using Rx.Application.UseCases.Primary.Organization;
-using Rx.Domain.DTOs.Email;
 using Rx.Domain.DTOs.Primary.Organization;
-using Rx.Domain.Interfaces;
-using Rx.Domain.Interfaces.Email;
-using Rx.Domain.Services.Primary;
 using Swashbuckle.AspNetCore.Annotations;
 
 
@@ -14,6 +10,7 @@ namespace Rx.API.Controllers.Primary
 {
     [Route("api/organization")]
     [ApiController]
+    [Authorize(Roles = "Owner")]
     public class OrganizationController : ControllerBase
     {
         private readonly ILogger<OrganizationController> _logger;

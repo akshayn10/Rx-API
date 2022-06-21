@@ -1,4 +1,5 @@
 ﻿using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Rx.Application.UseCases.Tenant.AddOn;
 using Rx.Domain.DTOs.Tenant.AddOn;
@@ -10,6 +11,7 @@ namespace Rx.API.Controllers.Tenant;
 
 [Route("api/addOn/{productId}")]
 [ApiController]
+[Authorize(Roles = "Admin")]
 public class AddOnController : ControllerBase
 {
     private readonly IMediator _mediator;
@@ -20,7 +22,6 @@ public class AddOnController : ControllerBase
         _mediator = mediator;
         _logger = logger;
     }
-
     
     [HttpGet]
     [SwaggerOperation(Summary = "Get all addOns")]

@@ -1,4 +1,5 @@
 ﻿using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Rx.Application.UseCases.Primary.SystemSubscription;
 using Rx.Domain.DTOs.Primary.Organization;
@@ -8,6 +9,7 @@ namespace Rx.API.Controllers.Primary;
 
 [ApiController]
 [Route("api/organization/subscription")]
+[Authorize(Roles = "Owner")]
 public class SystemSubscriptionController:ControllerBase
 {
     private readonly IMediator _mediator;
@@ -16,7 +18,7 @@ public class SystemSubscriptionController:ControllerBase
     {
         _mediator = mediator;
     }
-    [HttpPost("create")]
+    [HttpPost]
     public async Task<IActionResult> CreateSubscription([FromBody] SystemSubscriptionForCreationDto dto)
     {
         var result = await _mediator.Send(new CreateSystemSubscriptionUseCase(dto));

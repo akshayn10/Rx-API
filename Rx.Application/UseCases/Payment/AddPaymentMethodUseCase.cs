@@ -26,7 +26,7 @@ public class AddPaymentMethodUseCaseHandler : IRequestHandler<AddPaymentMethodUs
     }
     public async Task<Unit> Handle(AddPaymentMethodUseCase request, CancellationToken cancellationToken)
     {
-        var organization = await _primaryDbContext.Organizations!.FirstOrDefaultAsync(o=>o.PaymentGatewayId==request.CustomerId);
+        var organization = await _primaryDbContext.Organizations!.FirstOrDefaultAsync(o=>o.PaymentGatewayId==request.CustomerId, cancellationToken: cancellationToken);
         if (organization!=null)
         {
             var storedSubscriptionId = await _primaryServiceManager.OrganizationService.AddPaymentMethodIdForOrganization(organization.Id,request.PaymentMethodId);

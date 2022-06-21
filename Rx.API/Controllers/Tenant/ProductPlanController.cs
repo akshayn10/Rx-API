@@ -1,4 +1,5 @@
 ﻿using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Rx.Application.UseCases.Tenant.ProductPlan;
@@ -9,6 +10,7 @@ namespace Rx.API.Controllers.Tenant
 {
     [Route("api/product/{productId:guid}/plan")]
     [ApiController]
+    [Authorize(Roles = "Admin")]
     public class ProductPlanController : ControllerBase
     {
         private readonly IMediator _mediator;

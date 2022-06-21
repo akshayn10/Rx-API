@@ -1,4 +1,5 @@
 ﻿using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Rx.Application.UseCases.Tenant.Report;
 
@@ -6,6 +7,7 @@ namespace Rx.API.Controllers.Tenant;
 
 [ApiController]
 [Route("api/report")]
+[Authorize(Roles = "FinanceUser")]
 public class ReportController:ControllerBase
 {
     private readonly IMediator _mediator;

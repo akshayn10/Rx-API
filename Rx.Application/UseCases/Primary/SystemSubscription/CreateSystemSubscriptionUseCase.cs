@@ -30,7 +30,7 @@ public class CreateSystemSubscriptionUseCaseHandler : IRequestHandler<CreateSyst
         };
         await _primaryDbContext.SubscriptionRequests.AddAsync(subscriptionReq);
         await _primaryDbContext.SaveChangesAsync();
-        var organization =await _primaryDbContext.Organizations.FindAsync(request.SubscriptionForCreationDto.OrganizationId);
+        var organization =await _primaryDbContext.Organizations!.FindAsync(request.SubscriptionForCreationDto.OrganizationId);
         if (organization == null)
         {
             throw new System.Exception("Organization not found");

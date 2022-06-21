@@ -1,4 +1,5 @@
 ﻿using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Rx.Application.UseCases.Tenant.Customer;
 using Rx.Application.UseCases.Tenant.Subscription;
@@ -9,6 +10,7 @@ namespace Rx.API.Controllers.Tenant
 {
     [Route("api/subscription")]
     [ApiController]
+    [Authorize(Roles = "FinanceUser")]
     public class SubscriptionController:ControllerBase
     {
         private readonly IMediator _mediator;

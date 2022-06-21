@@ -1,4 +1,5 @@
 ﻿using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Rx.Application.UseCases.Tenant.AddOnUsage;
 using Rx.Domain.DTOs.Tenant.AddOnUsage;
@@ -9,6 +10,7 @@ namespace Rx.API.Controllers.Tenant;
 
 [ApiController]
 [Route("api/AddOnUsage")]
+[Authorize(Roles = "Admin")]
 public class AddUsageController:ControllerBase
 {
     private readonly IMediator _mediator;

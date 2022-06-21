@@ -1,4 +1,5 @@
 ﻿using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Rx.Application.UseCases.Tenant.Product;
 using Rx.Domain.DTOs.Tenant.Product;
@@ -8,6 +9,8 @@ using Rx.Domain.DTOs.Request;
 namespace Rx.API.Controllers.Tenant
 {
     [Route("api/product")]
+    [ApiController]
+    [Authorize(Roles = "Admin")]
     public class ProductController : ControllerBase
     {
         private readonly IMediator _mediator;

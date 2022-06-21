@@ -1,5 +1,7 @@
 ﻿using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Rx.API.Middleware;
 using Rx.Application.UseCases.Tenant.Customer;
 using Rx.Application.UseCases.Tenant.Product;
 using Rx.Domain.DTOs.Request;
@@ -10,6 +12,8 @@ namespace Rx.API.Controllers.Tenant
 {
     [Route("api/customer")]
     [ApiController]
+    [SubscriptionVerification]
+    [Authorize(Roles = "FinanceUser")]
     public class CustomerController : ControllerBase
     {
         private readonly IMediator _mediator;
