@@ -26,6 +26,7 @@ namespace Rx.Infrastructure.Persistence.Context
         public DbSet<PaymentTransaction>? PaymentTransactions { get; set; }
         public DbSet<Bill>? Bills { get; set; }
         public DbSet<MarketplaceProducts>? MarketplaceProducts { get; set; }
+        public DbSet<SubscriptionRequest>? SubscriptionRequests { get; set; }
         public async Task<int> SaveChangesAsync()
         {
             return await base.SaveChangesAsync();

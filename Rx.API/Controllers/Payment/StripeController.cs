@@ -43,7 +43,7 @@ public class StripeController:Controller
                     await _mediator.Send(new AddPaymentGatewayIdToCustomerUseCase(Guid.Parse(stripeDescription.Id),customerCreated.Id));
                 }
 
-                if (customerCreated.Description == "owner")
+                if (customerCreated.Description == "organization")
                 {
                     await _mediator.Send(new AddPaymentGatewayIdForOrganizationUseCase(Guid.Parse(stripeDescription.Id),customerCreated.Id));
                 }

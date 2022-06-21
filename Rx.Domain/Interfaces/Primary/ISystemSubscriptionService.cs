@@ -1,4 +1,4 @@
-﻿using Rx.Domain.DTOs.Primary.Organization;
+﻿using Rx.Domain.DTOs.Primary.SystemSubscription;
 
 namespace Rx.Domain.Interfaces.Primary;
 

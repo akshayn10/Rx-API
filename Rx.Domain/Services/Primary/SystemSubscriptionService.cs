@@ -5,6 +5,7 @@ using Newtonsoft.Json;
 using Rx.Domain.DTOs.Email;
 using Rx.Domain.DTOs.Payment;
 using Rx.Domain.DTOs.Primary.Organization;
+using Rx.Domain.DTOs.Primary.SystemSubscription;
 using Rx.Domain.Entities.Primary;
 using Rx.Domain.Interfaces.DbContext;
 using Rx.Domain.Interfaces.Email;
@@ -58,7 +59,6 @@ public class SystemSubscriptionService:ISystemSubscriptionService
         if(plan == null)
             throw new Exception("Plan not found");
         
-
         if (subscription.SubscriptionType == false)
         {
 
@@ -109,9 +109,24 @@ public class SystemSubscriptionService:ISystemSubscriptionService
     public async Task<string> CancelSubscription(Guid subscriptionId)
     {
         var subscription = await _primaryDbContext.SystemSubscriptions!.FindAsync(subscriptionId);
+        if (subscription == null)
+        {
+            throw new Exception("Subscription not found");
+        }
         subscription!.IsActive = false;
         subscription!.IsCancelled = true;
         await _primaryDbContext.SaveChangesAsync();
+        var organization =await _primaryDbContext.Organizations!.FindAsync(subscription.OrganizationId);
+        _backgroundJobClient.Delete(subscription.JobId);
+        
+        var emailRequest = new EmailRequest()
+        {
+            To = organization!.Email,
+            Subject = "Subscription Cancelled",
+            Body = $"System Onetime Subscription Activated for {organization.Name} at {DateTime.Now}"
+        };
+        _backgroundJobClient.Enqueue(()=>_emailService.SendAsync(emailRequest));
+
         return "Subscription Cancelled for organization " + subscription.OrganizationId;
     }
 

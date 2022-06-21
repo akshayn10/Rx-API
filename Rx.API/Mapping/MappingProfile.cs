@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Rx.Domain.DTOs.Marketplace;
 using Rx.Domain.DTOs.Primary.Organization;
+using Rx.Domain.DTOs.Primary.SystemSubscriptionPlan;
 using Rx.Domain.DTOs.Tenant.AddOn;
 using Rx.Domain.DTOs.Tenant.AddOnPricePerPlan;
 using Rx.Domain.DTOs.Tenant.AddOnUsage;
@@ -62,6 +63,9 @@ namespace Rx.API.Mapping
             //Marketplace
             CreateMap<MarketplaceProducts, MarketplaceProductDto>();
             CreateMap<MarketplaceProductDto,MarketplaceProducts>();
+            
+            //System Sub plan
+            CreateMap<SystemSubscriptionPlan, SystemSubscriptionPlanDto>();
 
 
 
