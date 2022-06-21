@@ -126,7 +126,8 @@ namespace Rx.Domain.Services.Primary
             organization.LogoURL = logoUrl;
             await _primaryDbContext.SaveChangesAsync();
             //Update Address
-            var organizationAddress = await _primaryDbContext.OrganizationAddresses!.FindAsync(organizationId);
+            var organizationAddress = await _primaryDbContext.OrganizationAddresses!.FirstOrDefaultAsync(o=>
+                o.OrganizationId==organizationId);
             if (organizationAddress == null)
             {
                 throw new NullReferenceException("Organization Address not found");

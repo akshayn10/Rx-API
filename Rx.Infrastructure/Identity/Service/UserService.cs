@@ -145,7 +145,7 @@ public class UserService:IUserService
         return "User Updated Successfully";
     }
 
-    public async Task<string> EditUserDetails(Guid userId, UpdateUserRequest updateUserRequest)
+    public async Task<string> EditUserDetails(string userId, UpdateUserRequest updateUserRequest)
     {
         var user =await _identityContext.Users.FindAsync(userId);
         if (user == null)
@@ -539,7 +539,16 @@ public class UserService:IUserService
 
     public async Task<ApplicationUser> GetById(string id)
     {
-        var user =await _userManager.FindByIdAsync(id);
-        return user;
+        var user = await _identityContext.Users.FindAsync(id);
+        var x = new ApplicationUser
+        {
+            Id = user.Id,
+            FullName = user.FullName,
+            Email = user.Email,
+            ProfileUrl = user.ProfileUrl,
+            UserName = user.UserName
+        };
+        return x;
+
     }
 }

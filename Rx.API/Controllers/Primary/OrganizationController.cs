@@ -74,7 +74,7 @@ namespace Rx.API.Controllers.Primary
         [HttpPut("{id}")]
         [SwaggerOperation(Summary = "Update an Organization")]
         public async Task<IActionResult> UpdateOrganization(string id,
-            [FromBody] EditOrganizationRequestDto editOrganizationRequestDto)
+            [FromForm] EditOrganizationRequestDto editOrganizationRequestDto)
         {
             if (editOrganizationRequestDto is null)
             {
