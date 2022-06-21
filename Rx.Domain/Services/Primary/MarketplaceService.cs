@@ -37,7 +37,8 @@ public class MarketplaceService :IMarketplaceService
             HaveTrial = createMarketplaceProductDto.TrialDays > 0,
             LogoUrl = createMarketplaceProductDto.LogoUrl,
             ProviderName = organization.Name,
-            RedirectUrl = createMarketplaceProductDto.RedirectUrl
+            RedirectUrl = createMarketplaceProductDto.RedirectUrl,
+            TrialDays = createMarketplaceProductDto.TrialDays,
         };
         await _primaryDbContext.MarketplaceProducts.AddAsync(product);
         await _primaryDbContext.SaveChangesAsync();

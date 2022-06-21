@@ -34,6 +34,5 @@ public class GetOrganizationByIdUseCaseHandler : IRequestHandler<GetOrganization
              address.State,
              address.Country)
         );
-
     }
 }

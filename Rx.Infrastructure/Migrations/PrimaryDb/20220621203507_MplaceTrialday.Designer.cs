@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Rx.Infrastructure.Persistence.Context;
 
@@ -11,9 +12,10 @@ using Rx.Infrastructure.Persistence.Context;
 namespace Rx.Infrastructure.Migrations.PrimaryDb
 {
     [DbContext(typeof(PrimaryDbContext))]
-    partial class PrimaryDbContextModelSnapshot : ModelSnapshot
+    [Migration("20220621203507_MplaceTrialday")]
+    partial class MplaceTrialday
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
