@@ -123,8 +123,13 @@ namespace Rx.Domain.Services.Primary
             organization.Name = editOrganizationRequestDto.Name;
             organization.Description = editOrganizationRequestDto.Description;
             organization.Email = editOrganizationRequestDto.Email;
-            organization.LogoURL = logoUrl;
+            if (logoUrl != null)
+            {
+                organization.LogoURL = logoUrl;
+
+            }
             await _primaryDbContext.SaveChangesAsync();
+            
             //Update Address
             var organizationAddress = await _primaryDbContext.OrganizationAddresses!.FirstOrDefaultAsync(o=>
                 o.OrganizationId==organizationId);

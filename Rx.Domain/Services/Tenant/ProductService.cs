@@ -98,7 +98,6 @@ namespace Rx.Domain.Services.Tenant
         {
             var product = await _tenantDbContext.Products!.FindAsync(productId);
             string? logoUrl = null;
-            _logger.LogInformation(productForUpdateDto.ToString());
             if (productForUpdateDto.LogoImage != null)
             {
                 var fileName = string.Empty;
@@ -118,8 +117,7 @@ namespace Rx.Domain.Services.Tenant
                 stream.Close();
                 File.Delete(fileName);
             }
-
-
+            
             //delete last logo
             if (logoUrl != null && product.LogoURL!=null)
             {
@@ -130,7 +128,10 @@ namespace Rx.Domain.Services.Tenant
 
             product.Name = productForUpdateDto.Name;
             product.Description = productForUpdateDto.Description;
-            product.LogoURL = logoUrl;
+            if (logoUrl != null)
+            {
+                product.LogoURL = logoUrl;
+            }
             product.WebhookURL = productForUpdateDto.WebhookURL;
             product.FreeTrialDays = productForUpdateDto.FreeTrialDays;
             product.RedirectURL = productForUpdateDto.RedirectUrl;

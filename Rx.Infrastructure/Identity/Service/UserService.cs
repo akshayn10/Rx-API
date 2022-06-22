@@ -175,7 +175,11 @@ public class UserService:IUserService
         user.FullName = updateUserRequest.FullName;
         user.Email = updateUserRequest.Email;
         user.UserName = updateUserRequest.UserName;
-        user.ProfileUrl = profileUrl;
+        if (profileUrl != null)
+        {
+            user.ProfileUrl = profileUrl;
+
+        }
         await _identityContext.SaveChangesAsync();
         return "User Updated Successfully";
     }
