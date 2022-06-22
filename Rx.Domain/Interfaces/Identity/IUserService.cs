@@ -9,7 +9,7 @@ public interface IUserService
     Task<ResponseMessage<AuthenticationResponse>> AuthenticateAsync(AuthenticationRequest request);
     Task<ResponseMessage<string>> RegisterAsync(RegisterRequest request, string origin);
     Task<ResponseMessage<string>> ConfirmEmailAsync(string userId, string code);
-    Task ForgotPassword(ForgotPasswordRequest model, string origin);
+    Task<string> ForgotPassword(ForgotPasswordRequest model, string origin);
     Task<ResponseMessage<string>> ResetPassword(ResetPasswordRequest model);
     Task<string> AddRoleAsync(AddRoleModel model);
     Task<AuthenticationResponse> RefreshTokenAsync(string token);

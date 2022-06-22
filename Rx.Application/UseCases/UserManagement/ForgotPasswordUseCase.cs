@@ -4,9 +4,9 @@ using Rx.Domain.Interfaces.Identity;
 
 namespace Rx.Application.UseCases.UserManagement;
 
-public record ForgotPasswordUseCase(ForgotPasswordRequest ForgotPasswordRequest,string Origin):IRequest;
+public record ForgotPasswordUseCase(ForgotPasswordRequest ForgotPasswordRequest,string Origin):IRequest<string>;
 
-public class ForgotPasswordUseCaseHandler : IRequestHandler<ForgotPasswordUseCase>
+public class ForgotPasswordUseCaseHandler : IRequestHandler<ForgotPasswordUseCase,string>
 {
     private readonly IUserService _userService;
 
@@ -14,9 +14,8 @@ public class ForgotPasswordUseCaseHandler : IRequestHandler<ForgotPasswordUseCas
     {
         _userService = userService;
     }
-    public async Task<Unit> Handle(ForgotPasswordUseCase request, CancellationToken cancellationToken)
+    public async Task<string> Handle(ForgotPasswordUseCase request, CancellationToken cancellationToken)
     {
-        await _userService.ForgotPassword(request.ForgotPasswordRequest, request.Origin);
-        return  Unit.Value;
+        return await _userService.ForgotPassword(request.ForgotPasswordRequest, request.Origin);
     }
 }

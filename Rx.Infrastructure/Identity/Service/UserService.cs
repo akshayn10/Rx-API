@@ -409,10 +409,10 @@ public class UserService:IUserService
         }
     }
 
-    public async Task ForgotPassword(ForgotPasswordRequest model, string origin)
+    public async Task<string> ForgotPassword(ForgotPasswordRequest model, string origin)
     {
         var user = await _userManager.FindByEmailAsync(model.Email);
-        if (user == null) return;
+        if (user == null) return "User Not found for the given email";
 
         var code = await _userManager.GeneratePasswordResetTokenAsync(user);
         var route = "api/user/reset-password/";
@@ -425,6 +425,7 @@ public class UserService:IUserService
         };
         _backgroundJobClient.Enqueue(()=>_emailService.SendAsync(emailRequest));
         // await _emailService.SendAsync(emailRequest);
+        return "Check your mail inbox";
     }
 
     public async Task<ResponseMessage<string>> ResetPassword(ResetPasswordRequest model)
