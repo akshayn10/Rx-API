@@ -43,8 +43,7 @@ namespace Rx.API.Controllers.Primary
 
         [HttpPost("test")]
         [SwaggerOperation(Summary = "Create a new Organization")]
-        public async Task<IActionResult> CreateOrganizationTest(
-            [FromBody] OrganizationForCreationDto organizationForCreationDto)
+        public async Task<IActionResult> CreateOrganizationTest([FromBody] OrganizationForCreationDto organizationForCreationDto)
         {
             if (organizationForCreationDto is null)
             {
@@ -58,8 +57,7 @@ namespace Rx.API.Controllers.Primary
 
         [HttpPost]
         [SwaggerOperation(Summary = "Create a new Organization")]
-        public async Task<IActionResult> CreateOrganization(
-            [FromForm] CreateOrganizationRequestDto createOrganizationRequestDto)
+        public async Task<IActionResult> CreateOrganization([FromForm] CreateOrganizationRequestDto createOrganizationRequestDto)
         {
             if (createOrganizationRequestDto is null)
             {

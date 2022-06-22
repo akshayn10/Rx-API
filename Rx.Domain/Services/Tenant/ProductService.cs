@@ -55,49 +55,7 @@ namespace Rx.Domain.Services.Tenant
             var product = await _tenantDbContext.Products!.FirstOrDefaultAsync(x => x.ProductId ==productId);
             return _mapper.Map<ProductDto>(product);
         }
-        public async Task<ProductDto> AddProduct(ProductForCreationDto productForCreationDto)
-        {
-            string? logoUrl = null;
-            _logger.LogInformation(productForCreationDto.ToString());
-            if (productForCreationDto.LogoImage != null)
-            {
-                var fileName = string.Empty;
-                _logger.LogInformation("Upload Started");
-                var logoImage = productForCreationDto.LogoImage;
-                if (logoImage.Length > 0)
-                {
-                    await using var fileStream = new FileStream(logoImage.FileName, FileMode.Create);
-                    _logger.LogInformation("file found");
-                    await logoImage.CopyToAsync(fileStream);
-                    fileName = fileStream.Name;
-                }
-
-                var stream = File.OpenRead(logoImage.FileName);
-                logoUrl = await _blobStorage.UploadLogo(stream);
-                _logger.LogInformation("Upload Completed");
-                stream.Close();
-                File.Delete(fileName);
-            }
-
-            const string webhookSubscriptionSecretPrefix = "whs_";
-            var product = new Product
-            {
-                Name = productForCreationDto.Name,
-                Description = productForCreationDto.Description,
-                WebhookURL = productForCreationDto.WebhookURL,
-                WebhookSecret = webhookSubscriptionSecretPrefix + Guid.NewGuid().ToString("N"),
-                LogoURL = logoUrl,
-                FreeTrialDays = productForCreationDto.FreeTrialDays,
-                RedirectURL = productForCreationDto.RedirectUrl
-
-            };
-            await _tenantDbContext.Products!.AddAsync(product);
-            await _tenantDbContext.SaveChangesAsync();
-
-            
-            
-             return _mapper.Map<ProductDto>(product);
-        }
+        
 
         public async Task<IEnumerable<OrganizationCustomerDto>> GetCustomersForProduct(Guid productId)
         {
@@ -139,38 +97,87 @@ namespace Rx.Domain.Services.Tenant
         public async Task<ProductDto> UpdateProduct(Guid productId, ProductForUpdateDto productForUpdateDto)
         {
             var product = await _tenantDbContext.Products!.FindAsync(productId);
-            if (product == null)
+            string? logoUrl = null;
+            _logger.LogInformation(productForUpdateDto.ToString());
+            if (productForUpdateDto.LogoImage != null)
             {
-                throw new NullReferenceException("Product not found");
+                var fileName = string.Empty;
+                _logger.LogInformation("Upload Started");
+                var logoImage = productForUpdateDto.LogoImage;
+                if (logoImage.Length > 0)
+                {
+                    await using var fileStream = new FileStream(logoImage.FileName, FileMode.Create);
+                    _logger.LogInformation("file found");
+                    await logoImage.CopyToAsync(fileStream);
+                    fileName = fileStream.Name;
+                }
+
+                var stream = File.OpenRead(logoImage.FileName);
+                logoUrl = await _blobStorage.UploadLogo(stream);
+                _logger.LogInformation("Upload Completed");
+                stream.Close();
+                File.Delete(fileName);
             }
-            var fileName=string.Empty;
-            _logger.LogInformation("Upload Started");
-            var logoImage = productForUpdateDto.LogoImage;
-            if (logoImage.Length > 0)
-            {
-                await using var fileStream = new FileStream(logoImage.FileName, FileMode.Create);
-                _logger.LogInformation("file found");
-                await logoImage.CopyToAsync(fileStream);
-                fileName = fileStream.Name;
-            }
-            var stream = File.OpenRead(logoImage.FileName);
-            var url =await _blobStorage.UploadLogo(stream);
-            _logger.LogInformation("Upload Completed");
-            stream.Close();
-            File.Delete(fileName);
+
 
             //delete last logo
-            var oldFileName = product.LogoURL!.Substring(56);
-            await _blobStorage.DeleteLogo(oldFileName);
-            _logger.LogInformation("Old image deleted");
+            if (logoUrl != null && product.LogoURL!=null)
+            {
+                var oldFileName = product.LogoURL!.Substring(56);
+                await _blobStorage.DeleteLogo(oldFileName);
+                _logger.LogInformation("Old image deleted");
+            }
 
             product.Name = productForUpdateDto.Name;
             product.Description = productForUpdateDto.Description;
-            product.LogoURL = url;
+            product.LogoURL = logoUrl;
             product.WebhookURL = productForUpdateDto.WebhookURL;
             product.FreeTrialDays = productForUpdateDto.FreeTrialDays;
             product.RedirectURL = productForUpdateDto.RedirectUrl;
             await _tenantDbContext.SaveChangesAsync();
+            return _mapper.Map<ProductDto>(product);
+        }
+        public async Task<ProductDto> AddProduct(ProductForCreationDto productForCreationDto)
+        {
+            string? logoUrl = null;
+            _logger.LogInformation(productForCreationDto.ToString());
+            if (productForCreationDto.LogoImage != null)
+            {
+                var fileName = string.Empty;
+                _logger.LogInformation("Upload Started");
+                var logoImage = productForCreationDto.LogoImage;
+                if (logoImage.Length > 0)
+                {
+                    await using var fileStream = new FileStream(logoImage.FileName, FileMode.Create);
+                    _logger.LogInformation("file found");
+                    await logoImage.CopyToAsync(fileStream);
+                    fileName = fileStream.Name;
+                }
+
+                var stream = File.OpenRead(logoImage.FileName);
+                logoUrl = await _blobStorage.UploadLogo(stream);
+                _logger.LogInformation("Upload Completed");
+                stream.Close();
+                File.Delete(fileName);
+            }
+
+            const string webhookSubscriptionSecretPrefix = "whs_";
+            var product = new Product
+            {
+                Name = productForCreationDto.Name,
+                Description = productForCreationDto.Description,
+                WebhookURL = productForCreationDto.WebhookURL,
+                WebhookSecret = webhookSubscriptionSecretPrefix + Guid.NewGuid().ToString("N"),
+                LogoURL = logoUrl,
+                FreeTrialDays = productForCreationDto.FreeTrialDays,
+                RedirectURL = productForCreationDto.RedirectUrl
+
+            };
+            await _tenantDbContext.Products!.AddAsync(product);
+            await _tenantDbContext.SaveChangesAsync();
+
+            
+            
             return _mapper.Map<ProductDto>(product);
         }
     }

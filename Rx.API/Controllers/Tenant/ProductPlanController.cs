@@ -59,8 +59,6 @@ namespace Rx.API.Controllers.Tenant
             {
                 return BadRequest("Body is empty");
             }
-
-            
             var updatedPlan = await _mediator.Send(new EditProductPlanUseCase(Guid.Parse(productId), Guid.Parse(planId), productPlanForUpdateDto));
             return Ok(updatedPlan);
         }

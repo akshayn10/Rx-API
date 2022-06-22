@@ -132,11 +132,11 @@ namespace Rx.Domain.Services.Primary
             {
                 throw new NullReferenceException("Organization Address not found");
             }
-            organizationAddress.AddressLine1 = editOrganizationRequestDto.OrganizationAddress.AddressLine1;
-            organizationAddress.AddressLine2 = editOrganizationRequestDto.OrganizationAddress.AddressLine2;
-            organizationAddress.City = editOrganizationRequestDto.OrganizationAddress.City;
-            organizationAddress.State = editOrganizationRequestDto.OrganizationAddress.State;
-            organizationAddress.Country = editOrganizationRequestDto.OrganizationAddress.Country;
+            organizationAddress.AddressLine1 = editOrganizationRequestDto.AddressLine1;
+            organizationAddress.AddressLine2 = editOrganizationRequestDto.AddressLine2;
+            organizationAddress.City = editOrganizationRequestDto.City;
+            organizationAddress.State = editOrganizationRequestDto.State;
+            organizationAddress.Country = editOrganizationRequestDto.Country;
             await _primaryDbContext.SaveChangesAsync();
             
             return _mapper.Map<OrganizationDto>(organization);
