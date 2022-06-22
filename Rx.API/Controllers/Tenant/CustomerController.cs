@@ -13,7 +13,7 @@ namespace Rx.API.Controllers.Tenant
     [Route("api/customer")]
     [ApiController]
     [SubscriptionVerification]
-    [Authorize(Roles = "FinanceUser")]
+    [Authorize(Roles = "Admin")]
     public class CustomerController : ControllerBase
     {
         private readonly IMediator _mediator;
