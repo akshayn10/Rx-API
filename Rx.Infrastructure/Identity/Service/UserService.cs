@@ -63,34 +63,40 @@ public class UserService:IUserService
     }
     public async Task<ResponseMessage<AuthenticationResponse>> AuthenticateAsync(AuthenticationRequest request)
     {
+        var response = new AuthenticationResponse();
         var user = await _userManager.FindByEmailAsync(request.Email);
         if (user == null)
         {
-            throw new ApiException($"No User Registered with {request.Email}.");
+            // throw new ApiException($"No User Registered with {request.Email}.");
+            response.IsAuthenticated = false;
+            response.Message = $"No User Registered with {request.Email}.";
+            return new ResponseMessage<AuthenticationResponse>(response,"No user");
         }
         var result = await _signInManager.PasswordSignInAsync(user.UserName, request.Password, false, lockoutOnFailure: false);
         if (!result.Succeeded)
         {
-            throw new ApiException($"Invalid Credentials for '{request.Email}'.");
+            // throw new ApiException($"Invalid Credentials for '{request.Email}'.");
+            response.IsAuthenticated = false;
+            response.Message = $"Invalid Credentials for '{request.Email}'.";
+            return new ResponseMessage<AuthenticationResponse>(response,"Password error");
         }
         if (!user.EmailConfirmed)
         {
-            throw new ApiException($"User Not Confirmed for '{request.Email}'.");
+            response.IsAuthenticated = false;
+            response.Message = $"User Not Confirmed for '{request.Email}'.";
+            // throw new ApiException($"User Not Confirmed for '{request.Email}'.");
+            return new ResponseMessage<AuthenticationResponse>(response,"Email not confirmed");
         }
-        
         
         //Generate JWT Token
         var jwtSecurityToken = await GenerateJwtToken(user);
         
-        var response = new AuthenticationResponse
-        {
-            Id = user.Id,
-            JwtToken = new JwtSecurityTokenHandler().WriteToken(jwtSecurityToken),
-            Email = user.Email,
-            UserName = user.UserName,
-            ProfileUrl = user.ProfileUrl,
-            OrganizationId = user.OrganizationId!=null ? user.OrganizationId.ToString() : null
-        };
+        response.Id = user.Id;
+        response.JwtToken = new JwtSecurityTokenHandler().WriteToken(jwtSecurityToken);
+        response.Email = user.Email;
+        response.UserName = user.UserName;
+        response.ProfileUrl = user.ProfileUrl;
+        response.OrganizationId = user.OrganizationId != null ? user.OrganizationId.ToString() : null;
         var rolesList = await _userManager.GetRolesAsync(user).ConfigureAwait(false);
         response.Roles = rolesList.ToList();
         response.IsVerified = user.EmailConfirmed;
@@ -122,6 +128,7 @@ public class UserService:IUserService
 
             };
             _backgroundJobClient.Enqueue(()=>_emailService.SendAsync(emailRequest));
+            
             // await _emailService.SendAsync(emailRequest);
             return new ResponseMessage<string>(request.Email, message: $"Password Reset Successful.");
         }

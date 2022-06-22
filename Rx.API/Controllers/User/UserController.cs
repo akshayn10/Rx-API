@@ -21,7 +21,10 @@ public class UserController:ControllerBase
     public async Task<IActionResult> AuthenticateAsync(AuthenticationRequest request)
     {
         var response = await _mediator.Send(new LoginUseCase(request));
-        SetRefreshTokenInCookie(response.Data.RefreshToken);
+        if (response.Data.RefreshToken != null)
+        {
+            SetRefreshTokenInCookie(response.Data.RefreshToken);
+        }
         return Ok(response);
     }
     private void SetRefreshTokenInCookie(string refreshToken)
