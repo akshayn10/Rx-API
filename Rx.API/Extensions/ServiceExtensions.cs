@@ -19,7 +19,7 @@ namespace Rx.API.Extensions
                     builder.AllowAnyOrigin()
                         .AllowAnyMethod()
                         .AllowAnyHeader()
-                        .WithOrigins("http://localhost:4200", "https://rxfront.azurewebsites.net")
+                        .WithOrigins("http://localhost:4200", "https://victorious-ocean-080d44f00.1.azurestaticapps.net")
                 );
             });
 
