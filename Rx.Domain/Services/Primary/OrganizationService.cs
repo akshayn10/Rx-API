@@ -78,11 +78,11 @@ namespace Rx.Domain.Services.Primary
             //Add Address
             var organizationAddress = new OrganizationAddress
             {
-                AddressLine1 = createOrganizationRequestDto.OrganizationAddress.AddressLine1,
-                AddressLine2 = createOrganizationRequestDto.OrganizationAddress.AddressLine2,
-                City = createOrganizationRequestDto.OrganizationAddress.City,
-                State = createOrganizationRequestDto.OrganizationAddress.State,
-                Country = createOrganizationRequestDto.OrganizationAddress.Country,
+                AddressLine1 = createOrganizationRequestDto.AddressLine1,
+                AddressLine2 = createOrganizationRequestDto.AddressLine2,
+                City = createOrganizationRequestDto.City,
+                State = createOrganizationRequestDto.State,
+                Country = createOrganizationRequestDto.Country,
                 OrganizationId = organizationEntity.Id,
             };
             await _primaryDbContext.OrganizationAddresses!.AddAsync(organizationAddress);
