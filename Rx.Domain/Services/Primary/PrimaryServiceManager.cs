@@ -25,7 +25,7 @@ namespace Rx.Domain.Services.Primary
         public PrimaryServiceManager(IPrimaryDbContext primaryDbContext,ILogger<PrimaryServiceManager> logger ,ITenantDbContext tenantDbContext,
             IMapper mapper,IEmailService emailService,IBlobStorage blobStorage,IPaymentService paymentService,IBackgroundJobClient backgroundJobClient,IUserService userService)
         {
-            _organizationService = new Lazy<IOrganizationService>(() => new OrganizationService(primaryDbContext, logger, mapper,blobStorage,emailService,userService));
+            _organizationService = new Lazy<IOrganizationService>(() => new OrganizationService(primaryDbContext, logger, mapper,blobStorage,emailService,userService,paymentService));
             _systemSubscriptionService = new Lazy<ISystemSubscriptionService>(() => new SystemSubscriptionService(primaryDbContext,
                 logger, mapper,emailService,paymentService,backgroundJobClient));
             _systemSubscriptionPlanService = new Lazy<ISystemSubscriptionPlanService>(() => new SystemSubscriptionPlanService(primaryDbContext, logger, mapper));

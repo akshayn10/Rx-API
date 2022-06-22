@@ -19,6 +19,7 @@ using Rx.Domain.Settings;
 using Rx.Domain.Wrappers;
 using Rx.Infrastructure.Identity.Contexts;
 using Hangfire;
+using Microsoft.EntityFrameworkCore;
 using Rx.Domain.Entities.Identity;
 
 namespace Rx.Infrastructure.Identity.Service;
@@ -142,6 +143,80 @@ public class UserService:IUserService
         _identityContext.Update(user);
         await _identityContext.SaveChangesAsync();
         return "User Updated Successfully";
+    }
+
+    public async Task<string> EditUserDetails(string userId, UpdateUserRequest updateUserRequest)
+    {
+        var user =await _identityContext.Users.FindAsync(userId);
+        if (user == null)
+        {
+            throw new NullReferenceException($"No User Registered with {userId}.");
+        }
+        string? profileUrl = null;
+        if (updateUserRequest.ProfileImage != null)
+        {
+            var fileName = string.Empty;
+            _logger.LogInformation("Upload Started");
+            var profileImage = updateUserRequest.ProfileImage;
+            if (profileImage.Length > 0)
+            {
+                await using var fileStream = new FileStream(profileImage.FileName, FileMode.Create);
+                _logger.LogInformation("file found");
+                await profileImage.CopyToAsync(fileStream);
+                fileName = fileStream.Name;
+            }
+
+            var stream = File.OpenRead(profileImage.FileName);
+            profileUrl = await _blobStorage.UploadProfile(stream);
+            _logger.LogInformation("Upload Completed");
+            stream.Close();
+            File.Delete(fileName);
+        }
+        user.FullName = updateUserRequest.FullName;
+        user.Email = updateUserRequest.Email;
+        user.UserName = updateUserRequest.UserName;
+        if (profileUrl != null)
+        {
+            user.ProfileUrl = profileUrl;
+
+        }
+        await _identityContext.SaveChangesAsync();
+        return "User Updated Successfully";
+    }
+
+    public async Task<IEnumerable<UserVm>> GetUsersForOrganization(Guid organizationId)
+    {
+        var users = await _identityContext.Users.Where(x => x.OrganizationId == organizationId).ToListAsync();
+
+
+        var userVms = new List<UserVm>();
+        foreach (ApplicationUser user in users)
+        {
+            var roles = await _userManager.GetRolesAsync(user);
+            string role;
+            if(roles.Contains("Owner"))
+            {
+                role = "Owner";
+            }
+            else if(roles.Contains("Admin"))
+            {
+                role = "Admin";
+            }
+            else 
+            {
+                role = "Finance User";
+            }
+            var appuser = new UserVm(
+                Username:user.UserName,
+                Email:user.Email,
+                Role:role,
+                ProfileUrl:user.ProfileUrl
+            );
+            userVms.Add(appuser);
+        }
+
+        return userVms;
+
     }
 
     private RefreshToken GenerateRefreshToken()
@@ -334,10 +409,10 @@ public class UserService:IUserService
         }
     }
 
-    public async Task ForgotPassword(ForgotPasswordRequest model, string origin)
+    public async Task<string> ForgotPassword(ForgotPasswordRequest model, string origin)
     {
         var user = await _userManager.FindByEmailAsync(model.Email);
-        if (user == null) return;
+        if (user == null) return "User Not found for the given email";
 
         var code = await _userManager.GeneratePasswordResetTokenAsync(user);
         var route = "api/user/reset-password/";
@@ -350,6 +425,7 @@ public class UserService:IUserService
         };
         _backgroundJobClient.Enqueue(()=>_emailService.SendAsync(emailRequest));
         // await _emailService.SendAsync(emailRequest);
+        return "Check your mail inbox";
     }
 
     public async Task<ResponseMessage<string>> ResetPassword(ResetPasswordRequest model)
@@ -468,7 +544,16 @@ public class UserService:IUserService
 
     public async Task<ApplicationUser> GetById(string id)
     {
-        var user =await _userManager.FindByIdAsync(id);
-        return user;
+        var user = await _identityContext.Users.FindAsync(id);
+        var x = new ApplicationUser
+        {
+            Id = user.Id,
+            FullName = user.FullName,
+            Email = user.Email,
+            ProfileUrl = user.ProfileUrl,
+            UserName = user.UserName
+        };
+        return x;
+
     }
 }

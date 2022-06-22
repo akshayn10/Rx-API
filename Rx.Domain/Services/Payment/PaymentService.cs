@@ -303,8 +303,10 @@ public class PaymentService:IPaymentService
                     Description = chargeDescription,
                 };
                 await service.CreateAsync(options);
+                
                 return "Payment Processing";
             }
+            
             catch (StripeException e)
             {
                 switch (e.StripeError.Type)

@@ -55,6 +55,89 @@ namespace Rx.Domain.Services.Tenant
             var product = await _tenantDbContext.Products!.FirstOrDefaultAsync(x => x.ProductId ==productId);
             return _mapper.Map<ProductDto>(product);
         }
+        
+
+        public async Task<IEnumerable<OrganizationCustomerDto>> GetCustomersForProduct(Guid productId)
+        {
+            var customers = await (from s in _tenantDbContext.Subscriptions
+                join c in _tenantDbContext.OrganizationCustomers on s.OrganizationCustomerId equals c.CustomerId
+                join pp in _tenantDbContext.ProductPlans on s.ProductPlanId equals pp.PlanId
+                join p in _tenantDbContext.Products on pp.ProductId equals p.ProductId
+                where p.ProductId == productId
+                select c).ToListAsync();
+            return _mapper.Map<IEnumerable<OrganizationCustomerDto>>(customers);
+        }
+
+        public async Task<IEnumerable<ProductDto>> GetProductsForCustomer(Guid customerId)
+        {
+         var products = await   (from s in _tenantDbContext.Subscriptions
+                join c in _tenantDbContext.OrganizationCustomers on s.OrganizationCustomerId equals c.CustomerId
+                join pp in _tenantDbContext.ProductPlans on s.ProductPlanId equals pp.PlanId
+                join p in _tenantDbContext.Products on pp.ProductId equals p.ProductId
+                where c.CustomerId == customerId
+                select p).ToListAsync();
+         return _mapper.Map<IEnumerable<ProductDto>>(products);
+        }
+        
+        public async Task<string> DeleteProduct(Guid productId)
+        {
+            var product = await _tenantDbContext.Products!.FirstOrDefaultAsync(x=>x.ProductId==productId);
+            if (product == null)
+            {
+                return "Product not found";
+            }
+            /*var oldFileName = product.LogoURL!.Substring(56);
+            await _blobStorage.DeleteLogo(oldFileName);*/
+            _tenantDbContext.Products!.Remove(product);
+            await _tenantDbContext.SaveChangesAsync();
+            return "Product deleted";
+        }
+
+       
+        public async Task<ProductDto> UpdateProduct(Guid productId, ProductForUpdateDto productForUpdateDto)
+        {
+            var product = await _tenantDbContext.Products!.FindAsync(productId);
+            string? logoUrl = null;
+            if (productForUpdateDto.LogoImage != null)
+            {
+                var fileName = string.Empty;
+                _logger.LogInformation("Upload Started");
+                var logoImage = productForUpdateDto.LogoImage;
+                if (logoImage.Length > 0)
+                {
+                    await using var fileStream = new FileStream(logoImage.FileName, FileMode.Create);
+                    _logger.LogInformation("file found");
+                    await logoImage.CopyToAsync(fileStream);
+                    fileName = fileStream.Name;
+                }
+
+                var stream = File.OpenRead(logoImage.FileName);
+                logoUrl = await _blobStorage.UploadLogo(stream);
+                _logger.LogInformation("Upload Completed");
+                stream.Close();
+                File.Delete(fileName);
+            }
+            
+            //delete last logo
+            if (logoUrl != null && product.LogoURL!=null)
+            {
+                var oldFileName = product.LogoURL!.Substring(56);
+                await _blobStorage.DeleteLogo(oldFileName);
+                _logger.LogInformation("Old image deleted");
+            }
+
+            product.Name = productForUpdateDto.Name;
+            product.Description = productForUpdateDto.Description;
+            if (logoUrl != null)
+            {
+                product.LogoURL = logoUrl;
+            }
+            product.WebhookURL = productForUpdateDto.WebhookURL;
+            product.FreeTrialDays = productForUpdateDto.FreeTrialDays;
+            product.RedirectURL = productForUpdateDto.RedirectUrl;
+            await _tenantDbContext.SaveChangesAsync();
+            return _mapper.Map<ProductDto>(product);
+        }
         public async Task<ProductDto> AddProduct(ProductForCreationDto productForCreationDto)
         {
             string? logoUrl = null;
@@ -96,81 +179,6 @@ namespace Rx.Domain.Services.Tenant
 
             
             
-             return _mapper.Map<ProductDto>(product);
-        }
-
-        public async Task<IEnumerable<OrganizationCustomerDto>> GetCustomersForProduct(Guid productId)
-        {
-            var customers = await (from s in _tenantDbContext.Subscriptions
-                join c in _tenantDbContext.OrganizationCustomers on s.OrganizationCustomerId equals c.CustomerId
-                join pp in _tenantDbContext.ProductPlans on s.ProductPlanId equals pp.PlanId
-                join p in _tenantDbContext.Products on pp.ProductId equals p.ProductId
-                where p.ProductId == productId
-                select c).ToListAsync();
-            return _mapper.Map<IEnumerable<OrganizationCustomerDto>>(customers);
-        }
-
-        public async Task<IEnumerable<ProductDto>> GetProductsForCustomer(Guid customerId)
-        {
-         var products = await   (from s in _tenantDbContext.Subscriptions
-                join c in _tenantDbContext.OrganizationCustomers on s.OrganizationCustomerId equals c.CustomerId
-                join pp in _tenantDbContext.ProductPlans on s.ProductPlanId equals pp.PlanId
-                join p in _tenantDbContext.Products on pp.ProductId equals p.ProductId
-                where c.CustomerId == customerId
-                select p).ToListAsync();
-         return _mapper.Map<IEnumerable<ProductDto>>(products);
-        }
-        
-        public async Task<string> DeleteProduct(Guid productId)
-        {
-            var product = await _tenantDbContext.Products!.FirstOrDefaultAsync(x=>x.ProductId==productId);
-            if (product == null)
-            {
-                return "Product not found";
-            }
-            var oldFileName = product.LogoURL!.Substring(56);
-            await _blobStorage.DeleteLogo(oldFileName);
-            _tenantDbContext.Products!.Remove(product);
-            await _tenantDbContext.SaveChangesAsync();
-            return "Product deleted";
-        }
-
-       
-        public async Task<ProductDto> UpdateProduct(Guid productId, ProductForUpdateDto productForUpdateDto)
-        {
-            var product = await _tenantDbContext.Products!.FindAsync(productId);
-            if (product == null)
-            {
-                throw new NullReferenceException("Product not found");
-            }
-            var fileName=string.Empty;
-            _logger.LogInformation("Upload Started");
-            var logoImage = productForUpdateDto.LogoImage;
-            if (logoImage.Length > 0)
-            {
-                await using var fileStream = new FileStream(logoImage.FileName, FileMode.Create);
-                _logger.LogInformation("file found");
-                await logoImage.CopyToAsync(fileStream);
-                fileName = fileStream.Name;
-            }
-            var stream = File.OpenRead(logoImage.FileName);
-            var url =await _blobStorage.UploadLogo(stream);
-            _logger.LogInformation("Upload Completed");
-            stream.Close();
-            File.Delete(fileName);
-
-            //delete last logo
-            var oldFileName = product.LogoURL!.Substring(56);
-            await _blobStorage.DeleteLogo(oldFileName);
-            _logger.LogInformation("Old image deleted");
-
-            product.Name = productForUpdateDto.Name;
-            product.Description = productForUpdateDto.Description;
-            product.LogoURL = url;
-            product.WebhookURL = productForUpdateDto.WebhookURL;
-            product.FreeTrialDays = productForUpdateDto.FreeTrialDays;
-            product.RedirectURL = productForUpdateDto.RedirectUrl;
-            await _tenantDbContext.SaveChangesAsync();
             return _mapper.Map<ProductDto>(product);
         }
     }

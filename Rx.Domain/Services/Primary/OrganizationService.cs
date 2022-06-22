@@ -2,12 +2,15 @@
 using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
+using Rx.Domain.DTOs.Payment;
 using Rx.Domain.DTOs.Primary.Organization;
 using Rx.Domain.Entities.Primary;
 using Rx.Domain.Interfaces.Blob;
 using Rx.Domain.Interfaces.DbContext;
 using Rx.Domain.Interfaces.Email;
 using Rx.Domain.Interfaces.Identity;
+using Rx.Domain.Interfaces.Payment;
 using Rx.Domain.Interfaces.Primary;
 
 
@@ -21,13 +24,15 @@ namespace Rx.Domain.Services.Primary
         private readonly IBlobStorage _blobStorage;
         private readonly IEmailService _emailService;
         private readonly IUserService _userService;
+        private readonly IPaymentService _paymentService;
 
         public OrganizationService(IPrimaryDbContext primaryDbContext,
             ILogger<PrimaryServiceManager> logger,
             IMapper mapper,
             IBlobStorage blobStorage,
             IEmailService emailService,
-            IUserService userService
+            IUserService userService,
+            IPaymentService paymentService
             )
         {
             _primaryDbContext = primaryDbContext;
@@ -36,6 +41,7 @@ namespace Rx.Domain.Services.Primary
             _blobStorage = blobStorage;
             _emailService = emailService;
             _userService = userService;
+            _paymentService = paymentService;
         }
         public async Task<Guid> CreateOrganizationAsync(CreateOrganizationRequestDto createOrganizationRequestDto)
         {
@@ -72,11 +78,11 @@ namespace Rx.Domain.Services.Primary
             //Add Address
             var organizationAddress = new OrganizationAddress
             {
-                AddressLine1 = createOrganizationRequestDto.OrganizationAddress.AddressLine1,
-                AddressLine2 = createOrganizationRequestDto.OrganizationAddress.AddressLine2,
-                City = createOrganizationRequestDto.OrganizationAddress.City,
-                State = createOrganizationRequestDto.OrganizationAddress.State,
-                Country = createOrganizationRequestDto.OrganizationAddress.Country,
+                AddressLine1 = createOrganizationRequestDto.AddressLine1,
+                AddressLine2 = createOrganizationRequestDto.AddressLine2,
+                City = createOrganizationRequestDto.City,
+                State = createOrganizationRequestDto.State,
+                Country = createOrganizationRequestDto.Country,
                 OrganizationId = organizationEntity.Id,
             };
             await _primaryDbContext.OrganizationAddresses!.AddAsync(organizationAddress);
@@ -86,6 +92,72 @@ namespace Rx.Domain.Services.Primary
             await _userService.UpdateUserAsync(createOrganizationRequestDto.AccountOwnerId!, organizationEntity.Id);
             
             return organizationEntity.Id;
+        }
+
+        public async Task<OrganizationDto> EditOrganization(Guid organizationId, EditOrganizationRequestDto editOrganizationRequestDto)
+        {
+            string? logoUrl = null;
+            if (editOrganizationRequestDto.LogoImage != null)
+            {
+                var fileName = string.Empty;
+                _logger.LogInformation("Upload Started");
+                var logoImage = editOrganizationRequestDto.LogoImage;
+                if (logoImage.Length > 0)
+                {
+                    await using var fileStream = new FileStream(logoImage.FileName, FileMode.Create);
+                    _logger.LogInformation("file found");
+                    await logoImage.CopyToAsync(fileStream);
+                    fileName = fileStream.Name;
+                }
+                var stream = File.OpenRead(logoImage.FileName);
+                logoUrl = await _blobStorage.UploadOrganizationLogo(stream);
+                _logger.LogInformation("Upload Completed");
+                stream.Close();
+                File.Delete(fileName);
+            }
+            var organization = await _primaryDbContext.Organizations!.FindAsync(organizationId);
+            if (organization == null)
+            {
+                throw new NullReferenceException("Organization not found");
+            }
+            organization.Name = editOrganizationRequestDto.Name;
+            organization.Description = editOrganizationRequestDto.Description;
+            organization.Email = editOrganizationRequestDto.Email;
+            if (logoUrl != null)
+            {
+                organization.LogoURL = logoUrl;
+
+            }
+            await _primaryDbContext.SaveChangesAsync();
+            
+            //Update Address
+            var organizationAddress = await _primaryDbContext.OrganizationAddresses!.FirstOrDefaultAsync(o=>
+                o.OrganizationId==organizationId);
+            if (organizationAddress == null)
+            {
+                throw new NullReferenceException("Organization Address not found");
+            }
+            organizationAddress.AddressLine1 = editOrganizationRequestDto.AddressLine1;
+            organizationAddress.AddressLine2 = editOrganizationRequestDto.AddressLine2;
+            organizationAddress.City = editOrganizationRequestDto.City;
+            organizationAddress.State = editOrganizationRequestDto.State;
+            organizationAddress.Country = editOrganizationRequestDto.Country;
+            await _primaryDbContext.SaveChangesAsync();
+            
+            return _mapper.Map<OrganizationDto>(organization);
+        }
+
+        public async Task<string> CreateOrganizationInStripeUseCase(SubscriptionRequest subscriptionRequest)
+        {
+            var organization = await _primaryDbContext.Organizations!.FindAsync(subscriptionRequest.OrganizationId);
+            if (organization == null)
+            {
+                throw new NullReferenceException("Organization not found");
+            }
+            var stripeDescription = new StripeDescription("organization", subscriptionRequest.OrganizationId.ToString());
+            var stripeDescriptionJson = JsonConvert.SerializeObject(stripeDescription);
+            await _paymentService.CreateCustomer(organization.Name!, organization.Email!,subscriptionRequest.OrganizationId.ToString(),stripeDescriptionJson);
+            return "https://localhost:44352/api/Payment?customerEmail="+organization.Email;;
         }
 
         public async Task<IEnumerable<OrganizationDto>> GetOrganizationsAsync(bool trackChanges)
@@ -101,13 +173,23 @@ namespace Rx.Domain.Services.Primary
             await _primaryDbContext.SaveChangesAsync();
         }
 
-        public async Task AddPaymentMethodIdForOrganization(Guid organizationId, string paymentMethodId)
+        public async Task<Guid> AddPaymentMethodIdForOrganization(Guid organizationId, string paymentMethodId)
         {
             var organization = await _primaryDbContext.Organizations!.FindAsync(organizationId);
+            if(organization == null)
+            {
+                throw new NullReferenceException("Organization not found");
+            }
             organization.PaymentMethodId = paymentMethodId;
             await _primaryDbContext.SaveChangesAsync();
+            var storedSubscriptionReq = await _primaryDbContext.SubscriptionRequests
+                .Where(sr=>sr.OrganizationId == organizationId).OrderByDescending(sr=>sr.RetrievedDateTime).FirstOrDefaultAsync();
+            if(storedSubscriptionReq == null)
+            {
+                throw new NullReferenceException("Subscription Request not found");
+            }
+            return storedSubscriptionReq!.SubscriptionRequestId;
         }
-        
         public async Task<OrganizationDto> CreateOrganizationTest(OrganizationForCreationDto organizationForCreationDto)
         {
             var organizationEntity = _mapper.Map<Organization>(organizationForCreationDto);

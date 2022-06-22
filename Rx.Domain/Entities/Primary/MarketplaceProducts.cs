@@ -12,5 +12,7 @@ public class MarketplaceProducts
     public string? LogoUrl { get; set; }
     public bool? HaveTrial { get; set; }
     public string? ProviderName { get; set; }
+    public int TrialDays { get; set; }
     public string? RedirectUrl { get; set; }
+    
 }

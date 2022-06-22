@@ -43,7 +43,7 @@ public class StripeController:Controller
                     await _mediator.Send(new AddPaymentGatewayIdToCustomerUseCase(Guid.Parse(stripeDescription.Id),customerCreated.Id));
                 }
 
-                if (customerCreated.Description == "owner")
+                if (stripeDescription.PaymentType == "organization")
                 {
                     await _mediator.Send(new AddPaymentGatewayIdForOrganizationUseCase(Guid.Parse(stripeDescription.Id),customerCreated.Id));
                 }
@@ -52,7 +52,6 @@ public class StripeController:Controller
 
             if (stripeEvent.Type == Events.PaymentMethodAttached)
             {
-                
                 // Handle the event
                 _logger.LogInformation("PaymentMethodAttached Webhook Received");
                 var paymentMethod = stripeEvent.Data.Object as PaymentMethod;
@@ -94,7 +93,6 @@ public class StripeController:Controller
                 {
                     await _mediator.Send(new ActivateDowngradeSubscriptionUseCase(Guid.Parse(stripeDescription.Id)));
                 }
-
                 if (stripeDescription.PaymentType == "organization-onetime")
                 {
                     await _mediator.Send(new ActivateOrganizationOneTimeSubscriptionUseCase(Guid.Parse(stripeDescription.Id)));

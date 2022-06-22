@@ -1,12 +1,13 @@
 ﻿using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Rx.Application.UseCases.Tenant.Report;
-using Rx.Application.UseCases.Tenant.Subscription;
 
 namespace Rx.API.Controllers.Tenant;
 
 [ApiController]
 [Route("api/report")]
+[Authorize(Roles = "FinanceUser")]
 public class ReportController:ControllerBase
 {
     private readonly IMediator _mediator;
@@ -15,13 +16,13 @@ public class ReportController:ControllerBase
     {
         _mediator = mediator;
     }
-    [HttpGet("subscription-summary")]
+    [HttpGet("sub-summary")]
     public async Task<IActionResult> GetSubscriptionStats()
     {
         var res = await _mediator.Send(new GetSubscriptionStatUseCase());
         return Ok(res);
     }
-    [HttpGet("subscription-activation")]
+    [HttpGet("sub-activation")]
     public async Task<IActionResult> GetSubscriptionActivation()
     {
         var res = await _mediator.Send(new GetSubscriptionActivationUseCase());
@@ -64,5 +65,4 @@ public class ReportController:ControllerBase
         var res = await _mediator.Send(new GetRevenueStatsUseCase());
         return Ok(res);
     }
-    
 }

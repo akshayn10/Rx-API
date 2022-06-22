@@ -1,6 +1,8 @@
 ﻿using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Rx.Application.UseCases.Tenant.Subscription;
+using Rx.Domain.DTOs.Primary.SystemSubscription;
+using Rx.Domain.DTOs.Tenant.Subscription;
 using Rx.Domain.Interfaces;
 using Rx.Domain.Interfaces.DbContext;
 
@@ -24,10 +26,15 @@ public class AddPaymentMethodUseCaseHandler : IRequestHandler<AddPaymentMethodUs
     }
     public async Task<Unit> Handle(AddPaymentMethodUseCase request, CancellationToken cancellationToken)
     {
-        var organization = await _primaryDbContext.Organizations!.FirstOrDefaultAsync(o=>o.PaymentGatewayId==request.PaymentMethodId);
+        var organization = await _primaryDbContext.Organizations!.FirstOrDefaultAsync(o=>o.PaymentGatewayId==request.CustomerId, cancellationToken: cancellationToken);
         if (organization!=null)
         {
-            await _primaryServiceManager.OrganizationService.AddPaymentMethodIdForOrganization(organization.Id,request.PaymentMethodId);
+            var storedSubscriptionId = await _primaryServiceManager.OrganizationService.AddPaymentMethodIdForOrganization(organization.Id,request.PaymentMethodId);
+            var storedSubscription = await _primaryDbContext.SubscriptionRequests!.FindAsync(storedSubscriptionId);
+            var subscriptionCreationDto = new SystemSubscriptionForCreationDto(storedSubscription!.SubscriptionType,
+                storedSubscription.OrganizationId, storedSubscription.SystemPlanId);
+            await _primaryServiceManager.SystemSubscriptionService.CreateSystemSubscription(subscriptionCreationDto);
+            return Unit.Value;
             
         }
         var webhookId =await _tenantServiceManager.OrganizationCustomerService.AddPaymentMethod(request.CustomerId, request.Last4,request.PaymentMethodId);

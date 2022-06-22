@@ -72,6 +72,9 @@ namespace Rx.Infrastructure.Migrations.PrimaryDb
                     b.Property<string>("RedirectUrl")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int>("TrialDays")
+                        .HasColumnType("int");
+
                     b.HasKey("ProductId");
 
                     b.ToTable("MarketplaceProducts");
@@ -174,6 +177,29 @@ namespace Rx.Infrastructure.Migrations.PrimaryDb
                     b.HasIndex("SubscriptionId");
 
                     b.ToTable("PaymentTransactions");
+                });
+
+            modelBuilder.Entity("Rx.Domain.Entities.Primary.SubscriptionRequest", b =>
+                {
+                    b.Property<Guid>("SubscriptionRequestId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("OrganizationId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("RetrievedDateTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("SubscriptionType")
+                        .HasColumnType("bit");
+
+                    b.Property<Guid>("SystemPlanId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("SubscriptionRequestId");
+
+                    b.ToTable("SubscriptionRequests");
                 });
 
             modelBuilder.Entity("Rx.Domain.Entities.Primary.SystemSubscription", b =>

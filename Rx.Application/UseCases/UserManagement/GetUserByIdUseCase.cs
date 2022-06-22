@@ -17,6 +17,7 @@ public class GetUserByIdUseCaseHandler : IRequestHandler<GetUserByIdUseCase, App
     }
     public async Task<ApplicationUser> Handle(GetUserByIdUseCase request, CancellationToken cancellationToken)
     {
+        
         return await _userService.GetById(request.UserId);
     }
 }

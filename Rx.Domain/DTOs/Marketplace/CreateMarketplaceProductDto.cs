@@ -6,6 +6,6 @@ public record CreateMarketplaceProductDto (
     string? Name,
     string? LogoUrl,
     int TrialDays,
-    string? ProviderName,
+    string? OrganizationId,
     string? RedirectUrl
     );

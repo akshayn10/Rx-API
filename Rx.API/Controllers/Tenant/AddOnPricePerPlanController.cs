@@ -1,4 +1,5 @@
 ﻿using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Rx.Application.UseCases.Tenant.AddOn;
 using Rx.Domain.DTOs.Tenant.AddOnPricePerPlan;
@@ -8,6 +9,7 @@ namespace Rx.API.Controllers.Tenant;
 
 [Route("api/addOnPrice")]
 [ApiController]
+[Authorize(Roles = "Admin")]
 public class AddOnPricePerPlanController:ControllerBase
 {
     private readonly IMediator _mediator;

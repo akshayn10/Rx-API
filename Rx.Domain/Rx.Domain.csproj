@@ -8,8 +8,6 @@
 
   <ItemGroup>
     <Folder Include="DTOs\Primary\Bill" />
-    <Folder Include="DTOs\Primary\SystemSubscription" />
-    <Folder Include="DTOs\Primary\SystemSubscriptionPlan" />
     <Folder Include="DTOs\Primary\Transaction" />
     <Folder Include="ErrorModel\" />
     <Folder Include="Exceptions\" />

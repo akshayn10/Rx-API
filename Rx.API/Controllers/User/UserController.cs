@@ -1,4 +1,5 @@
 ﻿using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Rx.Application.UseCases.UserManagement;
 using Rx.Domain.DTOs.User;
@@ -113,9 +114,24 @@ public class UserController:ControllerBase
     }
     
     [HttpGet("{id}")]
-    public async Task<IActionResult> GetUserById([FromBody] string id)
+    public async Task<IActionResult> GetUserById(string id)
     {
         var response = await _mediator.Send(new GetUserByIdUseCase(id));
         return Ok(response);
     }
+    
+    [HttpPut("{id}")]
+    public async Task<IActionResult> UpdateUser(string id,[FromForm] UpdateUserRequest request)
+    {
+        var response = await _mediator.Send(new UpdateUserUseCase(id, request));
+        return Ok(response);
+    }
+    [Authorize(Roles = "Owner")]
+    [HttpGet("organization-users/{id}")]
+    public async Task<IActionResult> GetOrganizationUsers(string id)
+    {
+        var response = await _mediator.Send(new GetOrganizationUsersUseCase(Guid.Parse(id)));
+        return Ok(response);
+    }
+    
 }

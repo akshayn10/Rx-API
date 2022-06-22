@@ -13,6 +13,7 @@ namespace Rx.Domain.Interfaces.DbContext
             DbSet<PaymentTransaction> PaymentTransactions { get; set; }
             DbSet<Bill> Bills { get; set; }
             DbSet<MarketplaceProducts> MarketplaceProducts { get; set; }
+            DbSet<SubscriptionRequest> SubscriptionRequests { get; set; }
             Task<int> SaveChangesAsync();
     }
 }

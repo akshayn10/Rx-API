@@ -1,4 +1,5 @@
 ﻿using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Rx.Application.UseCases.Tenant.Product;
 using Rx.Domain.DTOs.Tenant.Product;
@@ -8,6 +9,8 @@ using Rx.Domain.DTOs.Request;
 namespace Rx.API.Controllers.Tenant
 {
     [Route("api/product")]
+    [ApiController]
+    [Authorize(Roles = "Admin")]
     public class ProductController : ControllerBase
     {
         private readonly IMediator _mediator;
@@ -27,9 +30,8 @@ namespace Rx.API.Controllers.Tenant
             return Ok(products);
         }
 
-        [HttpGet]
+        [HttpGet("{id:guid}")]
         [SwaggerOperation(Summary = "Get product by id")]
-        [Route("{id:guid}")]
         public async Task<IActionResult> GetProductById(Guid id)
         {
             var product = await _mediator.Send(new GetProductByIdUseCase(id));
