@@ -7,7 +7,7 @@ namespace Rx.Domain.Interfaces.Identity;
 public interface IUserService
 {
     Task<ResponseMessage<AuthenticationResponse>> AuthenticateAsync(AuthenticationRequest request);
-    Task<ResponseMessage<string>> RegisterAsync(RegisterRequest request, string origin);
+    Task<ResponseMessage<RegisterResponse>> RegisterAsync(RegisterRequest request, string origin);
     Task<ResponseMessage<string>> ConfirmEmailAsync(string userId, string code);
     Task<string> ForgotPassword(ForgotPasswordRequest model, string origin);
     Task<ResponseMessage<string>> ResetPassword(ResetPasswordRequest model);

@@ -277,7 +277,7 @@ public class UserService:IUserService
             signingCredentials: signingCredentials);
         return jwtSecurityToken;
     }
-    public async Task<ResponseMessage<string>> RegisterAsync(RegisterRequest request, string origin)
+    public async Task<ResponseMessage<RegisterResponse>> RegisterAsync(RegisterRequest request, string origin)
     {
         string? profileUrl = null;
         if (request.ProfileImage != null)
@@ -300,42 +300,60 @@ public class UserService:IUserService
             File.Delete(fileName);
         }
 
-        var user = new ApplicationUser
-                    {
-                        Email = request.Email,
-                        FullName = request.FullName,
-                        UserName = request.UserName,
-                        ProfileUrl = profileUrl
-                    };
+        var user = new ApplicationUser();
+        var response = new RegisterResponse();
         var userWithSameUserEmail = await _userManager.FindByEmailAsync(request.Email);
+        var userWithSameUserName = await _userManager.FindByNameAsync(request.UserName);
         if (userWithSameUserEmail == null)
         {
-            var result = await _userManager.CreateAsync(user, request.Password);
-            var verificationUri = await VerificationUri(user, origin);
-            if (result.Succeeded)
+            if (userWithSameUserName == null)
             {
-                await _userManager.AddToRolesAsync(user,
-                    new[] {Roles.Owner.ToString(), Roles.Admin.ToString(), Roles.FinanceUser.ToString()});
-                var emailRequest = new EmailRequest()
+                user.Email = request.Email;
+                user.FullName = request.FullName;
+                user.UserName = request.UserName;
+                user.ProfileUrl = profileUrl;
+                var result = await _userManager.CreateAsync(user, request.Password);
+                var verificationUri = await VerificationUri(user, origin);
+                if (result.Succeeded)
                 {
-                    To = user.Email,
-                    Subject = "Registration Confirmation",
-                    Body = $"Please confirm your user by visiting this URL {verificationUri}"
+                    await _userManager.AddToRolesAsync(user,
+                        new[] {Roles.Owner.ToString(), Roles.Admin.ToString(), Roles.FinanceUser.ToString()});
+                    var emailRequest = new EmailRequest()
+                    {
+                        To = user.Email,
+                        Subject = "Registration Confirmation",
+                        Body = "<h1>Please confirm your account by visiting this URL</h1> <br> <a href="+verificationUri + ">Click this link to verify your account </a>"
 
-                };
-                _backgroundJobClient.Enqueue(()=>_emailService.SendAsync(emailRequest));
-                // await _emailService.SendAsync(emailRequest);
-                return new ResponseMessage<string>(user.Id,
-                    message: $"User Registered. Please confirm your user by visiting this URL {verificationUri}");
+                    };
+                    _backgroundJobClient.Enqueue(() => _emailService.SendAsync(emailRequest));
+                    // await _emailService.SendAsync(emailRequest);
+                    response.Message = "User Registered. Check your email to Confirm";
+                    response.IsSuccess = true;
+                    return new ResponseMessage<RegisterResponse>(response,
+                        message: $"User Registered. Check your email to Confirm");
+                }
+                else
+                {
+                    response.Message = "User Registration Failed";
+                    response.IsSuccess = false;
+                    return new ResponseMessage<RegisterResponse>(response, message: "User Registration Failed");
+                    // throw new ApiException($"{result.Errors}");
+                }
             }
             else
             {
-                throw new ApiException($"{result.Errors}");
+                response.Message = "User name already exists";
+                response.IsSuccess = false;
+                return new ResponseMessage<RegisterResponse>(response,
+                    message:"User name already exists");
             }
         }
         else
         {
-            throw new ApiException($"Email {request.Email } is already registered.");
+            response.Message = $"Email {request.Email } is already registered.";
+            response.IsSuccess = false;
+            // throw new ApiException($"Email {request.Email } is already registered.");
+            return new ResponseMessage<RegisterResponse>(response,message: $"Email {request.Email } is already registered.");
         }
     }
     public async Task<ResponseMessage<string>> AddUserAsync(AddUserRequest request,string origin)
@@ -394,7 +412,7 @@ public class UserService:IUserService
     {
         var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
         code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
-        var route = "api/user/confirm-email/";
+        var route = "/auth/confirm-email/";
         var endPointUri = new Uri(string.Concat($"{origin}/", route));
         var verificationUri = QueryHelpers.AddQueryString(endPointUri.ToString(), "userId", user.Id);
         verificationUri = QueryHelpers.AddQueryString(verificationUri, "code", code);
