@@ -28,9 +28,9 @@ public class GetBillUseCaseHandler : IRequestHandler<GetBillsUseCase, IEnumerabl
                 b.OrganizationCustomer.Name
                 )
             )
-            .ToListAsync();
+            .ToListAsync(cancellationToken: cancellationToken);
         
-        return bills.Where(b=>b.CustomerName.ToLower().StartsWith(request.SearchKey));
+        return bills.OrderByDescending(b=>b.GeneratedDate).Where(b=>b.CustomerName.ToLower().StartsWith(request.SearchKey));
 
     }
 }

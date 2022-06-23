@@ -39,7 +39,7 @@ public class GetTransactionVmsUseCaseHandler : IRequestHandler<GetTransactionVms
                 PaymentFor:t.TransactionDescription==""?"Subscription":"Add on",
                 AddonName:t.TransactionDescription
             )
-            );
+            ).OrderByDescending(t=>t.Date);
         return transactionVms;
     }
 }
