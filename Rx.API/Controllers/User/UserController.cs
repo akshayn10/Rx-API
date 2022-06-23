@@ -136,5 +136,11 @@ public class UserController:ControllerBase
         var response = await _mediator.Send(new GetOrganizationUsersUseCase(Guid.Parse(id)));
         return Ok(response);
     }
+    [HttpPost("delete-user")]
+    public async Task<IActionResult> DeleteUser(DeleteUserRequest request)
+    {
+        var response = await _mediator.Send(new DeleteUserUseCase(request.Email));
+        return Ok(response);
+    }
     
 }

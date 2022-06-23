@@ -20,4 +20,5 @@ public interface IUserService
     Task<string> UpdateUserAsync(string userId, Guid organizationId);
     Task<string> EditUserDetails(string userId, UpdateUserRequest updateUserRequest);
     Task<IEnumerable<UserVm>> GetUsersForOrganization(Guid organizationId);
+    Task<string> DeleteUserAsync(string email);
 }

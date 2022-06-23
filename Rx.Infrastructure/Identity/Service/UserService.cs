@@ -151,6 +151,18 @@ public class UserService:IUserService
         await _identityContext.SaveChangesAsync();
         return "User Updated Successfully";
     }
+    
+    public async Task<string> DeleteUserAsync(string email)
+    {
+        var user = await _userManager.FindByEmailAsync(email);
+        if (user == null)
+        {
+            throw new ApiException($"No User Registered with {email}.");
+        }
+        _identityContext.Remove(user);
+        await _identityContext.SaveChangesAsync();
+        return "User Deleted Successfully";
+    }
 
     public async Task<string> EditUserDetails(string userId, UpdateUserRequest updateUserRequest)
     {
@@ -195,7 +207,6 @@ public class UserService:IUserService
     {
         var users = await _identityContext.Users.Where(x => x.OrganizationId == organizationId).ToListAsync();
 
-
         var userVms = new List<UserVm>();
         foreach (ApplicationUser user in users)
         {
@@ -219,7 +230,10 @@ public class UserService:IUserService
                 Role:role,
                 ProfileUrl:user.ProfileUrl
             );
-            userVms.Add(appuser);
+            if (appuser.Role != "Owner")
+            {
+                userVms.Add(appuser);
+            }
         }
 
         return userVms;
@@ -439,14 +453,15 @@ public class UserService:IUserService
         var user = await _userManager.FindByEmailAsync(model.Email);
         if (user == null) return "User Not found for the given email";
 
-        var code = await _userManager.GeneratePasswordResetTokenAsync(user);
-        var route = "api/user/reset-password/";
+        var token = await _userManager.GeneratePasswordResetTokenAsync(user);
+        var route = "auth/reset-password/";
         var endPointUri = new Uri(string.Concat($"{origin}/", route));
+        var resetPasswordUri = QueryHelpers.AddQueryString(endPointUri.ToString(), "token", token);
         var emailRequest = new EmailRequest()
         {
-            Body = $"You reset token is - {code}",
             To = model.Email,
             Subject = "Reset Password",
+            Body = "<h1>Please reset your password by visiting this URL</h1> <br> <a href="+resetPasswordUri + ">Go to Reset password page</a>",
         };
         _backgroundJobClient.Enqueue(()=>_emailService.SendAsync(emailRequest));
         // await _emailService.SendAsync(emailRequest);
