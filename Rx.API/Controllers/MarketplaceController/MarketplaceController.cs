@@ -19,7 +19,7 @@ public class MarketplaceController:ControllerBase
     [HttpGet]
     public async Task<IActionResult> GetAllProducts([FromQuery] RequestParameters requestParameters)
     {
-        var result = await _mediator.Send(new GetMarketplaceProductsUseCase(requestParameters.SearchKey??""));
+        var result = await _mediator.Send(new GetMarketplaceProductsUseCase(requestParameters.SearchKey??"",requestParameters.HaveTrial??false));
         return Ok(result);
     }
     [HttpGet("{id}")]
