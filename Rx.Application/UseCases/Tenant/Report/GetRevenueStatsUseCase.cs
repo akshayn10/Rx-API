@@ -20,7 +20,7 @@ public class GetRevenueStatsUseCaseHandler : IRequestHandler<GetRevenueStatsUseC
     {
         var monthsRequired = 6;
         var result =await _tenantDbContext.PaymentTransactions!
-            .Where(p=>p.TransactionStatus == "success")
+            .Where(p=>p.TransactionStatus == "Succeeded")
             .ToListAsync(cancellationToken: cancellationToken);
         var statCount = result.GroupBy(x => x.TransactionDate.ToString("MMMM")).Select(x => new Stats(
                 x.Key,
