@@ -1,6 +1,7 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Rx.API.Middleware;
 using Rx.Application.UseCases.Tenant.Dashboard;
 using Rx.Application.UseCases.Tenant.Report;
 
@@ -9,6 +10,7 @@ namespace Rx.API.Controllers.Tenant;
 [ApiController]
 [Route("api/dashboard")]
 [Authorize(Roles = "FinanceUser")]
+[SubscriptionVerification]
 public class DashboardController:ControllerBase
 {
     private readonly IMediator _mediator;

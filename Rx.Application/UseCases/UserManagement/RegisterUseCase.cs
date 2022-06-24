@@ -6,9 +6,9 @@ using Rx.Domain.Wrappers;
 
 namespace Rx.Application.UseCases.UserManagement;
 
-public record RegisterUseCase(RegisterRequest RegisterRequest,string Origin) : IRequest<ResponseMessage<string>>;
+public record RegisterUseCase(RegisterRequest RegisterRequest,string Origin) : IRequest<ResponseMessage<RegisterResponse>>;
 
-public class RegisterUseCaseHandler : IRequestHandler<RegisterUseCase, ResponseMessage<string>>
+public class RegisterUseCaseHandler : IRequestHandler<RegisterUseCase, ResponseMessage<RegisterResponse>>
 {
     private readonly IUserService _userService;
 
@@ -17,7 +17,7 @@ public class RegisterUseCaseHandler : IRequestHandler<RegisterUseCase, ResponseM
         _userService = userService;
     }
 
-    public async Task<ResponseMessage<string>> Handle(RegisterUseCase request, CancellationToken cancellationToken)
+    public async Task<ResponseMessage<RegisterResponse>> Handle(RegisterUseCase request, CancellationToken cancellationToken)
     {
         return await _userService.RegisterAsync(request.RegisterRequest, request.Origin);
     }

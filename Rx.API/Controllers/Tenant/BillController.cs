@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Rx.Application.UseCases.Tenant.Billing;
+using Rx.Domain.DTOs.Request;
 using Rx.Domain.DTOs.Tenant.Bill;
 using Swashbuckle.AspNetCore.Annotations;
 
@@ -22,9 +23,9 @@ public class BillController:ControllerBase
     
     [HttpGet]
     [SwaggerOperation(Summary = "Get All Bills")]
-    public async Task<IActionResult> GetAllBills()
+    public async Task<IActionResult> GetAllBills([FromQuery] RequestParameters requestParameters)
     {
-        var bills =await _mediator.Send(new GetBillsUseCase()); 
+        var bills =await _mediator.Send(new GetBillsUseCase(requestParameters.SearchKey??"")); 
         return Ok(bills);
     }
     

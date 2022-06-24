@@ -21,7 +21,10 @@ public class UserController:ControllerBase
     public async Task<IActionResult> AuthenticateAsync(AuthenticationRequest request)
     {
         var response = await _mediator.Send(new LoginUseCase(request));
-        SetRefreshTokenInCookie(response.Data.RefreshToken);
+        if (response.Data.RefreshToken != null)
+        {
+            SetRefreshTokenInCookie(response.Data.RefreshToken);
+        }
         return Ok(response);
     }
     private void SetRefreshTokenInCookie(string refreshToken)
@@ -131,6 +134,12 @@ public class UserController:ControllerBase
     public async Task<IActionResult> GetOrganizationUsers(string id)
     {
         var response = await _mediator.Send(new GetOrganizationUsersUseCase(Guid.Parse(id)));
+        return Ok(response);
+    }
+    [HttpPost("delete-user")]
+    public async Task<IActionResult> DeleteUser(DeleteUserRequest request)
+    {
+        var response = await _mediator.Send(new DeleteUserUseCase(request.Email));
         return Ok(response);
     }
     
