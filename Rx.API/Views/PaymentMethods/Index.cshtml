@@ -24,6 +24,7 @@
     {
         @:there are no payment methods
     }
+
     @foreach (var pm in Model.PaymentMethods!)
     {
         @using (Html.BeginForm("Delete", "PaymentMethods", FormMethod.Post))

@@ -31,11 +31,12 @@ public class CreateSystemSubscriptionUseCaseHandler : IRequestHandler<CreateSyst
         await _primaryDbContext.SubscriptionRequests.AddAsync(subscriptionReq);
         await _primaryDbContext.SaveChangesAsync();
         var organization =await _primaryDbContext.Organizations!.FindAsync(request.SubscriptionForCreationDto.OrganizationId);
+        //Check if the organization has payment method
         if (organization == null)
         {
             throw new System.Exception("Organization not found");
         }
-        if(organization.PaymentGatewayId == null)
+        if(organization.PaymentMethodId == null)
         {
             return await _primaryServiceManager.OrganizationService.CreateOrganizationInStripeUseCase(subscriptionReq);
         }

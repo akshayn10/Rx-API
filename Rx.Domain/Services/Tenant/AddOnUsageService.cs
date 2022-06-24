@@ -62,6 +62,10 @@ public class AddOnUsageService: IAddOnUsageService
         {
             throw new NullReferenceException("Subscription not found");
         }
+        if(subscription.IsActive==false)
+        {
+            throw new Exception("Subscription is not active");
+        }
 
         var customer =await _tenantDbContext.OrganizationCustomers!.FindAsync(addOnWebhook.OrganizationCustomerId);
         var addOnPriceForPlan =await _tenantDbContext.AddOnPricePerPlans!.Where(
