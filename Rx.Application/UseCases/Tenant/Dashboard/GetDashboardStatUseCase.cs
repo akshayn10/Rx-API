@@ -20,7 +20,7 @@ public class GetDashboardStatUseCaseHandler : IRequestHandler<GetDashboardStatUs
         var totalCustomer = _tenantDbContext.OrganizationCustomers!.Count();
         var totalProducts =  _tenantDbContext.Products!.Count();
         var totalSubscription = _tenantDbContext.Subscriptions!.Count(s => !s.IsCancelled && (s.IsActive||s.IsTrial));
-        var totalRevenue =await _tenantDbContext.PaymentTransactions.Where(p=>p.TransactionStatus=="success")
+        var totalRevenue =await _tenantDbContext.PaymentTransactions.Where(p=>p.TransactionStatus=="Succeeded")
             .SumAsync(p => p.TransactionAmount, cancellationToken: cancellationToken);
 
         return new DashboardStats(totalCustomer, totalRevenue, totalSubscription, totalProducts);
