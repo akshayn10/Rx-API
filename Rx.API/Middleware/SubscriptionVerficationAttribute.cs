@@ -14,15 +14,14 @@ public class SubscriptionVerificationAttribute: Attribute,IAsyncAuthorizationFil
         var organizationId = context.HttpContext.Request.Headers["OrganizationId"];
         if (StringValues.IsNullOrEmpty(organizationId))
         {
-            context.Result = new UnauthorizedResult();
+            context.Result = new StatusCodeResult(402);
             return;
         }
         var subscription = await mediator.Send(new GetOrganizationSubscriptionStatusUseCase(Guid.Parse(organizationId)));
 
         if (!subscription)
         {
-            context.Result = new UnauthorizedResult();
-
+            context.Result = new StatusCodeResult(402);
         }
         return;
     }
