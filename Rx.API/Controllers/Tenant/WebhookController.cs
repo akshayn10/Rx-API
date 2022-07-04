@@ -1,6 +1,7 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Rx.API.Controllers.Tenant.Authorization;
+using Rx.API.Middleware;
 using Rx.Application.UseCases.Tenant.Subscription;
 using Rx.Application.UseCases.Tenant.Webhook;
 using Rx.Domain.DTOs.Tenant.AddOn;
@@ -13,6 +14,7 @@ namespace Rx.API.Controllers.Tenant
 {
     [Route("api/webhook")]
     [ApiController]
+    [SubscriptionVerification]
     [WebhookVerification]
     public class WebhookController : ControllerBase
     {

@@ -1,6 +1,7 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Rx.API.Middleware;
 using Rx.Application.UseCases.Tenant.AddOnUsage;
 using Rx.Domain.DTOs.Tenant.AddOnUsage;
 using Swashbuckle.AspNetCore.Annotations;
@@ -10,6 +11,7 @@ namespace Rx.API.Controllers.Tenant;
 
 [ApiController]
 [Route("api/AddOnUsage")]
+[SubscriptionVerification]
 [Authorize(Roles = "Admin")]
 public class AddUsageController:ControllerBase
 {

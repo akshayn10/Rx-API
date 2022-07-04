@@ -1,12 +1,14 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Rx.API.Middleware;
 using Rx.Application.UseCases.Tenant.Report;
 
 namespace Rx.API.Controllers.Tenant;
 
 [ApiController]
 [Route("api/report")]
+[SubscriptionVerification]
 [Authorize(Roles = "FinanceUser")]
 public class ReportController:ControllerBase
 {

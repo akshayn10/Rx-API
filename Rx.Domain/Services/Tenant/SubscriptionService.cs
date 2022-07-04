@@ -149,13 +149,13 @@ namespace Rx.Domain.Services.Tenant
 
             if (subscription.SubscriptionType==false)
             {
-                jobId = _backgroundJobClient.Schedule(()=>DeactivateSubscription(subscription.SubscriptionId), subscription.StartDate.AddMinutes(1));
+                jobId = _backgroundJobClient.Schedule(()=>DeactivateSubscription(subscription.SubscriptionId), subscription.StartDate.AddMonths((int)plan.Duration));
                 _logger.LogInformation("One Time subscription Activated after Trial for " + subscription.SubscriptionId);
             }
 
             if (subscription.SubscriptionType)
             {
-                jobId = _backgroundJobClient.Schedule(() => RecurringSubscription(subscription.SubscriptionId), subscription.StartDate.AddMinutes(1));
+                jobId = _backgroundJobClient.Schedule(() => RecurringSubscription(subscription.SubscriptionId), subscription.StartDate.AddMonths((int)plan.Duration));
                 _logger.LogInformation("Recurring Activated after Trial for " + subscription.SubscriptionId);
             }
             subscription.EndDate=DateTime.Now.AddMonths((int) plan.Duration!);
@@ -204,7 +204,7 @@ namespace Rx.Domain.Services.Tenant
             
             var subscription = _mapper.Map<Subscription>(subscriptionForCreationDto);
             await _tenantDbContext.Subscriptions!.AddAsync(subscription);
-            var jobId = _backgroundJobClient.Schedule(()=>DeactivateSubscription(subscription.SubscriptionId), subscription.StartDate.AddMinutes(1));
+            var jobId = _backgroundJobClient.Schedule(()=>DeactivateSubscription(subscription.SubscriptionId), subscription.StartDate.AddMonths((int)plan.Duration));
             subscription.JobId = jobId;
             await _tenantDbContext.SaveChangesAsync();
             
@@ -427,19 +427,17 @@ namespace Rx.Domain.Services.Tenant
              await _tenantDbContext.Subscriptions!.AddAsync(subscription);
              if (subscription.SubscriptionType==false)
              {
-                 // jobId = _backgroundJobClient.Schedule(() => DeactivateSubscription(subscription.SubscriptionId),
-                 //     subscription.StartDate.AddMonths((int) (plan.Duration)));
                  jobId = _backgroundJobClient.Schedule(() => DeactivateSubscription(subscription.SubscriptionId),
-                     subscription.StartDate.AddMinutes(1));
+                     subscription.StartDate.AddMonths((int)plan.Duration));
                  _logger.LogInformation("One TimeSubscription Activated after Upgrade " + subscription.SubscriptionId);
              }
              if (subscription.SubscriptionType)
              {
                  //Subscription Frequency is Monthly
+                  jobId=_backgroundJobClient.Schedule(() => RecurringSubscription(subscription.SubscriptionId),
+                      subscription.StartDate.AddMonths((int) plan.Duration));
                  // jobId=_backgroundJobClient.Schedule(() => RecurringSubscription(subscription.SubscriptionId),
-                 //     subscription.StartDate.AddMonths((int) plan.Duration));
-                 jobId=_backgroundJobClient.Schedule(() => RecurringSubscription(subscription.SubscriptionId),
-                     subscription.StartDate.AddMinutes(1));
+                 //     subscription.StartDate.AddMinutes(1));
                  _logger.LogInformation("Recurring subscription Activated after Upgrade " + subscription.SubscriptionId);
              }
              subscription.JobId = jobId;
@@ -504,19 +502,19 @@ namespace Rx.Domain.Services.Tenant
             await _tenantDbContext.Subscriptions!.AddAsync(subscription);
             if (subscription.SubscriptionType==false)
             {
-                // jobId = _backgroundJobClient.Schedule(() => DeactivateSubscription(subscription.SubscriptionId),
-                //     subscription.StartDate.AddMonths((int) (plan.Duration)));
                 jobId = _backgroundJobClient.Schedule(() => DeactivateSubscription(subscription.SubscriptionId),
-                    subscription.StartDate.AddMinutes(1));
+                    subscription.StartDate.AddMonths((int) (plan.Duration)));
+                // jobId = _backgroundJobClient.Schedule(() => DeactivateSubscription(subscription.SubscriptionId),
+                //     subscription.StartDate.AddMinutes(1));
                 _logger.LogInformation("One TimeSubscription Activated after Upgrade " + subscription.SubscriptionId);
             }
             if (subscription.SubscriptionType)
             {
                 //Subscription Frequency is Monthly
-                // jobId=_backgroundJobClient.Schedule(() => RecurringSubscription(subscription.SubscriptionId),
-                //     subscription.StartDate.AddMonths((int) plan.Duration));
                 jobId=_backgroundJobClient.Schedule(() => RecurringSubscription(subscription.SubscriptionId),
-                    subscription.StartDate.AddMinutes(1));
+                    subscription.StartDate.AddMonths((int) plan.Duration));
+                // jobId=_backgroundJobClient.Schedule(() => RecurringSubscription(subscription.SubscriptionId),
+                //     subscription.StartDate.AddMinutes(1));
                 _logger.LogInformation("Recurring subscription Activated after Upgrade " + subscription.SubscriptionId);
             }
             subscription.JobId = jobId;
@@ -565,7 +563,7 @@ namespace Rx.Domain.Services.Tenant
             
             subscription.StartDate = DateTime.Now;
             var jobId = _backgroundJobClient.Schedule(() => RecurringSubscription(subscriptionId),
-                subscription.StartDate.AddMinutes(1));
+                subscription.StartDate.AddMonths((int) plan.Duration));
             subscription.JobId = jobId;
             subscription.IsActive = true;
             await _tenantDbContext.SaveChangesAsync();
@@ -631,7 +629,7 @@ namespace Rx.Domain.Services.Tenant
                     );
                     var subscription = _mapper.Map<Subscription>(subscriptionForCreationDto);
                     await _tenantDbContext.Subscriptions!.AddAsync(subscription);
-                    var jobId=_backgroundJobClient.Schedule(()=>DeactivateTrialAndActivateSubscription(subscription.SubscriptionId), subscription.CreatedDate.AddMinutes(1));
+                    var jobId=_backgroundJobClient.Schedule(()=>DeactivateTrialAndActivateSubscription(subscription.SubscriptionId), subscription.CreatedDate.AddDays((int)product.FreeTrialDays));
                     subscription.JobId = jobId;
                     await _tenantDbContext.SaveChangesAsync();
                     
@@ -659,7 +657,7 @@ namespace Rx.Domain.Services.Tenant
                     );
                     var subscription = _mapper.Map<Subscription>(subscriptionForCreationDto);
                     await _tenantDbContext.Subscriptions!.AddAsync(subscription);
-                    var jobId= _backgroundJobClient.Schedule(()=>DeactivateTrialAndActivateSubscription(subscription.SubscriptionId), subscription.CreatedDate.AddMinutes(1));
+                    var jobId= _backgroundJobClient.Schedule(()=>DeactivateTrialAndActivateSubscription(subscription.SubscriptionId), subscription.CreatedDate.AddDays((int)product.FreeTrialDays));
                     subscription.JobId = jobId;  
                     await _tenantDbContext.SaveChangesAsync();
                     

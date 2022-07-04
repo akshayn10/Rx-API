@@ -1,6 +1,7 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Rx.API.Middleware;
 using Rx.Application.UseCases.Tenant.Product;
 using Rx.Domain.DTOs.Tenant.Product;
 using Swashbuckle.AspNetCore.Annotations;
@@ -10,6 +11,7 @@ namespace Rx.API.Controllers.Tenant
 {
     [Route("api/product")]
     [ApiController]
+    [SubscriptionVerification]
     [Authorize(Roles = "Admin")]
     public class ProductController : ControllerBase
     {

@@ -1,6 +1,7 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Rx.API.Middleware;
 using Rx.Application.UseCases.Tenant.Customer;
 using Rx.Application.UseCases.Tenant.Subscription;
 using Rx.Domain.DTOs.Tenant.Subscription;
@@ -10,6 +11,7 @@ namespace Rx.API.Controllers.Tenant
 {
     [Route("api/subscription")]
     [ApiController]
+    [SubscriptionVerification]
     [Authorize(Roles = "FinanceUser")]
     public class SubscriptionController:ControllerBase
     {
