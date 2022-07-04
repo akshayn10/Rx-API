@@ -1,6 +1,7 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Rx.API.Middleware;
 using Rx.Application.UseCases.Tenant.AddOn;
 using Rx.Domain.DTOs.Tenant.AddOn;
 using Rx.Domain.DTOs.Tenant.AddOnPricePerPlan;
@@ -11,6 +12,7 @@ namespace Rx.API.Controllers.Tenant;
 
 [Route("api/addOn/{productId}")]
 [ApiController]
+[SubscriptionVerification]
 [Authorize(Roles = "Admin")]
 public class AddOnController : ControllerBase
 {

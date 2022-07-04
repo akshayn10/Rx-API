@@ -1,6 +1,7 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Rx.API.Middleware;
 using Rx.Application.UseCases.Tenant.Transaction;
 using Rx.Domain.DTOs.Tenant.Transaction;
 using Swashbuckle.AspNetCore.Annotations;
@@ -9,6 +10,7 @@ namespace Rx.API.Controllers.Tenant;
 
 [ApiController]
 [Route("api/transaction")]
+[SubscriptionVerification]
 [Authorize(Roles = "FinanceUser")]
 public class TransactionController:ControllerBase
 {

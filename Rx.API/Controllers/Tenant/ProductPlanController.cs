@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Rx.API.Middleware;
 using Rx.Application.UseCases.Tenant.ProductPlan;
 using Rx.Domain.DTOs.Tenant.ProductPlan;
 using Swashbuckle.AspNetCore.Annotations;
@@ -10,6 +11,7 @@ namespace Rx.API.Controllers.Tenant
 {
     [Route("api/product/{productId:guid}/plan")]
     [ApiController]
+    [SubscriptionVerification]
     [Authorize(Roles = "Admin")]
     public class ProductPlanController : ControllerBase
     {

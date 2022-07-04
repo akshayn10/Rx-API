@@ -1,6 +1,7 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Rx.API.Middleware;
 using Rx.Application.UseCases.Tenant.Billing;
 using Rx.Domain.DTOs.Request;
 using Rx.Domain.DTOs.Tenant.Bill;
@@ -10,6 +11,7 @@ namespace Rx.API.Controllers.Tenant;
 
 [Authorize(Roles = "FinanceUser")]
 [ApiController]
+[SubscriptionVerification]
 [Route("api/bill")]
 public class BillController:ControllerBase
 {
