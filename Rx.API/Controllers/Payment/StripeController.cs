@@ -72,7 +72,6 @@ public class StripeController:Controller
                 {
                     await _mediator.Send(new ActivateSubscriptionAfterTrialUseCase(Guid.Parse(stripeDescription.Id)));
                 }
-
                 if (stripeDescription.PaymentType == "activateOneTimeSubscription")
                 {
                     await _mediator.Send(new ActivateOneTimeSubscriptionUseCase(Guid.Parse(stripeDescription.Id)));

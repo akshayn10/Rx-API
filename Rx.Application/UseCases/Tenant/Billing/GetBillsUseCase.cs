@@ -23,7 +23,7 @@ public class GetBillUseCaseHandler : IRequestHandler<GetBillsUseCase, IEnumerabl
         var bills = await _tenantDbContext.Bills.Include(b=>b.OrganizationCustomer).Select(
             b=>new BillDto(
                 b.BillId.ToString(),
-                b.GeneratedDate.ToString(),
+                b.GeneratedDate.ToShortDateString().ToString()+" "+b.GeneratedDate.ToLongTimeString(),
                 b.TotalAmount,
                 b.OrganizationCustomer.Name
                 )

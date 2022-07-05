@@ -35,13 +35,12 @@ public class GetBillByIdUseCaseHandler : IRequestHandler<GetBillByIdUseCase, Bil
         if (bill.BillDetails != null)
         {
             subscriptionForBill =JsonConvert.DeserializeObject<List<SubscriptionForBill>>(bill.BillDetails);
-
         }
         var billVm = new BillVm(
             bill.BillId.ToString(),
             bill.Name,
             bill.Email,
-            bill.GeneratedDate.ToString(),
+            bill.GeneratedDate.ToShortDateString().ToString()+" "+bill.GeneratedDate.ToLongTimeString(),
             bill.TotalAmount,
             subscriptionForBill
         );

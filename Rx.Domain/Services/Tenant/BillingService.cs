@@ -34,14 +34,14 @@ namespace Rx.Domain.Services.Tenant
                     .Select(s =>
                         new SubscriptionForBill(
                             s.SubscriptionId.ToString(),
-                            s.StartDate.ToString(),
+                            s.StartDate.ToShortDateString()+" "+ s.StartDate.ToLongTimeString(),
                             s.ProductPlan.Product.Name,
                             s.ProductPlan.Name,
                             s.SubscriptionType?"Recurring":"One Time",
                             s.StartDate>oneMonthAgo?s.ProductPlan.Price:0,
                             s.AddOnUsages.Where(aou=>aou.Date>oneMonthAgo).Select(a =>
                                 new AddOnForSubscription(
-                                    a.Date.ToString(),
+                                    a.Date.ToShortDateString()+" "+a.Date.ToLongTimeString(),
                                     a.AddOn.Name,
                                     a.Unit,
                                     a.TotalAmount / a.Unit,
